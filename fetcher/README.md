@@ -23,8 +23,9 @@ docker compose up -d db backend      # schema is created by the backend
 docker compose run --rm -e RUN_ONCE=1 fetcher
 ```
 
-Downloads, geocoding results and the embedding model live in the `fetchercache` volume, so a restart or a
-rate-limited source resumes instead of starting over. Delete a file under `/cache/<region>/` to refetch it.
+Downloads and geocoding results live in the `fetchercache` volume, so a restart or a
+rate-limited source resumes instead of starting over. Embeddings for the style classifier come from the backend
+(`POST /api/embeddings`, service token `EMBEDDING_API_TOKEN`); the fetcher waits for `/api/health` first. Delete a file under `/cache/<region>/` to refetch it.
 
 ## Pipeline
 

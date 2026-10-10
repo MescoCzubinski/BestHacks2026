@@ -61,6 +61,9 @@ class Http:
     def get_bytes(self, url: str, params: Mapping[str, Any] | None = None) -> bytes:
         return self._request("GET", url, params=params).content
 
+    def post_json(self, url: str, payload: Any, headers: Mapping[str, str] | None = None) -> Any:
+        return self._request("POST", url, json=payload, headers=headers).json()
+
     def post_form_json(self, url: str, data: Mapping[str, Any]) -> Any:
         return self._request("POST", url, data=data).json()
 

@@ -41,10 +41,11 @@ class Settings:
     region: Region
     sources: tuple[str, ...]
     cache_dir: Path
-    model_name: str
     interval_s: int
     run_once: bool
     export_path: Path | None
+    backend_url: str
+    embedding_token: str
     health_port: int = 8000
 
 
@@ -74,8 +75,9 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
         region=REGION,
         sources=tuple(s.strip() for s in env.get("SOURCES", ",".join(DEFAULT_SOURCES)).split(",") if s.strip()),
         cache_dir=Path(env.get("CACHE_DIR", "/cache")),
-        model_name=env.get("EMBEDDING_MODEL", "intfloat/multilingual-e5-base"),
         interval_s=int(env.get("INTERVAL_SECONDS", str(7 * 24 * 3600))),
         run_once=env.get("RUN_ONCE", "") in ("1", "true", "yes"),
         export_path=Path(export) if export else None,
+        backend_url=env.get("BACKEND_URL", "http://backend:8000").rstrip("/"),
+        embedding_token=env["EMBEDDING_API_TOKEN"],
     )

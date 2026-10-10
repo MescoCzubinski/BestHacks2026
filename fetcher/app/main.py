@@ -11,7 +11,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from .config import Settings, load_settings
 from .http import Http
 from .job import run
-from .pipeline.tagging import SentenceTransformerEmbedder
+from .embedding import BackendEmbedder
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("fetcher")
@@ -68,7 +68,7 @@ def heartbeat() -> None:
 def run_forever(settings: Settings) -> None:
     global last_success, run_started
     http = Http(stop)
-    embedder = SentenceTransformerEmbedder(settings.model_name)
+    embedder = BackendEmbedder(http, settings.backend_url, settings.embedding_token, stop)
     try:
         while not stop.is_set():
             run_started = time.time()

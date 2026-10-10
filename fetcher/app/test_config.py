@@ -14,9 +14,10 @@ def test_region_id_is_safe_for_sql_like_patterns_and_paths():
     assert all(c.isalnum() or c in "_-" for c in REGION.id)
 
 
-def test_settings_use_the_built_in_region_and_require_only_the_database():
-    s = load_settings({"DB_URL": "postgresql://x"})
+def test_settings_use_the_built_in_region_and_need_the_database_and_embedding_token():
+    s = load_settings({"DB_URL": "postgresql://x", "EMBEDDING_API_TOKEN": "t"})
     assert s.region is REGION
     assert "osm" in s.sources
+    assert s.backend_url == "http://backend:8000"
     with pytest.raises(KeyError):
         load_settings({})
