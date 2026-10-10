@@ -17,16 +17,12 @@ function Separator({
     );
   }
   return (
-    <div
-      role="separator"
-      className={cn("flex items-center gap-3", className)}
-      {...props}
-    >
-      <span className="h-px flex-1 bg-border" />
+    <div className={cn("flex items-center gap-3", className)} {...props}>
+      <span aria-hidden="true" className="h-px flex-1 bg-border" />
       <span className="text-xs tracking-wider text-muted-foreground uppercase">
         {children}
       </span>
-      <span className="h-px flex-1 bg-border" />
+      <span aria-hidden="true" className="h-px flex-1 bg-border" />
     </div>
   );
 }

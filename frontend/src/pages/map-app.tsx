@@ -29,7 +29,7 @@ const FILTERS: { id: "all" | Category; label: string }[] = [
 function pinIcon(n: number, active: boolean) {
   return L.divIcon({
     className: active ? "atlas-pin atlas-pin-active" : "atlas-pin",
-    html: `<span>${n}</span>`,
+    html: `<span aria-hidden="true">${n}</span>`,
     iconSize: [36, 36],
     iconAnchor: [18, 18],
   });
@@ -38,7 +38,13 @@ function pinIcon(n: number, active: boolean) {
 function FlyTo({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo([lat, lng], Math.max(map.getZoom(), 14), { duration: 0.6 });
+    const zoom = Math.max(map.getZoom(), 14);
+    // WCAG 2.3.3: no animated pan for users who asked for reduced motion.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      map.setView([lat, lng], zoom, { animate: false });
+    } else {
+      map.flyTo([lat, lng], zoom, { duration: 0.6 });
+    }
   }, [lat, lng, map]);
   return null;
 }
@@ -65,7 +71,10 @@ export default function MapApp() {
       <h1 className="sr-only">Mapa Atlasa</h1>
 
       {/* Sidebar (1/5 on desktop, sheet below the map on mobile) */}
-      <aside className="flex min-h-0 flex-col border-t bg-background lg:border-t-0 lg:border-r">
+      <aside
+        aria-label="Wyszukiwanie i lista przystanków"
+        className="flex min-h-0 flex-col border-t bg-background lg:border-t-0 lg:border-r"
+      >
         <div className="p-4">
           <Logo size="sm" />
         </div>
@@ -86,7 +95,11 @@ export default function MapApp() {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-0.5 rounded-lg bg-muted p-1">
+          <div
+            role="group"
+            aria-label="Kategoria miejsc"
+            className="grid grid-cols-3 gap-0.5 rounded-lg bg-muted p-1"
+          >
             {FILTERS.map((f) => (
               <button
                 key={f.id}
@@ -94,7 +107,7 @@ export default function MapApp() {
                 aria-pressed={filter === f.id}
                 onClick={() => setFilter(f.id)}
                 className={cn(
-                  "h-11 rounded-md text-xs font-medium text-muted-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                  "h-11 rounded-md text-xs font-medium text-muted-foreground outline-none focus-visible:ring-[3px] focus-visible:ring-ring",
                   filter === f.id && "bg-background text-foreground shadow-xs",
                 )}
               >
@@ -119,10 +132,12 @@ export default function MapApp() {
             </span>
             <button
               type="button"
-              aria-label="Wybierz motyw"
-              className="flex h-11 w-full items-center justify-between rounded-md border border-input bg-accent px-3 text-sm font-semibold text-accent-foreground shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+              className="flex h-11 w-full items-center justify-between rounded-md border border-input bg-accent px-3 text-sm font-semibold text-accent-foreground shadow-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
             >
-              Art Deco <ChevronsUpDown className="size-4" />
+              <span>
+                <span className="sr-only">Motyw: </span>Art Deco
+              </span>
+              <ChevronsUpDown className="size-4" />
             </button>
           </div>
         </div>
@@ -132,7 +147,20 @@ export default function MapApp() {
           Trasa Art Deco · {PLACES.length} przystanków
         </p>
 
-        <ul className="flex-1 overflow-auto px-2 pb-2">
+        <p role="status" className="sr-only">
+          {visible.length === 0
+            ? "Brak miejsc pasujących do wyszukiwania"
+            : `Liczba miejsc: ${visible.length}`}
+        </p>
+        {visible.length === 0 && (
+          <p className="px-4 py-3 text-sm text-muted-foreground">
+            Brak miejsc pasujących do wyszukiwania.
+          </p>
+        )}
+        <ul
+          aria-label="Przystanki trasy"
+          className="flex-1 overflow-auto px-2 pb-2"
+        >
           {visible.map((p) => {
             const n = PLACES.indexOf(p) + 1;
             const active = p.id === selectedId;
@@ -140,14 +168,15 @@ export default function MapApp() {
               <li key={p.id}>
                 <button
                   type="button"
-                  aria-pressed={active}
+                  aria-current={active ? "true" : undefined}
                   onClick={() => setSelectedId(p.id)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-md border border-transparent p-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                    "flex w-full items-center gap-3 rounded-md border border-transparent p-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring",
                     active && "border-primary bg-muted",
                   )}
                 >
                   <span
+                    aria-hidden="true"
                     className={cn(
                       "flex size-7 shrink-0 items-center justify-center rounded-md border text-xs font-semibold",
                       active && "border-brand bg-brand text-brand-foreground",
@@ -169,7 +198,7 @@ export default function MapApp() {
 
         <Separator />
         <div className="flex items-center gap-3 px-4 py-3">
-          <Avatar>AK</Avatar>
+          <Avatar aria-hidden="true">AK</Avatar>
           <span className="grid min-w-0 flex-1 leading-snug">
             <span className="text-sm font-medium">Anna Kowalska</span>
             <span className="text-xs text-muted-foreground">Odkrywca</span>
@@ -183,12 +212,24 @@ export default function MapApp() {
       </aside>
 
       {/* Map (4/5 on desktop, top of the screen on mobile) */}
-      <main className="relative h-[60vh] lg:h-auto">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="relative h-[60vh] outline-none lg:h-auto"
+      >
         <MapContainer
           center={[CITY.lat, CITY.lng]}
           zoom={14}
           scrollWheelZoom
           className="absolute inset-0 z-0"
+          ref={(map: L.Map | null) => {
+            const el = map?.getContainer();
+            el?.setAttribute("role", "region");
+            el?.setAttribute(
+              "aria-label",
+              "Mapa trasy. Przystanki są dostępne klawiszem Tab, a lista przystanków jest w panelu bocznym.",
+            );
+          }}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">współtwórcy OpenStreetMap</a>'
@@ -208,6 +249,8 @@ export default function MapApp() {
               key={p.id}
               position={[p.lat, p.lng]}
               icon={pinIcon(i + 1, p.id === selectedId)}
+              title={`Przystanek ${i + 1}: ${p.name}`}
+              alt={`Przystanek ${i + 1}: ${p.name}`}
               eventHandlers={{ click: () => setSelectedId(p.id) }}
               zIndexOffset={p.id === selectedId ? 1000 : 0}
             />
@@ -215,17 +258,27 @@ export default function MapApp() {
           <FlyTo lat={selected.lat} lng={selected.lng} />
         </MapContainer>
 
-        <Card className="absolute bottom-6 left-6 z-[500] w-85 max-w-[calc(100%-3rem)] gap-0 overflow-hidden rounded-2xl py-0 shadow-float">
+        <Card
+          role="region"
+          aria-label="Szczegóły wybranego miejsca"
+          aria-live="polite"
+          className="absolute bottom-6 left-6 z-[500] w-85 max-w-[calc(100%-3rem)] gap-0 overflow-hidden rounded-2xl py-0 shadow-float"
+        >
           <CardHeader className="flex-row items-start justify-between gap-2 px-4 pt-4">
             <div className="grid gap-0.5">
-              <span className="font-heading text-2xl leading-tight font-extrabold">
+              <h2 className="font-heading text-2xl leading-tight font-extrabold">
                 {selected.name}
-              </span>
-              <span className="text-[13px] text-muted-foreground">
+              </h2>
+              <span className="text-sm text-muted-foreground">
                 {selected.tag}
               </span>
             </div>
-            <Badge variant="outline">{PLACES.indexOf(selected) + 1}</Badge>
+            <Badge
+              variant="outline"
+              aria-label={`Przystanek ${PLACES.indexOf(selected) + 1}`}
+            >
+              {PLACES.indexOf(selected) + 1}
+            </Badge>
           </CardHeader>
           <CardContent className="px-4 pt-2 text-sm leading-relaxed text-muted-foreground">
             {selected.blurb}
