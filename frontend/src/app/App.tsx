@@ -1,14 +1,12 @@
 import { useEffect, useRef } from "react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
-import MapApp from "@/pages/map-app";
 import Plan from "@/pages/plan";
 import { useRoute, type Route } from "@/shared/lib/route";
 
 const TITLES: Record<Route, string> = {
   landing: "Atlas – trasy spacerowe po Twoich zainteresowaniach",
   login: "Logowanie – Atlas",
-  app: "Mapa – Atlas",
   plan: "Zaplanuj podróż – Atlas",
 };
 
@@ -40,8 +38,6 @@ export default function App() {
       </a>
       {route === "login" ? (
         <Login />
-      ) : route === "app" ? (
-        <MapApp />
       ) : route === "plan" ? (
         <Plan />
       ) : (

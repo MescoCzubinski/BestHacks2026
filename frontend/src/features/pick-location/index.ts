@@ -1,1 +1,1 @@
-export { StartPointField, type StartPoint } from "./ui/StartPointField";
+export { LocationField, type Point } from "./ui/LocationField";
