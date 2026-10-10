@@ -2,7 +2,7 @@ import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { In, Repository } from "typeorm";
+import { In, IsNull, Not, Repository } from "typeorm";
 import type { Address } from "../../../places/address";
 import type { PlaceFacts, PlaceLinks, PositionQuality } from "../../../places/place-facts";
 import { PlaceTag } from "../../../places/place-tag.entity";
@@ -51,7 +51,16 @@ export class SeedService implements OnApplicationBootstrap {
     for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
       await this.upsertChunk(rows.slice(i, i + CHUNK_SIZE));
     }
-    this.log.log(`seeded ${rows.length} places`);
+    const stale = await this.places.find({
+      select: { id: true, externalId: true },
+      where: { externalId: Not(IsNull()) },
+    });
+    const current = new Set(rows.map((r) => r.externalId));
+    const staleIds = stale.filter((p) => !current.has(p.externalId!)).map((p) => p.id);
+    for (let i = 0; i < staleIds.length; i += CHUNK_SIZE) {
+      await this.places.delete({ id: In(staleIds.slice(i, i + CHUNK_SIZE)) }); // tags cascade
+    }
+    this.log.log(`seeded ${rows.length} places, removed ${staleIds.length} no longer in the seed`);
   }
 
   private async upsertChunk(chunk: SeedPlace[]): Promise<void> {
