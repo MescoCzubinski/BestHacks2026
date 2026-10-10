@@ -38,7 +38,7 @@ def is_healthy() -> bool:
 
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
-        if self.path != "/health":
+        if self.path != "/api/health":
             self.send_error(404)
             return
         ok = is_healthy()
