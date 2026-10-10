@@ -56,6 +56,10 @@ export const TAG_GROUPS = {
     "stadium",
     "hotel",
     "residential_estate",
+    "sculpture",
+    "shrine",
+    "bunker",
+    "ruins",
   ],
   nature: [
     "park",
@@ -81,6 +85,8 @@ export const TAG_GROUPS = {
     "family_friendly",
     "free_entry",
     "accessible",
+    "dwarfs",
+    "archaeology",
   ],
 } as const;
 
