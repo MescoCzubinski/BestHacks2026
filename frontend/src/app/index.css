@@ -14,39 +14,41 @@
   --radius: 0.5rem;
   --grid-size: 35px;
 
-  /* neutrals (shadcn semantics) */
-  --background: #ffffff;
-  --foreground: #09090b;
+  /* neutrals */
+  --background: #fefcfe;
+  --foreground: #0d010b;
   --card: #ffffff;
-  --card-foreground: #09090b;
-  --primary: #18181b;
+  --card-foreground: #0d010b;
+  --popover: #ffffff;
+  --popover-foreground: #0d010b;
+  --primary: #c4129f;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #52525b;
+  --secondary: #f8e0f4;
+  --secondary-foreground: #0d010b;
+  --muted: #f8e0f4;
+  --muted-foreground: #6e5651;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #d4d4d8;
-  --input: #71717a;
-  --ring: #52525b;
+  --border: #e6cfd0;
+  --input: #8a6f6a;
+  --ring: #c4129f;
 
   /* brand */
-  --brand: #6968c3;
+  --brand: #c4129f;
   --brand-foreground: #ffffff;
-  --brand-tint: #d9d9f2;
-  --accent: #f8cff1;
-  --accent-foreground: #09090b;
-  --accent-tint: #fdf0fa;
+  --brand-tint: #fbc9f0;
+  --accent: #ee774e;
+  --accent-foreground: #0d010b;
+  --accent-tint: #fde4da;
 
   /* grid panel */
-  --grid-bg: #f4f4f5;
-  --grid-line: #c4c4cc;
+  --grid-bg: #fefcfe;
+  --grid-line: #ecd3e8;
 
   /* elevation */
   --shadow-card:
-    0 10px 30px -8px rgb(24 24 27 / 0.22), 0 2px 6px rgb(24 24 27 / 0.06);
-  --shadow-float: 0 4px 16px rgb(24 24 27 / 0.15);
-  --shadow-brand: 0 6px 16px -4px rgb(105 104 195 / 0.5);
+    0 10px 30px -8px rgb(13 1 11 / 0.22), 0 2px 6px rgb(13 1 11 / 0.06);
+  --shadow-float: 0 4px 16px rgb(13 1 11 / 0.15);
+  --shadow-brand: 0 6px 16px -4px rgb(196 18 159 / 0.5);
 
   /* type */
   --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
@@ -58,6 +60,8 @@
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
@@ -83,6 +87,8 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -111,6 +117,9 @@
 }
 
 @layer base {
+  html {
+    font-size: 112.5%;
+  }
   * {
     @apply border-border outline-ring/50;
   }
@@ -145,7 +154,7 @@
   width: 36px;
   height: 36px;
   border-radius: 9999px;
-  border: 3px solid var(--primary);
+  border: 3px solid var(--foreground);
   background: var(--brand);
   color: var(--brand-foreground);
   font: 600 15px/1 var(--font-body);
@@ -156,4 +165,48 @@
   background: var(--accent);
   color: var(--accent-foreground);
   transform: scale(1.2);
+}
+
+/* WCAG 2.3.3 / 2.2.2: honour the OS "reduce motion" setting. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Idle drift of the landing cards. Off for prefers-reduced-motion and when paused. */
+@keyframes atlas-drift-a {
+  50% {
+    transform: translate(8px, -12px) rotate(0.6deg);
+  }
+}
+@keyframes atlas-drift-b {
+  50% {
+    transform: translate(-10px, 8px) rotate(-0.5deg);
+  }
+}
+@keyframes atlas-drift-c {
+  50% {
+    transform: translate(6px, 12px) rotate(0.4deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-idle="on"] > .idle-card {
+    animation: atlas-drift-a 7s ease-in-out infinite;
+  }
+  [data-idle="on"] > .idle-card:nth-of-type(2) {
+    animation-name: atlas-drift-b;
+    animation-duration: 9s;
+    animation-delay: -3s;
+  }
+  [data-idle="on"] > .idle-card:nth-of-type(3) {
+    animation-name: atlas-drift-c;
+    animation-duration: 8s;
+    animation-delay: -5s;
+  }
 }
