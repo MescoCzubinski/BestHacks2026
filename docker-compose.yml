@@ -80,6 +80,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - fetchercache:/cache # downloads, geocoding results and the embedding model
+    tmpfs:
+      - /tmp
     read_only: true
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
@@ -90,3 +94,4 @@ networks:
 
 volumes:
   pgdata:
+  fetchercache:

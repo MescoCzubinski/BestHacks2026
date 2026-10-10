@@ -7,8 +7,8 @@ COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip /venv/bin/pip install -r requirements.txt
 
 FROM python:3.13-slim AS runtime
-ENV PATH="/venv/bin:$PATH" PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
-RUN useradd --system --uid 10001 --no-create-home fetcher
+ENV PATH="/venv/bin:$PATH" PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 HF_HOME=/cache/hf CACHE_DIR=/cache
+RUN useradd --system --uid 10001 --no-create-home fetcher && mkdir /cache && chown fetcher /cache
 COPY --from=build /venv /venv
 WORKDIR /srv
 COPY app ./app
