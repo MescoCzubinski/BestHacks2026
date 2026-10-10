@@ -20,7 +20,6 @@ ENDPOINTS = [
     "https://overpass.private.coffee/api/interpreter",
     "https://overpass.kumi.systems/api/interpreter",
 ]
-# Split into several queries: one big query times out on the public mirrors.
 PARTS = {
     "historic": 'nwr["historic"]',
     "artwork": 'nwr["tourism"~"artwork|viewpoint|attraction|gallery|museum"]',
@@ -41,7 +40,7 @@ def _query(http: Http, region: Region, name: str, body: str) -> list[dict[str, A
             elements = http.post_form_json(endpoint, {"data": q})["elements"]
             log.info("overpass %s: %d elements via %s", name, len(elements), endpoint.split("/")[2])
             return elements
-        except Exception as exc:  # mirrors fail in many ways; try the next one
+        except Exception as exc:
             last = exc
             log.warning("overpass %s failed on %s: %s", name, endpoint.split("/")[2], exc)
     raise RuntimeError(f"all Overpass mirrors failed for part {name}") from last
@@ -66,7 +65,7 @@ def to_records(elements: list[dict[str, Any]]) -> list[dict[str, Any]]:
         lon = e.get("lon") or (e.get("center") or {}).get("lon")
         if lat is None or lon is None:
             continue
-        if tags.get("attraction") == "animal":  # zoo enclosures are tagged as attractions
+        if tags.get("attraction") == "animal":
             continue
         kind = (
             tags.get("artwork_type")

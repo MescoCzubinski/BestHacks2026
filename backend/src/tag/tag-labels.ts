@@ -1,6 +1,5 @@
 import type { StyleTag } from "../places/style-tag";
 
-/** Polish display names; the Record type makes the compiler fail when a tag is added without one. */
 export const TAG_LABELS: Record<StyleTag, string> = {
   romanesque: "Romanizm",
   gothic: "Gotyk",

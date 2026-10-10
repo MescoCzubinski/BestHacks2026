@@ -1,6 +1,5 @@
 import type { StyleTag } from "../places/style-tag";
 
-/** Synonyms and related wording per tag (Polish plus key English terms); each phrase is embedded on its own. */
 export const TAG_PHRASES: Record<StyleTag, string> = {
   romanesque:
     "styl romański, romańskie kościoły, grube mury i półokrągłe łuki, romanesque",

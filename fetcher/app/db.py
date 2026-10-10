@@ -36,7 +36,7 @@ INSERT_TAG = (
     "INSERT INTO place_tags (place_id, tag, percent) "
     "SELECT id, %s::style_tag, %s FROM places WHERE external_id = %s"
 )
-MIN_KEEP_RATIO = 0.5  # a run that yields less than this share of the existing places is treated as a partial failure
+MIN_KEEP_RATIO = 0.5
 COUNT = "SELECT count(*) FROM places WHERE external_id LIKE %s"
 PRUNE = "DELETE FROM places WHERE external_id LIKE %s AND NOT (external_id = ANY(%s))"
 
@@ -62,7 +62,7 @@ def save_places(conn: psycopg.Connection, region_id: str, docs: list[dict[str, A
     ids = [d["externalId"] for d in docs]
     with conn.transaction(), conn.cursor() as cur:
         cur.execute(COUNT, (f"{region_id}:%",))
-        existing = cur.fetchone()[0]  # type: ignore[index]  # counted before this run writes anything
+        existing = cur.fetchone()[0]  # type: ignore[index]
         for chunk in _chunks(docs, CHUNK):
             cur.executemany(UPSERT_PLACE, [_params(d) for d in chunk])
             cur.execute(DELETE_TAGS, ([d["externalId"] for d in chunk],))

@@ -40,7 +40,7 @@ def gather(settings: Settings, http: Http, cache: Cache) -> SourceData:
 
 
 def run(settings: Settings, http: Http, embedder: Embedder) -> dict[str, Any]:
-    embedder.wait_until_ready()  # fail early, before the long downloads, if the backend is not there
+    embedder.wait_until_ready()
     cache = Cache(settings.cache_dir, settings.region.id)
     data = gather(settings, http, cache)
     docs, report = build_documents(settings.region, data, embedder)

@@ -5,10 +5,6 @@ import { cn } from "@/shared/lib/utils";
 
 const EXIT_MS = 250;
 
-/**
- * Popup on the native <dialog>: traps focus, closes on Escape and returns focus to the trigger.
- * It animates in and out; `onClose` runs after the exit animation.
- */
 function Modal({
   label,
   onClose,

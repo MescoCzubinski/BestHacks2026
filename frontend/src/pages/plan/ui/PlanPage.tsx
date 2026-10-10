@@ -68,7 +68,6 @@ export default function PlanPage() {
     }
   }
 
-  /** On desktop the map opens with the first place described; on mobile that would be a popup over the map. */
   function accept() {
     const desktop = window.matchMedia("(min-width: 1024px)").matches;
     setSelectedId(desktop ? route?.stops[0]?.id : undefined);

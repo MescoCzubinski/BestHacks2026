@@ -13,9 +13,9 @@ log = logging.getLogger("source.commons")
 
 API = "https://commons.wikimedia.org/w/api.php"
 CACHE_TTL_S = 30 * 24 * 3600
-CELL_M = 2400  # grid step between geosearch queries
+CELL_M = 2400
 RADIUS_M = 1700
-LIMIT = 500  # API maximum; a full cell is split into four smaller ones
+LIMIT = 500
 THUMB_WIDTH = 480
 INFO_BATCH = 50
 PAUSE_S = 0.3
@@ -27,10 +27,10 @@ def _geosearch(http: Http, found: dict[int, dict[str, Any]], lat: float, lon: fl
         data = http.get_json(
             API, params={"action": "query", "list": "geosearch", "gscoord": f"{lat}|{lon}", "gsradius": int(radius), "gslimit": LIMIT, "gsnamespace": 6, "format": "json"}
         )
-    except Exception as exc:  # a missed cell only loses some photos; keep going
+    except Exception as exc:
         log.warning("geosearch cell %.4f,%.4f skipped: %s", lat, lon, exc)
         return
-    if "error" in data or "query" not in data:  # e.g. coordinates out of range, or an API error body
+    if "error" in data or "query" not in data:
         log.warning("geosearch cell %.4f,%.4f returned %s", lat, lon, data.get("error", {}).get("info", "no result"))
         return
     hits = data["query"]["geosearch"]

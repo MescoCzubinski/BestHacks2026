@@ -8,7 +8,6 @@ type SeedCity = {
   bbox: Bbox;
 };
 
-/** Cities with heritage data. Adding one here (and its places) makes it selectable. */
 export const CITY_SEEDS: SeedCity[] = [
   {
     name: "Wrocław",

@@ -2,8 +2,8 @@ import type { LatLng } from "../../city/bbox";
 import type { Plan, RouteCandidate, TimelineStop } from "./candidate";
 
 const MS_PER_MINUTE = 60_000;
-const IMPROVEMENT_ROUNDS = 3; // insertion + 2-opt rounds; each round rarely changes anything after the second
-const MIN_ADDED_MINUTES = 1; // avoids dividing by ~0 when a place lies exactly on the way
+const IMPROVEMENT_ROUNDS = 3;
+const MIN_ADDED_MINUTES = 1;
 
 export type PlannerOptions = {
   start: LatLng;
@@ -11,15 +11,10 @@ export type PlannerOptions = {
   startAt: Date;
   budgetMinutes: number;
   maxStops: number;
-  /** Minutes to walk between two points (an estimate while ordering; real legs are applied afterwards). */
   walkMinutes: (a: LatLng, b: LatLng) => number;
   isOpen: (candidate: RouteCandidate, at: Date) => boolean;
 };
 
-/**
- * The timeline of visiting `order` from start to end, or null when it breaks the budget or
- * a place is closed when we would arrive.
- */
 export function schedule(
   order: RouteCandidate[],
   o: PlannerOptions,
@@ -62,7 +57,6 @@ export function schedule(
   };
 }
 
-/** Greedy insertion by value per added minute, then 2-opt, repeated. Orienteering-problem heuristic. */
 export function planRoute(
   candidates: RouteCandidate[],
   o: PlannerOptions,
@@ -85,7 +79,6 @@ export function planRoute(
 
   for (let round = 0; round < IMPROVEMENT_ROUNDS; round++) {
     const before = order.length;
-    // 1) insert while something fits
     for (;;) {
       if (order.length >= o.maxStops) break;
       let pick: { order: RouteCandidate[]; plan: Plan; ratio: number } | null =
@@ -108,7 +101,6 @@ export function planRoute(
       order = pick.order;
       best = pick.plan;
     }
-    // 2) shorten the order with 2-opt so more fits next round
     let improved = true;
     while (improved) {
       improved = false;
@@ -145,7 +137,6 @@ function emptyPlan(o: PlannerOptions): Plan {
   };
 }
 
-/** The same order with real leg durations (minutes) instead of estimates. */
 export function timeline(
   order: RouteCandidate[],
   legMinutes: number[],

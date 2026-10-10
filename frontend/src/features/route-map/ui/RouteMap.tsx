@@ -74,10 +74,9 @@ const CORNER_CLASS: Record<Corner, string> = {
 
 const CARD_WIDTH = 340;
 const CARD_MARGIN = 24;
-const TOP_LEFT_Y = 64; // below the "change route" button
-const TOP_RIGHT_Y = 112; // below the zoom buttons
+const TOP_LEFT_Y = 64;
+const TOP_RIGHT_Y = 112;
 
-/** Picks the corner whose card would cover the fewest route points and pins. */
 function CardPlacement({
   line,
   pins,

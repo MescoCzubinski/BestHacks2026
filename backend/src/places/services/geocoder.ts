@@ -10,7 +10,6 @@ export type GeocodedLocation = {
   lng: number;
 };
 
-/** Address search provider; swap the implementation without touching the callers. */
 export abstract class Geocoder {
   abstract search(
     query: string,
@@ -18,6 +17,5 @@ export abstract class Geocoder {
     limit: number,
   ): Promise<GeocodedLocation[]>;
 
-  /** The address nearest to a point, or null when there is none. */
   abstract reverse(lat: number, lng: number): Promise<GeocodedLocation | null>;
 }

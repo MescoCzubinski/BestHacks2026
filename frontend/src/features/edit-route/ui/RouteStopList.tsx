@@ -4,7 +4,6 @@ import { formatMinutes, type RouteStop } from "@/entities/route";
 import { Button } from "@/shared/ui/button";
 import { cn } from "@/shared/lib/utils";
 
-/** Small steps for short stops, bigger ones for places people go inside. Down mirrors up. */
 const stepUp = (m: number) => (m < 30 ? 5 : 15);
 const stepDown = (m: number) => (m <= 30 ? 5 : 15);
 const MAX_VISIT = 240;

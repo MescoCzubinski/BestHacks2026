@@ -22,7 +22,6 @@ export class RouteBuilderService {
     private readonly pathFinder: PathFinderService,
   ) {}
 
-  /** Plans the stops, then finds the walking path start → stops → end. */
   async build(query: RouteQuery): Promise<BuiltRoute> {
     await this.cities.assertInsideSupported([query.start, query.end]);
     const { stops, extras } = await this.planner.plan(query);

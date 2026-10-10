@@ -9,17 +9,15 @@ from .geo import Grid, meters
 from .text import strip_city
 
 GENERIC_KINDS = {"yes", "building", "house", "architecture", "heritage", "historic", "ruins?"}
-# Unnamed objects survive only when the kind is something a visitor can actually look at.
 VISITABLE_KINDS = re.compile(
     r"mural|graffiti|sculpture|statue|memorial|monument|wayside|shrine|viewpoint|tower|bunker|ruin|dwarf|tomb|"
     r"installation|artwork|fountain|bridge|synagog|church|chapel|castle|palace|villa",
     re.I,
 )
-# Streets, districts and stops that Wikidata lists with coordinates.
 NOT_PLACES = re.compile(r"^(ulica|droga|trasa|część miasta|część miejscowości|przystanek|przystań|osiedle \(jednostka\))", re.I)
 SAME_SOURCE_RADIUS_M = 35.0
-CROSS_SOURCE_RADIUS_M = 400.0  # same name from different sources: one is a point, the other a polygon centroid or address
-MIN_CROSS_NAME_LEN = 8  # shorter names ("Pomnik", "Kaplica") are too generic to merge across 400 m
+CROSS_SOURCE_RADIUS_M = 400.0
+MIN_CROSS_NAME_LEN = 8
 _GRID_DEG = CROSS_SOURCE_RADIUS_M / 111_200
 
 

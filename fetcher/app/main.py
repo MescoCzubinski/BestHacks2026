@@ -17,8 +17,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 log = logging.getLogger("fetcher")
 
 HEARTBEAT_S = 60
-FAILURE_RETRY_S = 900  # wait before retrying a failed run
-HEALTH_GRACE_S = 3 * 3600  # a run is allowed to take this long before the container is reported unhealthy
+FAILURE_RETRY_S = 900
+HEALTH_GRACE_S = 3 * 3600
 
 stop = threading.Event()
 started_at = time.time()
@@ -56,7 +56,7 @@ class HealthHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def log_message(self, *_: object) -> None:  # keep logs free of healthcheck noise
+    def log_message(self, *_: object) -> None:
         pass
 
 

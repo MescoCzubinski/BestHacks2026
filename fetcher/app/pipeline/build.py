@@ -34,7 +34,7 @@ GIS_POINT_RADIUS_M = 30.0
 GIS_AREA_RADIUS_M = 15.0
 HISTORY_RADIUS_M = 200.0
 PHOTO_RADIUS_M = 40.0
-PHOTOS_PER_PLACE_LINKS = 2  # a photo is attached to at most this many nearby places
+PHOTOS_PER_PLACE_LINKS = 2
 POMNIK_HISTORII_BONUS = 25
 
 
@@ -64,7 +64,7 @@ def merge_sources(data: SourceData) -> Merger:
             by_qid[rec["wikidata"]] = j
     for rec in data.nid:
         if rec.get("lat") is None:
-            m.add_new(rec)  # unplaced: removed by cleanup, kept here so the report can count it
+            m.add_new(rec)
         else:
             m.ingest(rec, NID_EXACT_RADIUS_M if rec["pos_quality"] == 4 else NID_STREET_RADIUS_M)
     for rec in data.gis:
@@ -112,7 +112,7 @@ def external_id(region: Region, p: dict[str, Any], taken: set[str]) -> str:
             ref = "h:" + hashlib.sha1(f"{p.get('name')}|{p['lat']:.5f}|{p['lon']:.5f}".encode()).hexdigest()[:12]
     ext = f"{region.id}:{ref}"
     n = 2
-    while ext in taken:  # two merged places can share a primary ref only through a merge quirk
+    while ext in taken:
         ext = f"{region.id}:{ref}#{n}"
         n += 1
     taken.add(ext)

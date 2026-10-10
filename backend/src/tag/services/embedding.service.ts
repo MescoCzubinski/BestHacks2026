@@ -3,7 +3,6 @@ import { Embedder } from "./embedder";
 
 export type EmbeddingResult = {
   dimensions: number;
-  /** One normalized vector per input text, in order. */
   vectors: number[][];
 };
 

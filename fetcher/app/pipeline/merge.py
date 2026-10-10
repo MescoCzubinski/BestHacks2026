@@ -73,7 +73,7 @@ class Merger:
         for k, v in (rec.get("flags") or {}).items():
             p.setdefault("flags", {}).setdefault(k, v)
         if "nid" in rec.get("sources", []) and rec.get("name") and (not p.get("name") or set(toks(p["name"])) <= GENERIC):
-            p["name"] = rec["name"]  # the register's name beats a generic one
+            p["name"] = rec["name"]
         if rec.get("pos_quality", 0) > p.get("pos_quality", 0) and rec.get("lat") is not None:
             p["lat"], p["lon"], p["pos_quality"] = rec["lat"], rec["lon"], rec["pos_quality"]
         if p["theme"] == "other" and rec["theme"] != "other":

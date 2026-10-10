@@ -1,6 +1,5 @@
 import type { StyleTag } from "../../places/style-tag";
 
-/** Typical time a visitor spends at one kind of place, in minutes. */
 const DWELL_MINUTES: Partial<Record<StyleTag, number>> = {
   zoo: 90,
   museum: 45,
@@ -34,7 +33,6 @@ const DWELL_MINUTES: Partial<Record<StyleTag, number>> = {
   mural: 3,
   shrine: 3,
 };
-/** Kinds of place with an inside to visit, so a longer stay makes sense. */
 const ENTERABLE: StyleTag[] = [
   "zoo",
   "museum",
@@ -52,15 +50,13 @@ const ENTERABLE: StyleTag[] = [
   "bunker",
 ];
 const DEFAULT_DWELL_MINUTES = 8;
-const SIGNIFICANCE_BONUS = 0.5; // a fully notable place takes up to 50% longer
+const SIGNIFICANCE_BONUS = 0.5;
 const DOMINANT_TAG_MIN_PERCENT = 50;
 
-/** Whether the place has an inside people go into, going by its strong type tags. */
 export function isEnterable(tags: Partial<Record<StyleTag, number>>): boolean {
   return ENTERABLE.some((tag) => (tags[tag] ?? 0) >= DOMINANT_TAG_MIN_PERCENT);
 }
 
-/** Minutes to spend at a place, from its strongest known type tag and how notable it is. */
 export function visitMinutes(
   tags: Partial<Record<StyleTag, number>>,
   significance: number,

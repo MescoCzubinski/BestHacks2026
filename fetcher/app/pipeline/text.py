@@ -39,6 +39,6 @@ def strip_city(name: str, city: str) -> str:
     if not city:
         return n
     prefix = re.compile(rf"^{re.escape(city)}\s*[-–—:]\s*", re.I)
-    stem = re.escape(city[: max(3, len(city) - 1)])  # Wrocław -> Wrocławiu (locative)
+    stem = re.escape(city[: max(3, len(city) - 1)])
     suffix = re.compile(rf"\s+(?:we|in|w)\s+{stem}\w*$", re.I)
     return suffix.sub("", prefix.sub("", n)).strip()

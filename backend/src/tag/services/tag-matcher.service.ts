@@ -16,7 +16,6 @@ export class TagMatcherService {
     private readonly embedder: Embedder,
   ) {}
 
-  /** Maps free text (any language) onto our tags by embedding similarity. */
   async match(text: string): Promise<MatchedTag[]> {
     const vectors = await this.loadTagVectors();
     const [query] = await this.embedder.embed([text.trim()]);
@@ -36,7 +35,6 @@ export class TagMatcherService {
     return this.tagVectors;
   }
 
-  /** One vector per phrase (the label plus its synonyms), so short queries match close wording. */
   private async embedAllTags(): Promise<TagVector<StyleTag>[]> {
     const entries = this.tags.list().flatMap((tag) =>
       [tag.label, ...TAG_PHRASES[tag.id].split(", ")].map((text) => ({

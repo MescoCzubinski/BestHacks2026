@@ -6,7 +6,6 @@ export type DemoUser = {
   initials: string;
 };
 
-/** Mock account for the login screen. No real authentication yet. */
 export const DEMO_USERS: DemoUser[] = [
   {
     id: "anna",

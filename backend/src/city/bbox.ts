@@ -1,4 +1,3 @@
-/** [minLon, minLat, maxLon, maxLat] */
 export type Bbox = [number, number, number, number];
 
 export function bboxContains(bbox: Bbox, lat: number, lng: number): boolean {

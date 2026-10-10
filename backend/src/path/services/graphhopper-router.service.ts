@@ -10,7 +10,7 @@ import {
 import { PathRouter, type RoutedPath } from "./path-router";
 
 const PROFILE = "safe_pedestrian";
-const REQUEST_TIMEOUT = 10000; // milliseconds
+const REQUEST_TIMEOUT = 10000;
 
 @Injectable()
 export class GraphHopperRouter extends PathRouter {

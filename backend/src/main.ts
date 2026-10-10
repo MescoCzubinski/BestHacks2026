@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const http = new Logger("HTTP");
   app.use((req: Request, res: Response, next: NextFunction) => {
-    if (req.originalUrl === "/api/health") return next(); // docker healthcheck noise
+    if (req.originalUrl === "/api/health") return next();
     const start = Date.now();
     res.on("finish", () =>
       http.log(

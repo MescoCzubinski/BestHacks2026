@@ -8,11 +8,6 @@ import { ConfigService } from "@nestjs/config";
 import { timingSafeEqual } from "node:crypto";
 import type { Request } from "express";
 
-/**
- * Lets another of our services (the fetcher) call an endpoint with a shared bearer token.
- * Pair it with @Public() so the user JWT guard steps aside. When no token is configured the
- * endpoint stays closed.
- */
 @Injectable()
 export class ServiceTokenGuard implements CanActivate {
   constructor(private readonly config: ConfigService) {}

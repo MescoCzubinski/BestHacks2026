@@ -16,7 +16,6 @@ export class LocationReverseService {
     private readonly geocoder: Geocoder,
   ) {}
 
-  /** The address at a point and whether it lies in a supported city (so the client can name the city it is not). */
   async reverse(lat: number, lng: number): Promise<ReverseResult> {
     const location = await this.geocoder.reverse(lat, lng);
     if (!location)
