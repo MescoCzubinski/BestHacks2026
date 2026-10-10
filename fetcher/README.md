@@ -3,20 +3,20 @@
 Builds the `places` and `place_tags` tables for one **region**: it fetches public heritage data, merges it,
 cleans it, grades each place against the tag vocabulary and writes the result to Postgres.
 
-## Run it for a region
+## Run it
 
-Set the region in `fetcher/.env` (copy `.env.example`):
+The region is a constant in `app/config.py` (`REGION`: id, name, bounding box, language, municipality, admin
+area, German-until year). Everything else is configured in `fetcher/.env` (copy `.env.example`):
 
-| Variable              | Meaning                                                             |
-| --------------------- | ------------------------------------------------------------------- |
-| `REGION_ID`           | stable key, prefix of every `external_id` (`[a-z0-9_-]`)            |
-| `REGION_NAME`         | city name written to `address.city`                                 |
-| `REGION_BBOX`         | `south,west,north,east`; every source is queried with it            |
-| `REGION_MUNICIPALITY` | locality filter for the national register (NID); empty skips NID    |
-| `REGION_GERMAN_UNTIL` | year before which buildings get `german_heritage` (Wrocław: 1945)   |
-| `SOURCES`             | `osm,wikidata,nid,commons,wroclaw_gis`                              |
-| `RUN_ONCE`            | `1` runs once and exits; otherwise repeats every `INTERVAL_SECONDS` |
-| `EXPORT_SEED_PATH`    | also writes the documents (and a `.report.json`) to a file          |
+| Variable           | Meaning                                                    |
+| ------------------ | ---------------------------------------------------------- |
+| `DB_URL`           | Postgres connection string                                 |
+| `SOURCES`          | `osm,wikidata,nid,commons,wroclaw_gis`                     |
+| `INTERVAL_SECONDS` | seconds between runs (default one week, `604800`)          |
+| `RUN_ONCE`         | `1` runs once and exits instead of repeating               |
+| `EXPORT_SEED_PATH` | also writes the documents (and a `.report.json`) to a file |
+
+To cover another city, change `REGION` (and use sources that exist there; `wroclaw_gis` is Wrocław only).
 
 ```
 docker compose up -d db backend      # schema is created by the backend
