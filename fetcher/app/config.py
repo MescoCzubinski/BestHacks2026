@@ -1,7 +1,6 @@
 """Configuration, read once from environment variables (fails at boot when required ones are missing)."""
 
 import os
-import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -52,30 +51,19 @@ class Settings:
 DEFAULT_SOURCES = ("osm", "wikidata", "nid", "commons")
 
 
-def parse_region(env: dict[str, str]) -> Region:
-    rid = env["REGION_ID"]
-    if not re.fullmatch(r"[a-z0-9_-]{1,32}", rid):
-        raise ValueError("REGION_ID must be 1-32 chars of [a-z0-9_-]")
-    try:
-        south, west, north, east = (float(x) for x in env["REGION_BBOX"].split(","))
-    except ValueError as exc:
-        raise ValueError("REGION_BBOX must be 'south,west,north,east' in decimal degrees") from exc
-    if not (-90 <= south < north <= 90 and -180 <= west < east <= 180):
-        raise ValueError("REGION_BBOX is not a valid box (south<north, west<east)")
-    return Region(
-        id=rid,
-        name=env.get("REGION_NAME", rid),
-        south=south,
-        west=west,
-        north=north,
-        east=east,
-        lang=env.get("REGION_LANG", "pl"),
-        municipality=env.get("REGION_MUNICIPALITY", ""),
-        admin_area=env.get("REGION_ADMIN_AREA", ""),
-        country=env.get("REGION_COUNTRY", "Polska"),
-        country_code=env.get("REGION_COUNTRY_CODE", "PL"),
-        german_until=int(env["REGION_GERMAN_UNTIL"]) if env.get("REGION_GERMAN_UNTIL") else None,
-    )
+# The area this fetcher covers. One region is built in; the bounding box drives every source query.
+REGION = Region(
+    id="wroclaw",  # prefix of every external_id, cache folder name and prune scope
+    name="Wrocław",
+    south=50.99,
+    west=16.78,
+    north=51.22,
+    east=17.18,
+    lang="pl",
+    municipality="Wrocław",  # locality filter for the national register (NID)
+    admin_area="dolnośląskie",
+    german_until=1945,  # Wrocław was German Breslau until 1945
+)
 
 
 def load_settings(env: dict[str, str] | None = None) -> Settings:
@@ -83,7 +71,7 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
     export = env.get("EXPORT_SEED_PATH")
     return Settings(
         db_url=env["DB_URL"],
-        region=parse_region(env),
+        region=REGION,
         sources=tuple(s.strip() for s in env.get("SOURCES", ",".join(DEFAULT_SOURCES)).split(",") if s.strip()),
         cache_dir=Path(env.get("CACHE_DIR", "/cache")),
         model_name=env.get("EMBEDDING_MODEL", "intfloat/multilingual-e5-base"),
