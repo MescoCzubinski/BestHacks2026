@@ -214,3 +214,46 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+/* Modal / bottom drawer enter and exit */
+@keyframes modal-center-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+@keyframes modal-center-out {
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes modal-backdrop-out {
+  to {
+    opacity: 0;
+  }
+}
+.modal[open] {
+  animation: modal-center-in 0.2s ease-out;
+}
+.modal[open]::backdrop {
+  animation: modal-backdrop-in 0.25s ease-out;
+}
+.modal[data-closing] {
+  animation: modal-center-out 0.2s ease-in forwards;
+}
+.modal[data-closing]::backdrop {
+  animation: modal-backdrop-out 0.25s ease-in forwards;
+}
+
+/* Keep the OSM attribution visible above the mobile route drawer. */
+@media (max-width: 1023px) {
+  .leaflet-bottom {
+    bottom: 76px;
+  }
+}

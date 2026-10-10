@@ -12,7 +12,7 @@ const STORES = [
 
 export default function Landing() {
   return (
-    <div className="grid min-h-screen lg:grid-cols-[3fr_2fr]">
+    <div className="grid h-dvh overflow-hidden lg:h-auto lg:min-h-screen lg:grid-cols-[3fr_2fr] lg:overflow-visible">
       <main
         id="main"
         tabIndex={-1}
@@ -64,7 +64,7 @@ export default function Landing() {
         </div>
       </main>
 
-      <GridPanel />
+      <GridPanel className="hidden lg:flex" />
     </div>
   );
 }

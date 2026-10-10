@@ -21,6 +21,7 @@ type Props = {
   submitting: boolean;
   error: string;
   submitLabel: string;
+  onShowHistory: () => void;
 };
 
 export function PlanForm({
@@ -30,22 +31,32 @@ export function PlanForm({
   submitting,
   error,
   submitLabel,
+  onShowHistory,
 }: Props) {
   const problem = formProblem(value);
   const patch = (changes: Partial<PlanFormState>) =>
     onChange({ ...value, ...changes });
 
   return (
-    <div className="flex flex-col gap-10 p-4 lg:px-18 lg:py-10">
-      <div className="pl-2 lg:pl-0">
+    <div className="flex flex-col gap-4 p-4 lg:gap-10 lg:px-18 lg:py-10">
+      <div className="flex items-center justify-between gap-2 pl-2 lg:pl-0">
         <Logo />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="lg:hidden"
+          onClick={onShowHistory}
+        >
+          Poprzednie trasy
+        </Button>
       </div>
-      <div className="mx-auto my-auto grid w-full max-w-110 gap-6">
+      <div className="mx-auto my-auto grid w-full max-w-110 gap-4 lg:gap-6">
         <div className="grid gap-1">
           <h1 className="font-heading text-3xl font-extrabold">
             Zaplanuj podróż
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground max-lg:hidden">
             Ułożymy pieszą trasę dopasowaną do Twoich zainteresowań i czasu.
           </p>
         </div>
@@ -55,7 +66,7 @@ export function PlanForm({
             e.preventDefault();
             if (!problem && !submitting) onSubmit();
           }}
-          className="grid gap-5"
+          className="grid gap-3 lg:gap-5"
         >
           <LocationField
             label="Punkt startu"
@@ -107,7 +118,7 @@ export function PlanForm({
             />
             <Label htmlFor="wheelchair" className="grid gap-0.5 leading-snug">
               Trasa dostępna dla osób na wózku
-              <span className="text-xs font-normal text-muted-foreground">
+              <span className="text-xs font-normal text-muted-foreground max-lg:hidden">
                 Wybierzemy miejsca bez barier.
               </span>
             </Label>

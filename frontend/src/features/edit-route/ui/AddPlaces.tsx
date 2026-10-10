@@ -3,6 +3,7 @@ import { useId, useMemo, useState } from "react";
 import { formatMinutes, type RouteStop } from "@/entities/route";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
+import { cn } from "@/shared/lib/utils";
 import { Label } from "@/shared/ui/label";
 import {
   additionCost,
@@ -172,7 +173,7 @@ export function AddPlaces({
       {shown.length > 0 && (
         <ul
           aria-label={q ? "Wyniki wyszukiwania" : "Dodatkowe miejsca"}
-          className="grid gap-1"
+          className={cn("grid gap-1", !q && "max-lg:hidden")}
         >
           {shown.map((c) => (
             <li key={c.stop.id}>

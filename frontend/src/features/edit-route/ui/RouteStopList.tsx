@@ -15,7 +15,6 @@ type Props = {
   onMove: (from: number, to: number) => void;
   onRemove: (id: string) => void;
   onSetVisitMinutes: (id: string, minutes: number) => void;
-  selectedId?: string;
   onSelect?: (id: string) => void;
   compact?: boolean;
 };
@@ -25,7 +24,6 @@ export function RouteStopList({
   onMove,
   onRemove,
   onSetVisitMinutes,
-  selectedId,
   onSelect,
   compact = false,
 }: Props) {
@@ -113,7 +111,6 @@ export function RouteStopList({
           }}
           className={cn(
             "flex items-center gap-1.5 rounded-xl border bg-card p-1.5 shadow-card transition-[box-shadow,scale]",
-            selectedId === stop.id && "border-primary",
             drag?.id === stop.id && "relative z-10 scale-[1.02] shadow-float",
           )}
         >
@@ -205,6 +202,7 @@ export function RouteStopList({
                 type="button"
                 variant="ghost"
                 size="icon"
+                className="max-sm:hidden"
                 aria-label={`${stop.name}: wyżej`}
                 disabled={i === 0}
                 onClick={() => onMove(i, i - 1)}
@@ -215,6 +213,7 @@ export function RouteStopList({
                 type="button"
                 variant="ghost"
                 size="icon"
+                className="max-sm:hidden"
                 aria-label={`${stop.name}: niżej`}
                 disabled={i === stops.length - 1}
                 onClick={() => onMove(i, i + 1)}

@@ -1,6 +1,6 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Minus, Plus, X } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
@@ -15,7 +15,9 @@ import {
   type RouteStop,
   type WalkingPath,
 } from "@/entities/route";
+import { useIsDesktop } from "@/shared/lib/useIsDesktop";
 import { Button } from "@/shared/ui/button";
+import { Modal } from "@/shared/ui/modal";
 import { cn } from "@/shared/lib/utils";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 
@@ -74,20 +76,6 @@ const CARD_WIDTH = 340;
 const CARD_MARGIN = 24;
 const TOP_LEFT_Y = 64; // below the "change route" button
 const TOP_RIGHT_Y = 112; // below the zoom buttons
-
-function useIsDesktop() {
-  const query = "(min-width: 1024px)";
-  const [desktop, setDesktop] = useState(
-    () => window.matchMedia(query).matches,
-  );
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    const update = () => setDesktop(mql.matches);
-    mql.addEventListener("change", update);
-    return () => mql.removeEventListener("change", update);
-  }, []);
-  return desktop;
-}
 
 /** Picks the corner whose card would cover the fewest route points and pins. */
 function CardPlacement({
@@ -192,7 +180,6 @@ function PlaceDetails({ place }: { place: RouteStop }) {
   );
 }
 
-/** Mobile popup: the native <dialog> traps focus, closes on Escape and returns focus. */
 function PlaceDialog({
   place,
   onClose,
@@ -200,36 +187,12 @@ function PlaceDialog({
   place: RouteStop;
   onClose: () => void;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const dialog = ref.current;
-    if (dialog && !dialog.open) dialog.showModal();
-    return () => dialog?.close();
-  }, []);
-
   return (
-    <dialog
-      ref={ref}
-      aria-label={place.name}
-      onClose={onClose}
-      onClick={(e) => e.target === ref.current && onClose()}
-      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border bg-card p-0 text-card-foreground shadow-float backdrop:bg-foreground/40"
-    >
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label="Zamknij"
-        className="absolute top-2 right-2"
-        onClick={onClose}
-      >
-        <X />
-      </Button>
+    <Modal label={place.name} onClose={onClose}>
       <div className="pr-10">
         <PlaceDetails place={place} />
       </div>
-    </dialog>
+    </Modal>
   );
 }
 

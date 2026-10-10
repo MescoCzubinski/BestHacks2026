@@ -5,9 +5,11 @@ import { createRoute } from "@/features/build-route";
 import { useEditableRoute } from "@/features/edit-route";
 import { RouteMap } from "@/features/route-map";
 import { Button } from "@/shared/ui/button";
+import { Modal } from "@/shared/ui/modal";
 import { cn } from "@/shared/lib/utils";
 import { toRouteRequest, type PlanFormState } from "../lib/planForm";
 import { HistoryPanel } from "./HistoryPanel";
+import { RouteSheet } from "./RouteSheet";
 import { PlanForm } from "./PlanForm";
 import { RoutePanel } from "./RoutePanel";
 
@@ -32,6 +34,7 @@ export default function PlanPage() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [phase, setPhase] = useState<Phase>("input");
   const [showHistory, setShowHistory] = useState(false);
+  const [historyPopup, setHistoryPopup] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string>();
@@ -80,11 +83,16 @@ export default function PlanPage() {
       id="main"
       tabIndex={-1}
       style={{ "--cols": COLUMNS[phase] } as React.CSSProperties}
-      className="grid bg-background transition-[grid-template-columns] duration-500 ease-in-out outline-none motion-reduce:transition-none lg:h-screen lg:grid-cols-[var(--cols)]"
+      className="grid bg-background transition-[grid-template-columns] duration-500 ease-in-out outline-none motion-reduce:transition-none max-lg:h-dvh max-lg:overflow-hidden lg:h-screen lg:grid-cols-[var(--cols)]"
     >
-      <div className="min-w-0 lg:overflow-y-auto">
+      <div
+        className={cn(
+          "min-w-0 lg:overflow-y-auto",
+          phase === "proposal" && "hidden lg:block",
+        )}
+      >
         {accepted ? (
-          <div className="relative h-[60vh] lg:h-full">
+          <div className="relative h-dvh lg:h-full">
             <RouteMap
               start={route.start}
               end={route.end}
@@ -101,6 +109,11 @@ export default function PlanPage() {
             >
               <ArrowLeft /> Zmień dane trasy
             </Button>
+            <RouteSheet
+              stops={route.stops}
+              path={route.path}
+              onPick={setSelectedId}
+            />
           </div>
         ) : (
           <PlanForm
@@ -110,6 +123,7 @@ export default function PlanPage() {
             submitting={submitting}
             error={error}
             submitLabel={route ? "Wygeneruj ponownie" : "Wygeneruj trasę"}
+            onShowHistory={() => setHistoryPopup(true)}
           />
         )}
       </div>
@@ -119,8 +133,21 @@ export default function PlanPage() {
         className={cn(
           "min-w-0 border-t bg-grid p-4 lg:overflow-y-auto lg:border-t-0 lg:border-l lg:p-6",
           phase === "accepted" && "lg:p-3",
+          phase === "proposal"
+            ? "max-lg:flex max-lg:h-dvh max-lg:flex-col max-lg:overflow-hidden"
+            : "hidden lg:block",
         )}
       >
+        {showRoute && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="mb-3 lg:hidden"
+            onClick={() => setPhase("input")}
+          >
+            <ArrowLeft /> Zmień dane
+          </Button>
+        )}
         {showRoute ? (
           <RoutePanel
             route={route}
@@ -128,7 +155,6 @@ export default function PlanPage() {
             error={editor.error}
             availableMinutes={Math.round(Number(form.hours) * 60)}
             compact={phase === "accepted"}
-            selectedId={selectedId}
             onSelect={setSelectedId}
             onMove={editor.move}
             onRemove={editor.remove}
@@ -151,6 +177,18 @@ export default function PlanPage() {
           />
         )}
       </aside>
+
+      {historyPopup && phase === "input" && (
+        <Modal
+          label="Twoje poprzednie trasy"
+          onClose={() => setHistoryPopup(false)}
+          className="max-w-md"
+        >
+          <div className="p-4">
+            <HistoryPanel />
+          </div>
+        </Modal>
+      )}
     </main>
   );
 }

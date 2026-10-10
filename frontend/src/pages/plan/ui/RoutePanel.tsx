@@ -19,7 +19,6 @@ type Props = {
   error: string;
   availableMinutes: number;
   compact: boolean;
-  selectedId?: string;
   onSelect: (id: string) => void;
   onMove: (from: number, to: number) => void;
   onRemove: (id: string) => void;
@@ -37,7 +36,6 @@ export function RoutePanel({
   error,
   availableMinutes,
   compact,
-  selectedId,
   onSelect,
   onMove,
   onRemove,
@@ -54,7 +52,7 @@ export function RoutePanel({
   return (
     <section
       aria-labelledby="route-h"
-      className="flex min-h-full flex-col justify-between gap-6"
+      className="flex min-h-full flex-col justify-between gap-4 max-lg:min-h-0 max-lg:flex-1 lg:gap-6"
     >
       <div className="grid gap-4">
         <div className="flex items-center justify-between gap-2">
@@ -92,15 +90,16 @@ export function RoutePanel({
           Trasa nie ma jeszcze miejsc. Dodaj je powyżej.
         </p>
       ) : (
-        <RouteStopList
-          stops={route.stops}
-          onMove={onMove}
-          onRemove={onRemove}
-          onSetVisitMinutes={onSetVisitMinutes}
-          selectedId={selectedId}
-          onSelect={onSelect}
-          compact={compact}
-        />
+        <div className="max-lg:min-h-0 max-lg:flex-1 max-lg:overflow-y-auto">
+          <RouteStopList
+            stops={route.stops}
+            onMove={onMove}
+            onRemove={onRemove}
+            onSetVisitMinutes={onSetVisitMinutes}
+            onSelect={onSelect}
+            compact={compact}
+          />
+        </div>
       )}
 
       <div className="grid gap-4">
