@@ -15,6 +15,7 @@ const STOPS: PlannedStop[] = [
     lat: 51.11,
     lng: 17.032,
     visitMinutes: 20,
+    enterable: false,
   },
   {
     id: "b",
@@ -23,6 +24,18 @@ const STOPS: PlannedStop[] = [
     lat: 51.112,
     lng: 17.045,
     visitMinutes: 30,
+    enterable: false,
+  },
+];
+const EXTRAS: PlannedStop[] = [
+  {
+    id: "c",
+    name: "C",
+    description: "",
+    lat: 51.113,
+    lng: 17.05,
+    visitMinutes: 10,
+    enterable: false,
   },
 ];
 const PATH: RoutedPath = {
@@ -42,7 +55,7 @@ function setup(inside = true) {
   const assertInsideSupported = jest.fn(async () => {
     if (!inside) throw new OutsideSupportedAreaException();
   });
-  const plan = jest.fn().mockResolvedValue(STOPS);
+  const plan = jest.fn().mockResolvedValue({ stops: STOPS, extras: EXTRAS });
   const find = jest.fn().mockResolvedValue(PATH);
   const service = new RouteBuilderService(
     { assertInsideSupported } as unknown as CityQueryService,
@@ -59,7 +72,7 @@ describe("RouteBuilderService", () => {
     expect(assertInsideSupported).toHaveBeenCalledWith([START, END]);
     expect(plan).toHaveBeenCalledWith(QUERY);
     expect(find).toHaveBeenCalledWith([START, ...STOPS, END]);
-    expect(route).toEqual({ stops: STOPS, path: PATH });
+    expect(route).toEqual({ stops: STOPS, extras: EXTRAS, path: PATH });
   });
 
   it("refuses a start or end outside the supported cities before planning", async () => {

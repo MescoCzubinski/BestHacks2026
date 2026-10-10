@@ -171,7 +171,7 @@ export function LocationField({
               expanded && active >= 0 ? `${id}-opt-${active}` : undefined
             }
             autoComplete="off"
-            placeholder="np. Parkowa 3, Wrocław"
+            placeholder="Miasto, ulica i numer, np. Wrocław, Parkowa 3"
             maxLength={100}
             className="pl-9"
             value={value.label}

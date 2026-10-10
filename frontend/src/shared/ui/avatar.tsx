@@ -5,7 +5,7 @@ function Avatar({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-tint text-sm font-medium",
+        "flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-medium",
         className,
       )}
       {...props}

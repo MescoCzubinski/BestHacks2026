@@ -13,6 +13,8 @@ export type EditableRoute = {
   start: RoutePoint;
   end: RoutePoint;
   stops: RouteStop[];
+  /** Places outside the route that the user may still add. */
+  extras: RouteStop[];
   path: WalkingPath;
 };
 
@@ -46,17 +48,42 @@ export function useEditableRoute() {
     setRoute((r) => r && { ...r, stops: moveItem(r.stops, from, to) });
   }, []);
 
-  const remove = useCallback((id: string) => {
-    setRoute((r) => r && { ...r, stops: r.stops.filter((s) => s.id !== id) });
-  }, []);
+  const swap = useCallback(
+    (removeIds: string[], stop?: RouteStop, index?: number) => {
+      setRoute((r) => {
+        if (!r) return r;
+        const removed = r.stops.filter((s) => removeIds.includes(s.id));
+        const stops = r.stops.filter((s) => !removeIds.includes(s.id));
+        if (stop && !stops.some((s) => s.id === stop.id))
+          stops.splice(Math.min(index ?? stops.length, stops.length), 0, stop);
+        const extras = [
+          ...r.extras.filter((e) => !stops.some((s) => s.id === e.id)),
+          ...removed.filter((s) => !r.extras.some((e) => e.id === s.id)),
+        ];
+        return { ...r, stops, extras };
+      });
+    },
+    [],
+  );
 
-  const add = useCallback((stop: RouteStop) => {
-    setRoute((r) =>
-      r && !r.stops.some((s) => s.id === stop.id)
-        ? { ...r, stops: [...r.stops, stop] }
-        : r,
+  const setVisitMinutes = useCallback((id: string, minutes: number) => {
+    setRoute(
+      (r) =>
+        r && {
+          ...r,
+          stops: r.stops.map((s) =>
+            s.id === id ? { ...s, visitMinutes: minutes } : s,
+          ),
+        },
     );
   }, []);
+
+  const remove = useCallback((id: string) => swap([id]), [swap]);
+
+  const add = useCallback(
+    (stop: RouteStop, index?: number) => swap([], stop, index),
+    [swap],
+  );
 
   const stops = route?.stops;
   useEffect(() => {
@@ -97,5 +124,16 @@ export function useEditableRoute() {
     };
   }, [stops]);
 
-  return { route, recalculating, error, load, reset, move, remove, add };
+  return {
+    route,
+    recalculating,
+    error,
+    load,
+    reset,
+    move,
+    remove,
+    add,
+    swap,
+    setVisitMinutes,
+  };
 }

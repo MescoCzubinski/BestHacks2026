@@ -5,9 +5,9 @@ import Plan from "@/pages/plan";
 import { useRoute, type Route } from "@/shared/lib/route";
 
 const TITLES: Record<Route, string> = {
-  landing: "Atlas – trasy spacerowe po Twoich zainteresowaniach",
-  login: "Logowanie – Atlas",
-  plan: "Zaplanuj podróż – Atlas",
+  landing: "Atlas | Trasy spacerowe po Twoich zainteresowaniach",
+  login: "Atlas | Logowanie",
+  plan: "Atlas | Zaplanuj podróż",
 };
 
 function focusMain() {

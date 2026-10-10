@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import {
   RoutePlanner,
+  type PlannedRoute,
   type PlannedStop,
   type RouteQuery,
 } from "./route-planner";
@@ -15,7 +16,8 @@ const MOCK_STOPS: PlannedStop[] = [
       "Jeden z największych średniowiecznych rynków w Europie, z gotyckim ratuszem.",
     lat: 51.11,
     lng: 17.0326,
-    visitMinutes: 20,
+    visitMinutes: 15,
+    enterable: false,
   },
   {
     id: "panorama",
@@ -25,6 +27,7 @@ const MOCK_STOPS: PlannedStop[] = [
     lat: 51.1097,
     lng: 17.0447,
     visitMinutes: 40,
+    enterable: true,
   },
   {
     id: "tumski",
@@ -32,7 +35,8 @@ const MOCK_STOPS: PlannedStop[] = [
     description: "Najstarsza część miasta z gazowymi latarniami i katedrą.",
     lat: 51.1148,
     lng: 17.046,
-    visitMinutes: 25,
+    visitMinutes: 10,
+    enterable: false,
   },
   {
     id: "slodowa",
@@ -40,7 +44,8 @@ const MOCK_STOPS: PlannedStop[] = [
     description: "Zielona wyspa na Odrze, ulubione miejsce wrocławian.",
     lat: 51.113,
     lng: 17.0405,
-    visitMinutes: 15,
+    visitMinutes: 5,
+    enterable: false,
   },
   {
     id: "hala",
@@ -50,13 +55,14 @@ const MOCK_STOPS: PlannedStop[] = [
     lat: 51.1068,
     lng: 17.0766,
     visitMinutes: 45,
+    enterable: true,
   },
 ];
 
 /** Placeholder until the real planner exists: fixed Wrocław stops, as many as fit the time budget. */
 @Injectable()
 export class MockRoutePlanner extends RoutePlanner {
-  async plan(query: RouteQuery): Promise<PlannedStop[]> {
+  async plan(query: RouteQuery): Promise<PlannedRoute> {
     const chosen: PlannedStop[] = [];
     let used = 0;
     for (const stop of MOCK_STOPS) {
@@ -64,6 +70,9 @@ export class MockRoutePlanner extends RoutePlanner {
       if (chosen.length > 0 && used > query.durationMinutes) break;
       chosen.push(stop);
     }
-    return chosen;
+    return {
+      stops: chosen,
+      extras: MOCK_STOPS.filter((s) => !chosen.includes(s)),
+    };
   }
 }

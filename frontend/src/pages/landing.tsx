@@ -4,9 +4,6 @@ import { Logo } from "@/shared/logo";
 import { Button } from "@/shared/ui/button";
 import { Separator } from "@/shared/ui/separator";
 import { href } from "@/shared/lib/route";
-import { cn } from "@/shared/lib/utils";
-
-const THEMES = ["Art Deco", "Street art", "Gotyk", "Secesja", "+ więcej"];
 
 const STORES = [
   { icon: Smartphone, label: "Pobierz na iPhone'a" },
@@ -21,7 +18,7 @@ export default function Landing() {
         tabIndex={-1}
         className="flex flex-col justify-between gap-12 px-6 py-5 outline-none lg:px-18 lg:py-10"
       >
-        <Logo />
+        <Logo className="self-start" />
 
         <div className="my-auto flex max-w-full flex-col gap-6 lg:gap-7">
           <h1 className="text-[8vw] leading-[1.5] tracking-normal lg:text-[72px]">
@@ -34,20 +31,6 @@ export default function Landing() {
             Od secesji do street artu. Wybierz motyw, a Atlas ułoży trasę
             spacerową po mieście, w którym jesteś.
           </p>
-
-          <ul className="flex flex-wrap gap-2" aria-label="Przykładowe motywy">
-            {THEMES.map((t, i) => (
-              <li
-                key={t}
-                className={cn(
-                  "rounded-md border px-3 py-1 text-sm font-semibold",
-                  i === 0 && "bg-accent text-accent-foreground",
-                )}
-              >
-                {t}
-              </li>
-            ))}
-          </ul>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             {STORES.map(({ icon: Icon, label }) => (

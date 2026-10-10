@@ -10,6 +10,7 @@ import {
 
 export type BuiltRoute = {
   stops: PlannedStop[];
+  extras: PlannedStop[];
   path: RoutedPath;
 };
 
@@ -24,8 +25,8 @@ export class RouteBuilderService {
   /** Plans the stops, then finds the walking path start → stops → end. */
   async build(query: RouteQuery): Promise<BuiltRoute> {
     await this.cities.assertInsideSupported([query.start, query.end]);
-    const stops = await this.planner.plan(query);
+    const { stops, extras } = await this.planner.plan(query);
     const path = await this.pathFinder.find([query.start, ...stops, query.end]);
-    return { stops, path };
+    return { stops, extras, path };
   }
 }

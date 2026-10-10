@@ -1,4 +1,4 @@
-import { Sparkles, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useId, useState } from "react";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -117,11 +117,12 @@ export function InterestTags({ value, onChange }: Props) {
         <Button
           type="button"
           variant="outline"
-          className="h-11"
+          size="icon-lg"
+          aria-label="Dodaj motyw"
           disabled={busy || draft.trim().length < MIN_TEXT_LENGTH}
           onClick={() => void addDraft()}
         >
-          <Sparkles /> Dodaj
+          <Plus />
         </Button>
       </div>
       <p role="status" className="text-xs text-muted-foreground">

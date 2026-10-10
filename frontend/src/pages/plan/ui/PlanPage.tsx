@@ -1,7 +1,5 @@
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
-import { CITY } from "@/data/places";
-import type { SavedRoute } from "@/data/routes";
 import { RouteRequestError } from "@/entities/route";
 import { createRoute } from "@/features/build-route";
 import { useEditableRoute } from "@/features/edit-route";
@@ -22,7 +20,7 @@ const COLUMNS: Record<Phase, string> = {
 };
 
 const INITIAL_FORM: PlanFormState = {
-  start: { label: CITY.name, lat: CITY.lat, lng: CITY.lng },
+  start: { label: "" },
   sameEnd: true,
   end: { label: "" },
   hours: "3",
@@ -51,9 +49,9 @@ export default function PlanPage() {
         start: request.start,
         end: request.end ?? request.start,
         stops: built.stops,
+        extras: built.extras,
         path: built.path,
       });
-      setSelectedId(built.stops[0]?.id);
       setShowHistory(false);
       setPhase("proposal");
     } catch (e) {
@@ -67,15 +65,11 @@ export default function PlanPage() {
     }
   }
 
-  function loadSaved(saved: SavedRoute) {
-    setForm((f) => ({
-      ...f,
-      tags: saved.tags,
-      hours: String(saved.durationMin / 60),
-    }));
-    editor.reset();
-    setShowHistory(false);
-    setPhase("input");
+  /** On desktop the map opens with the first place described; on mobile that would be a popup over the map. */
+  function accept() {
+    const desktop = window.matchMedia("(min-width: 1024px)").matches;
+    setSelectedId(desktop ? route?.stops[0]?.id : undefined);
+    setPhase("accepted");
   }
 
   const accepted = phase === "accepted" && route;
@@ -102,7 +96,7 @@ export default function PlanPage() {
             <Button
               type="button"
               variant="outline"
-              className="absolute top-3 left-14 z-[500] h-10 bg-background shadow-float"
+              className="absolute top-3 left-3 z-[500] h-10 bg-background shadow-float"
               onClick={() => setPhase("proposal")}
             >
               <ArrowLeft /> Zmień dane trasy
@@ -139,12 +133,16 @@ export default function PlanPage() {
             onMove={editor.move}
             onRemove={editor.remove}
             onAdd={editor.add}
-            onAccept={() => setPhase("accepted")}
+            onSetVisitMinutes={editor.setVisitMinutes}
+            onSwap={editor.swap}
+            onExtendTime={(minutes) =>
+              setForm((f) => ({ ...f, hours: String(minutes / 60) }))
+            }
+            onAccept={accept}
             onShowHistory={() => setShowHistory(true)}
           />
         ) : (
           <HistoryPanel
-            onLoad={loadSaved}
             onBack={
               phase !== "input" && route
                 ? () => setShowHistory(false)

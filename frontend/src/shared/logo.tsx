@@ -23,13 +23,16 @@ export function Logo({
     <a
       href={href("landing")}
       aria-label="Atlas, strona główna"
-      className={cn("flex items-center gap-2", className)}
+      className={cn(
+        "-mx-2 flex w-fit items-center gap-2 rounded-lg px-2 py-1 transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-ring",
+        className,
+      )}
     >
-      <Mark className={size === "md" ? "size-9" : "size-8"} />
+      <Mark className={size === "md" ? "size-11" : "size-9"} />
       <span
         className={cn(
           "font-heading font-extrabold",
-          size === "md" ? "text-[26px]" : "text-2xl",
+          size === "md" ? "text-[34px]" : "text-[28px]",
         )}
       >
         Atlas

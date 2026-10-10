@@ -1,6 +1,7 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useMemo } from "react";
+import { Minus, Plus, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -14,6 +15,8 @@ import {
   type RouteStop,
   type WalkingPath,
 } from "@/entities/route";
+import { Button } from "@/shared/ui/button";
+import { cn } from "@/shared/lib/utils";
 import { Card, CardContent, CardHeader } from "@/shared/ui/card";
 
 type Props = {
@@ -22,7 +25,7 @@ type Props = {
   stops: RouteStop[];
   path: WalkingPath;
   selectedId?: string;
-  onSelect: (id: string) => void;
+  onSelect: (id: string | undefined) => void;
 };
 
 function pin(label: string, active: boolean) {
@@ -58,6 +61,178 @@ function FitRoute({ points }: { points: [number, number][] }) {
   return null;
 }
 
+type Corner = "bl" | "br" | "tl" | "tr";
+
+const CORNER_CLASS: Record<Corner, string> = {
+  bl: "bottom-6 left-6",
+  br: "bottom-6 right-6",
+  tl: "top-16 left-6",
+  tr: "top-28 right-6",
+};
+
+const CARD_WIDTH = 340;
+const CARD_MARGIN = 24;
+const TOP_LEFT_Y = 64; // below the "change route" button
+const TOP_RIGHT_Y = 112; // below the zoom buttons
+
+function useIsDesktop() {
+  const query = "(min-width: 1024px)";
+  const [desktop, setDesktop] = useState(
+    () => window.matchMedia(query).matches,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const update = () => setDesktop(mql.matches);
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+  return desktop;
+}
+
+/** Picks the corner whose card would cover the fewest route points and pins. */
+function CardPlacement({
+  line,
+  pins,
+  height,
+  onPlace,
+}: {
+  line: [number, number][];
+  pins: [number, number][];
+  height: number;
+  onPlace: (corner: Corner) => void;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    const choose = () => {
+      const { x: w, y: h } = map.getSize();
+      const rects: Record<Corner, [number, number]> = {
+        bl: [CARD_MARGIN, h - CARD_MARGIN - height],
+        br: [w - CARD_MARGIN - CARD_WIDTH, h - CARD_MARGIN - height],
+        tl: [CARD_MARGIN, TOP_LEFT_Y],
+        tr: [w - CARD_MARGIN - CARD_WIDTH, TOP_RIGHT_Y],
+      };
+      const covered = (pts: [number, number][], [x, y]: [number, number]) =>
+        pts.filter((p) => {
+          const c = map.latLngToContainerPoint(p);
+          return (
+            c.x >= x - 8 &&
+            c.x <= x + CARD_WIDTH + 8 &&
+            c.y >= y - 8 &&
+            c.y <= y + height + 8
+          );
+        }).length;
+      let best: Corner = "bl";
+      let bestCost = Infinity;
+      for (const corner of ["bl", "br", "tl", "tr"] as Corner[]) {
+        const cost =
+          covered(line, rects[corner]) + 50 * covered(pins, rects[corner]);
+        if (cost < bestCost) {
+          best = corner;
+          bestCost = cost;
+        }
+      }
+      onPlace(best);
+    };
+    choose();
+    map.on("moveend zoomend resize", choose);
+    return () => {
+      map.off("moveend zoomend resize", choose);
+    };
+  }, [map, line, pins, height, onPlace]);
+
+  return null;
+}
+
+function ZoomButtons() {
+  const map = useMap();
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ref.current) L.DomEvent.disableClickPropagation(ref.current);
+  }, []);
+
+  return (
+    <div ref={ref} className="absolute top-3 right-3 z-[1000] grid gap-2">
+      {[
+        { label: "Przybliż mapę", Icon: Plus, zoom: () => map.zoomIn() },
+        { label: "Oddal mapę", Icon: Minus, zoom: () => map.zoomOut() },
+      ].map(({ label, Icon, zoom }) => (
+        <Button
+          key={label}
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label={label}
+          className="size-10 bg-background shadow-float"
+          onClick={zoom}
+        >
+          <Icon />
+        </Button>
+      ))}
+    </div>
+  );
+}
+
+function PlaceDetails({ place }: { place: RouteStop }) {
+  return (
+    <>
+      <CardHeader className="gap-0.5 px-4 pt-4">
+        <h2 className="font-heading text-2xl leading-tight font-extrabold">
+          {place.name}
+        </h2>
+        <span className="text-sm text-muted-foreground">
+          Zwiedzanie: {formatMinutes(place.visitMinutes)}
+        </span>
+      </CardHeader>
+      <CardContent className="px-4 pt-2 pb-4 text-sm leading-relaxed text-muted-foreground">
+        {place.description}
+      </CardContent>
+    </>
+  );
+}
+
+/** Mobile popup: the native <dialog> traps focus, closes on Escape and returns focus. */
+function PlaceDialog({
+  place,
+  onClose,
+}: {
+  place: RouteStop;
+  onClose: () => void;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = ref.current;
+    if (dialog && !dialog.open) dialog.showModal();
+    return () => dialog?.close();
+  }, []);
+
+  return (
+    <dialog
+      ref={ref}
+      aria-label={place.name}
+      onClose={onClose}
+      onClick={(e) => e.target === ref.current && onClose()}
+      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl border bg-card p-0 text-card-foreground shadow-float backdrop:bg-foreground/40"
+    >
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        aria-label="Zamknij"
+        className="absolute top-2 right-2"
+        onClick={onClose}
+      >
+        <X />
+      </Button>
+      <div className="pr-10">
+        <PlaceDetails place={place} />
+      </div>
+    </dialog>
+  );
+}
+
 export function RouteMap({
   start,
   end,
@@ -78,6 +253,15 @@ export function RouteMap({
     [line, stops],
   );
   const selected = stops.find((s) => s.id === selectedId);
+  const desktop = useIsDesktop();
+  const [corner, setCorner] = useState<Corner>("bl");
+  const pins = useMemo(
+    () => [start, end, ...stops].map((p) => [p.lat, p.lng] as [number, number]),
+    [start, end, stops],
+  );
+  const cardHeight = selected
+    ? 110 + Math.ceil(selected.description.length / 42) * 22
+    : 0;
   const round = samePoint(start, end);
 
   return (
@@ -86,6 +270,7 @@ export function RouteMap({
         center={[start.lat, start.lng]}
         zoom={14}
         scrollWheelZoom
+        zoomControl={false}
         className="absolute inset-0 z-0"
         ref={(map: L.Map | null) => {
           const el = map?.getContainer();
@@ -130,28 +315,33 @@ export function RouteMap({
           />
         ))}
         <FitRoute points={fit} />
+        <ZoomButtons />
+        {selected && desktop && (
+          <CardPlacement
+            line={line}
+            pins={pins}
+            height={cardHeight}
+            onPlace={setCorner}
+          />
+        )}
       </MapContainer>
 
-      {selected && (
-        <Card
-          role="region"
-          aria-label="Szczegóły wybranego miejsca"
-          aria-live="polite"
-          className="absolute bottom-6 left-6 z-[500] w-85 max-w-[calc(100%-3rem)] gap-0 overflow-hidden rounded-2xl py-0 shadow-float"
-        >
-          <CardHeader className="gap-0.5 px-4 pt-4">
-            <h2 className="font-heading text-2xl leading-tight font-extrabold">
-              {selected.name}
-            </h2>
-            <span className="text-sm text-muted-foreground">
-              Zwiedzanie: {formatMinutes(selected.visitMinutes)}
-            </span>
-          </CardHeader>
-          <CardContent className="px-4 pt-2 pb-4 text-sm leading-relaxed text-muted-foreground">
-            {selected.description}
-          </CardContent>
-        </Card>
-      )}
+      {selected &&
+        (desktop ? (
+          <Card
+            role="region"
+            aria-label="Szczegóły wybranego miejsca"
+            aria-live="polite"
+            className={cn(
+              "absolute z-[500] w-85 max-w-[calc(100%-3rem)] gap-0 overflow-hidden rounded-2xl py-0 shadow-float transition-all duration-300",
+              CORNER_CLASS[corner],
+            )}
+          >
+            <PlaceDetails place={selected} />
+          </Card>
+        ) : (
+          <PlaceDialog place={selected} onClose={() => onSelect(undefined)} />
+        ))}
     </div>
   );
 }

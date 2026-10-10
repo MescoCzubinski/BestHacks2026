@@ -7,6 +7,7 @@ export type PlaceView = {
   lat: number;
   lng: number;
   visitMinutes: number;
+  enterable: boolean;
 };
 
 export const DEFAULT_PLACE_LIMIT = 8;

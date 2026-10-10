@@ -69,5 +69,3 @@ export const PLACES: Place[] = [
     lng: 17.0405,
   },
 ];
-
-export const CITY = { name: "Wrocław, Polska", lat: 51.1079, lng: 17.0385 };
