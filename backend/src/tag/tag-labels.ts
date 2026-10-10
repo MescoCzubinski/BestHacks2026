@@ -77,4 +77,10 @@ export const TAG_LABELS: Record<StyleTag, string> = {
   family_friendly: "Dla rodzin",
   free_entry: "Wstęp wolny",
   accessible: "Dostępne dla wózków",
+  archaeology: "Archeologia",
+  bunker: "Schrony i bunkry",
+  dwarfs: "Krasnale",
+  ruins: "Ruiny",
+  sculpture: "Rzeźby i pomniki",
+  shrine: "Kapliczki",
 };

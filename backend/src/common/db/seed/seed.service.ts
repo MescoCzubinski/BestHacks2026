@@ -1,22 +1,93 @@
-import { Injectable, Logger, OnApplicationBootstrap } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { In, IsNull, Not, Repository } from "typeorm";
 import { City } from "../../../city/entities/city.entity";
 import { CITY_SEEDS } from "./city.seed";
+import type { Address } from "../../../places/address";
+import type { PlaceFacts, PlaceLinks, PositionQuality } from "../../../places/place-facts";
+import { PlaceTag } from "../../../places/place-tag.entity";
+import { Place } from "../../../places/place.entity";
+import type { StyleTag } from "../../../places/style-tag";
+
+/** Shape of one row in places.seed.json, produced by fetcher/tools/build_places.py. */
+type SeedPlace = {
+  externalId: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  description: string | null;
+  address: Address;
+  positionQuality: PositionQuality;
+  year: number | null;
+  dateText: string | null;
+  significance: number;
+  facts: PlaceFacts;
+  links: PlaceLinks;
+  sources: string[];
+  mainImageUrl: string | null;
+  images: string[];
+  tags: { tag: StyleTag; percent: number }[];
+};
+
+const SEED_FILE = resolve(process.cwd(), "src/common/db/seed/places.seed.json");
+const CHUNK_SIZE = 500; // rows per statement; keeps parameter count under Postgres' 65k limit
 
 @Injectable()
 export class SeedService implements OnApplicationBootstrap {
-  private readonly logger = new Logger(SeedService.name);
+  private readonly log = new Logger(SeedService.name);
 
   constructor(
-    private readonly config: ConfigService,
     @InjectRepository(City) private readonly cities: Repository<City>,
+    @InjectRepository(Place) private readonly places: Repository<Place>,
+    @InjectRepository(PlaceTag) private readonly tags: Repository<PlaceTag>,
   ) {}
 
-  async onApplicationBootstrap() {
-    if (this.config.get("NODE_ENV") === "production") return;
+  async onApplicationBootstrap(): Promise<void> {
+    if (process.env.NODE_ENV === "production") return;
     await this.cities.upsert(CITY_SEEDS, ["name"]);
-    this.logger.log(`Seeded ${CITY_SEEDS.length} cities`);
+    this.log.log(`seeded ${CITY_SEEDS.length} cities`);
+    if (!existsSync(SEED_FILE)) {
+      this.log.warn(`no seed file at ${SEED_FILE}, skipping`);
+      return;
+    }
+    const rows = JSON.parse(readFileSync(SEED_FILE, "utf-8")) as SeedPlace[];
+    for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+      await this.upsertChunk(rows.slice(i, i + CHUNK_SIZE));
+    }
+    const stale = await this.places.find({
+      select: { id: true, externalId: true },
+      where: { externalId: Not(IsNull()) },
+    });
+    const current = new Set(rows.map((r) => r.externalId));
+    const staleIds = stale.filter((p) => !current.has(p.externalId!)).map((p) => p.id);
+    for (let i = 0; i < staleIds.length; i += CHUNK_SIZE) {
+      await this.places.delete({ id: In(staleIds.slice(i, i + CHUNK_SIZE)) }); // tags cascade
+    }
+    this.log.log(`seeded ${rows.length} places, removed ${staleIds.length} no longer in the seed`);
+  }
+
+  private async upsertChunk(chunk: SeedPlace[]): Promise<void> {
+    await this.places.upsert(
+      chunk.map(({ tags: _tags, ...place }) => place),
+      { conflictPaths: ["externalId"], skipUpdateIfNoValuesChanged: true },
+    );
+    const idByExternal = new Map(
+      (
+        await this.places.find({
+          select: { id: true, externalId: true },
+          where: { externalId: In(chunk.map((p) => p.externalId)) },
+        })
+      ).map((p) => [p.externalId, p.id]),
+    );
+    const ids = [...idByExternal.values()];
+    await this.tags.delete({ placeId: In(ids) });
+    const tagRows = chunk.flatMap((p) =>
+      p.tags.map((t) => ({ placeId: idByExternal.get(p.externalId)!, tag: t.tag, percent: t.percent })),
+    );
+    for (let i = 0; i < tagRows.length; i += CHUNK_SIZE * 4) {
+      await this.tags.insert(tagRows.slice(i, i + CHUNK_SIZE * 4));
+    }
   }
 }

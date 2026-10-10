@@ -104,4 +104,11 @@ export const TAG_PHRASES: Record<StyleTag, string> = {
   free_entry: "wstęp wolny, darmowe atrakcje, bezpłatne zwiedzanie, free entry",
   accessible:
     "dostępne dla wózków, bez barier, dla osób z niepełnosprawnością, wózek inwalidzki, accessible",
+  archaeology:
+    "archeologia, wykopaliska, stanowiska archeologiczne, pozostałości dawnych osad, archaeology",
+  bunker: "schrony, bunkry, fortyfikacje, schrony przeciwlotnicze, bunker",
+  dwarfs: "krasnale, wrocławskie krasnale, figurki krasnali, dwarfs",
+  ruins: "ruiny, zrujnowane budowle, ruiny zamków, ruins",
+  sculpture: "rzeźby, pomniki, posągi, sculpture, monument",
+  shrine: "kapliczki, krzyże przydrożne, figury świętych, shrine",
 };

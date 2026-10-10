@@ -1,0 +1,103 @@
+"""Tag vocabulary for places, mirrored from backend/src/places/style-tag.ts.
+
+Every tag has a short Polish+English description. The descriptions are what gets embedded, so
+they carry the "closeness" between tags (neogothic sits next to gothic because both describe
+pointed arches, brick, spires). Keep them in sync with the backend enum.
+"""
+
+STYLE: dict[str, str] = {
+    "romanesque": "styl romański, romanesque: masywne mury, półokrągłe łuki, XI-XIII wiek",
+    "gothic": "styl gotycki, gothic: ostre łuki, sklepienia krzyżowo-żebrowe, wysokie wieże, cegła, XIII-XVI wiek",
+    "renaissance": "renesans, renaissance: symetria, arkady, attyki, XVI wiek",
+    "mannerism": "manieryzm, mannerism: późny renesans, bogata dekoracja, przełom XVI i XVII wieku",
+    "baroque": "barok, baroque: dynamiczne formy, bogata dekoracja, XVII-XVIII wiek",
+    "rococo": "rokoko, rococo: lekka ozdobna dekoracja, XVIII wiek",
+    "neoclassicism": "klasycyzm, neoklasycyzm, neoclassicism: kolumny, portyki, prostota, 1770-1840",
+    "historicism": "historyzm, historicism: naśladowanie dawnych stylów w XIX wieku",
+    "neogothic": "neogotyk, styl neogotycki, neo-gothic revival: gotyckie formy z cegły, ostre łuki, XIX wiek",
+    "neorenaissance": "neorenesans, neorenaissance revival: renesansowe formy w XIX wieku",
+    "neobaroque": "neobarok, neobaroque revival: barokowe formy w XIX wieku",
+    "eclecticism": "eklektyzm, eclecticism: mieszanie stylów historycznych w jednym budynku, 1850-1914",
+    "art_nouveau": "secesja, Jugendstil, art nouveau: roślinne ornamenty, płynne linie, 1890-1914",
+    "secession": "secesja, Secession, Jugendstil: geometryczna secesja, kamienice z lat 1895-1914",
+    "expressionism": "ekspresjonizm, expressionism: ceglane bryły, dramatyczne formy, lata 1910-1930",
+    "art_deco": "art deco: geometryczny dekor, zygzaki, lata 1920-1939",
+    "modernism": "modernizm, modernism: funkcjonalizm, płaskie dachy, białe elewacje, lata 1920-1950",
+    "bauhaus": "Bauhaus: funkcjonalna architektura, szkło, prostota, lata 1919-1933",
+    "brutalism": "brutalizm, brutalism: surowy beton, monumentalne bryły, lata 1950-1980",
+    "postmodernism": "postmodernizm, postmodernism: ironiczne cytaty, kolorowe formy, lata 1980-2000",
+    "contemporary": "architektura współczesna, contemporary: szkło, stal, po 1990",
+    "vernacular": "architektura ludowa, vernacular: szachulec, drewno, tradycyjne budownictwo",
+    "industrial": "architektura przemysłowa, industrial: ceglane fabryki, kominy, wieże ciśnień, magazyny",
+}
+
+TYPE: dict[str, str] = {
+    "church": "kościół, church, parafia, świątynia, kaplica",
+    "cathedral": "katedra, cathedral, bazylika",
+    "synagogue": "synagoga, synagogue, bóżnica, kirkut",
+    "castle": "zamek, castle, twierdza, warownia",
+    "palace": "pałac, palace, rezydencja, dwór",
+    "townhouse": "kamienica miejska, townhouse, dom mieszczański",
+    "tenement": "kamienica czynszowa, tenement, budynek mieszkalny wielorodzinny",
+    "villa": "willa, villa, dom jednorodzinny z ogrodem",
+    "town_hall": "ratusz, town hall, urząd miasta",
+    "market_square": "rynek, market square, plac targowy",
+    "museum": "muzeum, museum, galeria sztuki, panorama",
+    "theatre": "teatr, theatre, scena dramatyczna",
+    "opera": "opera, filharmonia, opera house, sala koncertowa",
+    "library": "biblioteka, library, czytelnia",
+    "university": "uniwersytet, politechnika, university, szkoła wyższa, kolegium",
+    "school": "szkoła, school, gimnazjum, liceum",
+    "hospital": "szpital, hospital, klinika, sanatorium",
+    "train_station": "dworzec, train station, stacja kolejowa, tramwajowa",
+    "bridge": "most, bridge, kładka, wiadukt",
+    "tower": "wieża, tower, wieża ciśnień, wieża widokowa, baszta",
+    "fortification": "fortyfikacje, fortification, mury obronne, bastion, fort, schron",
+    "monument": "pomnik, monument, memoriał, tablica pamiątkowa, obelisk",
+    "fountain": "fontanna, fountain, studnia, źródło",
+    "cemetery": "cmentarz, cemetery, nekropolia, grobowiec, kwatera",
+    "factory": "fabryka, factory, zakład przemysłowy, elektrownia, gazownia",
+    "warehouse": "magazyn, warehouse, spichlerz, skład",
+    "brewery": "browar, brewery, słodownia",
+    "market_hall": "hala targowa, market hall, hala",
+    "stadium": "stadion, stadium, hala sportowa, arena",
+    "hotel": "hotel, hotel, zajazd, pensjonat",
+    "residential_estate": "osiedle, residential estate, zespół mieszkaniowy, kolonia",
+    "sculpture": "rzeźba, sculpture, statua, figura, instalacja artystyczna",
+    "shrine": "kapliczka, shrine, krzyż przydrożny, figura świętego, wayside cross",
+    "bunker": "bunkier, bunker, schron przeciwlotniczy, schron bojowy",
+    "ruins": "ruiny, ruins, pozostałości budynku, trwała ruina",
+}
+
+NATURE: dict[str, str] = {
+    "park": "park miejski, park, zieleń, aleja, planty",
+    "garden": "ogród, garden, ogród japoński, ogród działkowy, skwer",
+    "island": "wyspa, island, ostrów, wyspa na Odrze",
+    "riverside": "nabrzeże, riverside, bulwar, brzeg rzeki Odry, kanał, fosa",
+    "botanical_garden": "ogród botaniczny, botanical garden, arboretum",
+    "zoo": "zoo, ogród zoologiczny, zoo",
+    "square": "plac, square, skwer, rondo",
+    "viewpoint": "punkt widokowy, viewpoint, panorama miasta, wieża widokowa, taras",
+}
+
+THEME: dict[str, str] = {
+    "unesco": "Światowe Dziedzictwo UNESCO, UNESCO World Heritage",
+    "wwii": "II wojna światowa, WWII, oblężenie Festung Breslau 1945, obóz, wojna",
+    "communist_era": "czasy PRL, communist era, socrealizm, 1945-1989",
+    "jewish_heritage": "dziedzictwo żydowskie, Jewish heritage, synagoga, cmentarz żydowski",
+    "german_heritage": "dziedzictwo niemieckie, German heritage, Breslau przed 1945, pruskie",
+    "polish_heritage": "dziedzictwo polskie, Polish heritage, piastowskie, Lwów, Solidarność",
+    "habsburg": "dziedzictwo habsburskie, Habsburg, Austria, Czechy",
+    "medieval": "średniowiecze, medieval, przed 1500, romańskie i gotyckie",
+    "street_art": "street art, mural, graffiti, sztuka uliczna, krasnale",
+    "hidden_gem": "ukryte miejsce, hidden gem, mniej znane, kameralne, odkrycie",
+    "family_friendly": "dla rodzin, family friendly, dla dzieci, zabawne, krasnale",
+    "free_entry": "wstęp wolny, free entry, bezpłatnie, w przestrzeni publicznej",
+    "accessible": "dostępne, accessible, bez barier, dla wózków",
+    "dwarfs": "wrocławskie krasnale, krasnal, dwarf, figurka krasnala",
+    "archaeology": "archeologia, archaeology, stanowisko archeologiczne, wykopaliska",
+}
+
+GROUPS = {"style": STYLE, "type": TYPE, "nature": NATURE, "theme": THEME}
+ALL_TAGS: dict[str, str] = {t: d for g in GROUPS.values() for t, d in g.items()}
+GROUP_OF = {t: g for g, tags in GROUPS.items() for t in tags}
