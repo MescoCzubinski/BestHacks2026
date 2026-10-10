@@ -3,22 +3,54 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Single source of truth for the design system:
+ * colors, radii, shadows, fonts and the 35px grid all live in this file.
+ * Components use only the semantic utilities generated from @theme below.
+ */
+
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  /* shape */
+  --radius: 0.5rem;
+  --grid-size: 35px;
+
+  /* neutrals (shadcn semantics) */
+  --background: #ffffff;
+  --foreground: #09090b;
+  --card: #ffffff;
+  --card-foreground: #09090b;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #52525b;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: #d4d4d8;
+  --input: #71717a;
+  --ring: #52525b;
+
+  /* brand */
+  --brand: #6968c3;
+  --brand-foreground: #ffffff;
+  --brand-tint: #d9d9f2;
+  --accent: #f8cff1;
+  --accent-foreground: #09090b;
+  --accent-tint: #fdf0fa;
+
+  /* grid panel */
+  --grid-bg: #f4f4f5;
+  --grid-line: #c4c4cc;
+
+  /* elevation */
+  --shadow-card:
+    0 10px 30px -8px rgb(24 24 27 / 0.22), 0 2px 6px rgb(24 24 27 / 0.06);
+  --shadow-float: 0 4px 16px rgb(24 24 27 / 0.15);
+  --shadow-brand: 0 6px 16px -4px rgb(105 104 195 / 0.5);
+
+  /* type */
+  --font-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Jost", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
@@ -36,12 +68,17 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+  --grid-bg: oklch(0.205 0 0);
+  --grid-line: oklch(1 0 0 / 12%);
 }
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -56,6 +93,21 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-tint: var(--brand-tint);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-tint: var(--accent-tint);
+  --color-grid-bg: var(--grid-bg);
+  --color-grid-line: var(--grid-line);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-float: var(--shadow-float);
+  --shadow-brand: var(--shadow-brand);
+
+  --font-sans: var(--font-body);
+  --font-heading: var(--font-heading);
 }
 
 @layer base {
@@ -63,6 +115,45 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background font-sans text-foreground antialiased;
   }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading font-extrabold tracking-tight;
+  }
+}
+
+/* The 35px grid used behind the landmark cards. */
+@utility bg-grid {
+  background-color: var(--grid-bg);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+
+/* Leaflet map pins */
+.atlas-pin {
+  background: transparent;
+  border: 0;
+}
+.atlas-pin span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 3px solid var(--primary);
+  background: var(--brand);
+  color: var(--brand-foreground);
+  font: 600 15px/1 var(--font-body);
+  box-shadow: var(--shadow-float);
+  transition: transform 0.15s;
+}
+.atlas-pin-active span {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  transform: scale(1.2);
 }
