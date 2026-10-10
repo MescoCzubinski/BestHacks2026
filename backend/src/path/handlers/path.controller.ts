@@ -1,18 +1,15 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Controller, Get, Query } from "@nestjs/common";
 import { Public } from "../../common/auth/decorators";
-import { PathService } from "../services/path.service";
-import { ComputePathDto } from "./dto/compute-path.dto";
+import { PathFinderService } from "../services/path-finder.service";
+import { FindPathDto } from "./dto/find-path.dto";
 
+@Public()
 @Controller("paths")
 export class PathController {
-  constructor(private readonly paths: PathService) {}
+  constructor(private readonly pathFinder: PathFinderService) {}
 
-  /** Walking legs (geometry, distance, time) through the given points, in order. */
-  @Public()
-  @Post()
-  compute(@Body() dto: ComputePathDto) {
-    return this.paths.compute(dto.points, {
-      walkingSpeedKmh: dto.walkingSpeedKmh,
-    });
+  @Get()
+  find(@Query() dto: FindPathDto) {
+    return this.pathFinder.find(dto.toPoints());
   }
 }

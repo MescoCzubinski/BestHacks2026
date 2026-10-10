@@ -1,183 +1,29 @@
-import type { GeoPoint } from "../../path/path-types";
-import type { Plan, PlannedStop, RouteCandidate } from "../route-types";
+import type { LatLng } from "../../city/bbox";
+import type { StyleTag } from "../../places/style-tag";
 
-const MS_PER_MINUTE = 60_000;
-const IMPROVEMENT_ROUNDS = 3; // insertion + 2-opt rounds; each round rarely changes anything after the second
-const MIN_ADDED_MINUTES = 1; // avoids dividing by ~0 when a place lies exactly on the way
-
-export type PlannerOptions = {
-  start: GeoPoint;
-  end: GeoPoint;
-  startAt: Date;
-  budgetMinutes: number;
-  maxStops: number;
-  /** Minutes to walk between two points (an estimate while ordering; real legs are applied afterwards). */
-  walkMinutes: (a: GeoPoint, b: GeoPoint) => number;
-  isOpen: (candidate: RouteCandidate, at: Date) => boolean;
+export type RouteQuery = {
+  start: LatLng;
+  end: LatLng;
+  durationMinutes: number;
+  wheelchair: boolean;
+  tags: StyleTag[];
+  /** When the walk begins, for opening hours; defaults to now. */
+  startTime?: Date;
 };
 
-/**
- * The timeline of visiting `order` from start to end, or null when it breaks the budget or
- * a place is closed when we would arrive.
- */
-export function schedule(
-  order: RouteCandidate[],
-  o: PlannerOptions,
-): Plan | null {
-  let minutes = 0;
-  let walk = 0;
-  let visit = 0;
-  let value = 0;
-  let prev = o.start;
-  const stops: PlannedStop[] = [];
-  for (const c of order) {
-    const w = o.walkMinutes(prev, c.point);
-    minutes += w;
-    walk += w;
-    const arriveAt = new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE);
-    if (!o.isOpen(c, arriveAt)) return null;
-    minutes += c.dwellMinutes;
-    visit += c.dwellMinutes;
-    value += c.value;
-    stops.push({
-      candidate: c,
-      arriveAt,
-      departAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
-      walkMinutes: w,
-    });
-    prev = c.point;
-    if (minutes > o.budgetMinutes) return null;
-  }
-  const home = o.walkMinutes(prev, o.end);
-  minutes += home;
-  walk += home;
-  if (minutes > o.budgetMinutes) return null;
-  return {
-    stops,
-    endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
-    totalMinutes: minutes,
-    walkMinutes: walk,
-    visitMinutes: visit,
-    value,
-  };
-}
+export type PlannedStop = {
+  id: string;
+  name: string;
+  description: string;
+  lat: number;
+  lng: number;
+  visitMinutes: number;
+  /** ISO time we expect to arrive, when the planner knows it. */
+  arriveAt?: string;
+  imageUrl?: string | null;
+};
 
-/** Greedy insertion by value per added minute, then 2-opt, repeated. Orienteering-problem heuristic. */
-export function planRoute(
-  candidates: RouteCandidate[],
-  o: PlannerOptions,
-): Plan {
-  const cache = new Map<string, number>();
-  const memo: PlannerOptions = {
-    ...o,
-    walkMinutes: (a, b) => {
-      const key = `${a.lat},${a.lon}|${b.lat},${b.lon}`;
-      let v = cache.get(key);
-      if (v === undefined) {
-        v = o.walkMinutes(a, b);
-        cache.set(key, v);
-      }
-      return v;
-    },
-  };
-  let order: RouteCandidate[] = [];
-  let best = schedule(order, memo) ?? emptyPlan(o);
-
-  for (let round = 0; round < IMPROVEMENT_ROUNDS; round++) {
-    const before = order.length;
-    // 1) insert while something fits
-    for (;;) {
-      if (order.length >= o.maxStops) break;
-      let pick: { order: RouteCandidate[]; plan: Plan; ratio: number } | null =
-        null;
-      for (const c of candidates) {
-        if (order.includes(c)) continue;
-        for (let i = 0; i <= order.length; i++) {
-          const next = [...order.slice(0, i), c, ...order.slice(i)];
-          const plan = schedule(next, memo);
-          if (!plan) continue;
-          const added = Math.max(
-            MIN_ADDED_MINUTES,
-            plan.totalMinutes - best.totalMinutes,
-          );
-          const ratio = (plan.value - best.value) / added;
-          if (!pick || ratio > pick.ratio) pick = { order: next, plan, ratio };
-        }
-      }
-      if (!pick) break;
-      order = pick.order;
-      best = pick.plan;
-    }
-    // 2) shorten the order with 2-opt so more fits next round
-    let improved = true;
-    while (improved) {
-      improved = false;
-      for (let i = 0; i < order.length - 1 && !improved; i++) {
-        for (let j = i + 1; j < order.length && !improved; j++) {
-          const next = [
-            ...order.slice(0, i),
-            ...order.slice(i, j + 1).reverse(),
-            ...order.slice(j + 1),
-          ];
-          const plan = schedule(next, memo);
-          if (plan && plan.totalMinutes < best.totalMinutes - 0.01) {
-            order = next;
-            best = plan;
-            improved = true;
-          }
-        }
-      }
-    }
-    if (order.length === before) break;
-  }
-  return best;
-}
-
-function emptyPlan(o: PlannerOptions): Plan {
-  const minutes = o.walkMinutes(o.start, o.end);
-  return {
-    stops: [],
-    endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
-    totalMinutes: minutes,
-    walkMinutes: minutes,
-    visitMinutes: 0,
-    value: 0,
-  };
-}
-
-/** The same order with real leg durations (minutes) instead of estimates. */
-export function timeline(
-  order: RouteCandidate[],
-  legMinutes: number[],
-  o: Pick<PlannerOptions, "startAt" | "budgetMinutes">,
-): Plan {
-  let minutes = 0;
-  let walk = 0;
-  let visit = 0;
-  let value = 0;
-  const stops: PlannedStop[] = order.map((c, i) => {
-    minutes += legMinutes[i];
-    walk += legMinutes[i];
-    const arriveAt = new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE);
-    minutes += c.dwellMinutes;
-    visit += c.dwellMinutes;
-    value += c.value;
-    return {
-      candidate: c,
-      arriveAt,
-      departAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
-      walkMinutes: legMinutes[i],
-    };
-  });
-  const last = legMinutes[order.length] ?? 0;
-  minutes += last;
-  walk += last;
-  return {
-    stops,
-    endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
-    totalMinutes: minutes,
-    walkMinutes: walk,
-    visitMinutes: visit,
-    value,
-  };
+/** Chooses and orders the stops of a route; the walking path between them is found separately. */
+export abstract class RoutePlanner {
+  abstract plan(query: RouteQuery): Promise<PlannedStop[]>;
 }

@@ -6,7 +6,7 @@ export type DemoUser = {
   initials: string;
 };
 
-/** Mock accounts for the login screen. No real authentication yet. */
+/** Mock account for the login screen. No real authentication yet. */
 export const DEMO_USERS: DemoUser[] = [
   {
     id: "anna",
@@ -14,20 +14,6 @@ export const DEMO_USERS: DemoUser[] = [
     email: "anna@atlas.pl",
     role: "Odkrywca",
     initials: "AK",
-  },
-  {
-    id: "piotr",
-    name: "Piotr Nowak",
-    email: "piotr@atlas.pl",
-    role: "Lokalny przewodnik",
-    initials: "PN",
-  },
-  {
-    id: "guest",
-    name: "Gość",
-    email: "guest@atlas.pl",
-    role: "Gość",
-    initials: "G",
   },
 ];
 

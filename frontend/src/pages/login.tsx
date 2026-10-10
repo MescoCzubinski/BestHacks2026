@@ -5,14 +5,6 @@ import { Logo } from "@/shared/logo";
 import { Avatar } from "@/shared/ui/avatar";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Separator } from "@/shared/ui/separator";
@@ -34,8 +26,12 @@ export default function Login() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[2fr_1fr]">
-      <main className="flex flex-col justify-between gap-10 px-4 py-3 lg:px-18 lg:py-10">
+    <div className="grid min-h-screen lg:grid-cols-[3fr_2fr]">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="flex flex-col justify-between gap-10 px-4 py-3 outline-none lg:px-18 lg:py-10"
+      >
         <div className="flex items-center justify-between pl-2 lg:pl-0">
           <Logo />
           <Button asChild variant="ghost" size="lg" className="h-11">
@@ -45,27 +41,38 @@ export default function Login() {
           </Button>
         </div>
 
-        <Card className="w-full max-w-110 gap-5 rounded-2xl">
-          <CardHeader className="gap-2">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            window.location.hash = href("plan");
+          }}
+          className="mx-auto my-auto flex w-full max-w-110 flex-col gap-5"
+        >
+          <div className="grid gap-2">
             <Badge variant="outline" className="mb-1">
               Użyj w przeglądarce
             </Badge>
-            <CardTitle className="font-heading text-4xl leading-tight font-extrabold tracking-tight">
-              Witaj ponownie
-            </CardTitle>
-            <CardDescription>
-              Zaloguj się, aby zaplanować kolejną tematyczną podróż, albo
-              wybierz użytkownika demo poniżej.
-            </CardDescription>
-          </CardHeader>
+            <h1 className="font-heading text-4xl leading-tight font-extrabold tracking-tight">
+              Witaj{" "}
+              <span className="rounded-md bg-brand box-decoration-clone px-2 text-brand-foreground">
+                ponownie
+              </span>
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Zaloguj się, aby zaplanować kolejną tematyczną podróż, albo użyj
+              konta demo poniżej.
+            </p>
+          </div>
 
-          <CardContent className="grid gap-4">
+          <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="ty@example.com"
+                autoComplete="email"
+                required
+                placeholder="np. jan.nowak@poczta.pl"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -78,7 +85,7 @@ export default function Login() {
                 <Label htmlFor="pw">Hasło</Label>
                 <a
                   href="#forgot"
-                  className="inline-flex min-h-6 items-center text-[13px] text-muted-foreground underline underline-offset-4"
+                  className="inline-flex min-h-6 items-center text-sm text-muted-foreground underline underline-offset-4"
                 >
                   Nie pamiętasz hasła?
                 </a>
@@ -86,21 +93,21 @@ export default function Login() {
               <Input
                 id="pw"
                 type="password"
+                autoComplete="current-password"
+                required
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
-            <Button asChild size="lg" className="h-11 shadow-brand">
-              <a href={href("app")}>
-                Zaloguj się <ArrowRight />
-              </a>
+            <Button type="submit" size="lg" className="h-11 shadow-brand">
+              Zaloguj się <ArrowRight />
             </Button>
 
-            <Separator className="mt-1">Użytkownicy demo</Separator>
+            <Separator className="mt-1">Konto demo</Separator>
 
-            <div className="grid gap-2">
+            <div role="group" aria-label="Konto demo" className="grid gap-2">
               {DEMO_USERS.map((u) => (
                 <button
                   key={u.id}
@@ -108,15 +115,15 @@ export default function Login() {
                   aria-pressed={picked === u.id}
                   onClick={() => pick(u.id)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50",
+                    "flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring",
                     picked === u.id &&
                       "border-primary bg-muted ring-1 ring-primary",
                   )}
                 >
-                  <Avatar>{u.initials}</Avatar>
+                  <Avatar aria-hidden="true">{u.initials}</Avatar>
                   <span className="grid min-w-0 flex-1 leading-snug">
                     <span className="text-sm font-medium">{u.name}</span>
-                    <span className="truncate text-[13px] text-muted-foreground">
+                    <span className="truncate text-sm text-muted-foreground">
                       {u.email}
                     </span>
                   </span>
@@ -124,16 +131,8 @@ export default function Login() {
                 </button>
               ))}
             </div>
-          </CardContent>
-
-          <CardFooter className="text-[13px] text-muted-foreground">
-            Konta testowe · brak prawdziwych danych
-          </CardFooter>
-        </Card>
-
-        <p className="px-2 text-[13px] text-muted-foreground lg:px-0">
-          Dane mapy © współtwórcy OpenStreetMap
-        </p>
+          </div>
+        </form>
       </main>
 
       <GridPanel className="hidden lg:flex" />

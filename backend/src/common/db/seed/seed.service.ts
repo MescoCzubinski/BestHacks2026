@@ -6,7 +6,9 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { In, Repository } from "typeorm";
+import { In, IsNull, Not, Repository } from "typeorm";
+import { City } from "../../../city/entities/city.entity";
+import { CITY_SEEDS } from "./city.seed";
 import type { Address } from "../../../places/address";
 import type {
   PlaceFacts,
@@ -17,7 +19,7 @@ import { PlaceTag } from "../../../places/place-tag.entity";
 import { Place } from "../../../places/place.entity";
 import { STYLE_TAGS, type StyleTag } from "../../../places/style-tag";
 
-/** Shape of one row in places.seed.json, produced by fetcher/tools/build_places.py. */
+/** Shape of one row in places.seed.json, produced by the fetcher (EXPORT_SEED_PATH). */
 type SeedPlace = {
   externalId: string;
   name: string;
@@ -46,14 +48,15 @@ export class SeedService implements OnApplicationBootstrap {
   private readonly log = new Logger(SeedService.name);
 
   constructor(
+    @InjectRepository(City) private readonly cities: Repository<City>,
     @InjectRepository(Place) private readonly places: Repository<Place>,
     @InjectRepository(PlaceTag) private readonly tags: Repository<PlaceTag>,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
     if (process.env.NODE_ENV === "production") return;
-    // Demo bootstrap only: once the fetcher (or an earlier seed) filled the table, leave it alone.
-    if ((await this.places.count()) > 0) return;
+    await this.cities.upsert(CITY_SEEDS, ["name"]);
+    this.log.log(`seeded ${CITY_SEEDS.length} cities`);
     if (!existsSync(SEED_FILE)) {
       this.log.warn(`no seed file at ${SEED_FILE}, skipping`);
       return;
@@ -62,7 +65,26 @@ export class SeedService implements OnApplicationBootstrap {
     for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
       await this.upsertChunk(rows.slice(i, i + CHUNK_SIZE));
     }
-    this.log.log(`seeded ${rows.length} places`);
+    // only prune regions this seed covers; places the fetcher loaded for other regions stay
+    const regions = new Set(rows.map((r) => r.externalId.split(":")[0]));
+    const stale = await this.places.find({
+      select: { id: true, externalId: true },
+      where: { externalId: Not(IsNull()) },
+    });
+    const current = new Set(rows.map((r) => r.externalId));
+    const staleIds = stale
+      .filter(
+        (p) =>
+          regions.has(p.externalId!.split(":")[0]!) &&
+          !current.has(p.externalId!),
+      )
+      .map((p) => p.id);
+    for (let i = 0; i < staleIds.length; i += CHUNK_SIZE) {
+      await this.places.delete({ id: In(staleIds.slice(i, i + CHUNK_SIZE)) }); // tags cascade
+    }
+    this.log.log(
+      `seeded ${rows.length} places, removed ${staleIds.length} no longer in the seed`,
+    );
   }
 
   private async upsertChunk(chunk: SeedPlace[]): Promise<void> {

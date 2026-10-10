@@ -15,14 +15,18 @@ const STORES = [
 
 export default function Landing() {
   return (
-    <div className="grid min-h-screen lg:grid-cols-[2fr_1fr]">
-      <main className="flex flex-col justify-between gap-12 px-6 py-5 lg:px-18 lg:py-10">
+    <div className="grid min-h-screen lg:grid-cols-[3fr_2fr]">
+      <main
+        id="main"
+        tabIndex={-1}
+        className="flex flex-col justify-between gap-12 px-6 py-5 outline-none lg:px-18 lg:py-10"
+      >
         <Logo />
 
-        <div className="flex max-w-170 flex-col gap-6 lg:gap-7">
-          <h1 className="text-[46px] leading-[1.02] tracking-[-0.03em] lg:text-[76px] lg:leading-none">
+        <div className="my-auto flex max-w-full flex-col gap-6 lg:gap-7">
+          <h1 className="text-[8vw] leading-[1.5] tracking-normal lg:text-[72px]">
             Wybierz motyw.{" "}
-            <span className="rounded-md bg-brand px-2 text-brand-foreground lg:px-2.5">
+            <span className="rounded-md bg-brand box-decoration-clone px-3 whitespace-nowrap text-brand-foreground">
               Zaplanujemy podróż.
             </span>
           </h1>
@@ -36,7 +40,7 @@ export default function Landing() {
               <li
                 key={t}
                 className={cn(
-                  "rounded-md border px-3 py-1 text-[13px] font-semibold",
+                  "rounded-md border px-3 py-1 text-sm font-semibold",
                   i === 0 && "bg-accent text-accent-foreground",
                 )}
               >
@@ -51,6 +55,7 @@ export default function Landing() {
                 key={label}
                 variant="outline"
                 className="h-14 justify-start gap-3 rounded-lg px-4"
+                type="button"
                 aria-disabled
               >
                 <Icon className="size-5" />
@@ -58,7 +63,7 @@ export default function Landing() {
                   <span className="text-xs font-normal text-muted-foreground">
                     Już wkrótce
                   </span>
-                  <span className="text-[15px] font-semibold">{label}</span>
+                  <span className="text-base font-semibold">{label}</span>
                 </span>
               </Button>
             ))}
@@ -74,10 +79,6 @@ export default function Landing() {
             </Button>
           </div>
         </div>
-
-        <p className="text-[13px] text-muted-foreground">
-          © 2026 Atlas · Dane mapy © współtwórcy OpenStreetMap
-        </p>
       </main>
 
       <GridPanel />

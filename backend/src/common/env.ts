@@ -1,4 +1,10 @@
-const REQUIRED = ["DATABASE_URL", "JWT_SECRET"] as const;
+const REQUIRED = [
+  "DATABASE_URL",
+  "JWT_SECRET",
+  "GRAPHHOPPER_URL",
+  "GRAPHHOPPER_TOKEN",
+  "EMBEDDING_MODEL",
+] as const;
 
 export function validateEnv(env: Record<string, unknown>) {
   const missing = REQUIRED.filter((key) => !env[key]);

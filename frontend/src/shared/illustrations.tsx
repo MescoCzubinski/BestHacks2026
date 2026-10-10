@@ -1,5 +1,3 @@
-/* Placeholder landmark illustrations. Colors come from index.css tokens. */
-
 const stroke = "stroke-foreground/90 stroke-[1.5]";
 
 export function RynekIllustration() {
