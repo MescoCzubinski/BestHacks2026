@@ -189,22 +189,11 @@ OUTDOOR_TAGS = ("monument", "sculpture", "fountain", "shrine", "park", "square",
 
 
 class Embedder(Protocol):
+    """Turns texts into vectors. The production one asks the backend; tests pass a stub."""
+
+    def wait_until_ready(self) -> None: ...
+
     def embed(self, texts: Sequence[str]) -> np.ndarray: ...
-
-
-class SentenceTransformerEmbedder:
-    """multilingual-e5 via sentence-transformers; loaded lazily so tests never import torch."""
-
-    def __init__(self, model_name: str, prefix: str = "passage: ") -> None:
-        self._name, self._prefix = model_name, prefix
-        self._model: Any = None
-
-    def embed(self, texts: Sequence[str]) -> np.ndarray:
-        if self._model is None:
-            from sentence_transformers import SentenceTransformer
-
-            self._model = SentenceTransformer(self._name, device="cpu")
-        return self._model.encode([self._prefix + t for t in texts], batch_size=32, normalize_embeddings=True, show_progress_bar=False)
 
 
 def era_bucket(year: int | None) -> int:

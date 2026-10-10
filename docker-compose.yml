@@ -80,8 +80,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      backend:
+        condition: service_healthy
     volumes:
-      - fetchercache:/cache # downloads, geocoding results and the embedding model
+      - fetchercache:/cache # downloads and geocoding results
     tmpfs:
       - /tmp
     read_only: true
