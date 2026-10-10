@@ -9,16 +9,26 @@ export function haversineM(a: GeoPoint, b: GeoPoint): number {
   const rad = Math.PI / 180;
   const dLat = (b.lat - a.lat) * rad;
   const dLon = (b.lon - a.lon) * rad;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLon / 2) ** 2;
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLon / 2) ** 2;
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
 }
 
 /** Minutes to walk between two points without a routing engine. */
-export function estimateWalkMinutes(a: GeoPoint, b: GeoPoint, speedKmh = DEFAULT_WALKING_SPEED_KMH): number {
+export function estimateWalkMinutes(
+  a: GeoPoint,
+  b: GeoPoint,
+  speedKmh = DEFAULT_WALKING_SPEED_KMH,
+): number {
   return ((haversineM(a, b) * DETOUR_FACTOR) / 1000 / speedKmh) * 60;
 }
 
-export function straightLeg(from: GeoPoint, to: GeoPoint, speedKmh = DEFAULT_WALKING_SPEED_KMH): PathLeg {
+export function straightLeg(
+  from: GeoPoint,
+  to: GeoPoint,
+  speedKmh = DEFAULT_WALKING_SPEED_KMH,
+): PathLeg {
   const distanceM = haversineM(from, to) * DETOUR_FACTOR;
   return {
     from,

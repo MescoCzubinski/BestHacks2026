@@ -1,10 +1,18 @@
-import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  type OnApplicationBootstrap,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { In, Repository } from "typeorm";
 import type { Address } from "../../../places/address";
-import type { PlaceFacts, PlaceLinks, PositionQuality } from "../../../places/place-facts";
+import type {
+  PlaceFacts,
+  PlaceLinks,
+  PositionQuality,
+} from "../../../places/place-facts";
 import { PlaceTag } from "../../../places/place-tag.entity";
 import { Place } from "../../../places/place.entity";
 import { STYLE_TAGS, type StyleTag } from "../../../places/style-tag";
@@ -75,7 +83,11 @@ export class SeedService implements OnApplicationBootstrap {
     const tagRows = chunk.flatMap((p) =>
       p.tags
         .filter((t) => KNOWN_TAGS.has(t.tag))
-        .map((t) => ({ placeId: idByExternal.get(p.externalId)!, tag: t.tag, percent: t.percent })),
+        .map((t) => ({
+          placeId: idByExternal.get(p.externalId)!,
+          tag: t.tag,
+          percent: t.percent,
+        })),
     );
     for (let i = 0; i < tagRows.length; i += CHUNK_SIZE * 4) {
       await this.tags.insert(tagRows.slice(i, i + CHUNK_SIZE * 4));

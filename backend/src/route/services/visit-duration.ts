@@ -39,7 +39,10 @@ const SIGNIFICANCE_BONUS = 0.5; // a fully notable place takes up to 50% longer
 const DOMINANT_TAG_MIN_PERCENT = 50;
 
 /** Minutes to spend at a place, from its strongest known type tag and how notable it is. */
-export function visitMinutes(tags: Partial<Record<StyleTag, number>>, significance: number): number {
+export function visitMinutes(
+  tags: Partial<Record<StyleTag, number>>,
+  significance: number,
+): number {
   let base = 0;
   let strongest = 0;
   for (const [tag, percent] of Object.entries(tags) as [StyleTag, number][]) {
@@ -50,6 +53,8 @@ export function visitMinutes(tags: Partial<Record<StyleTag, number>>, significan
       base = minutes;
     }
   }
-  const minutes = (base || DEFAULT_DWELL_MINUTES) * (1 + (significance / 100) * SIGNIFICANCE_BONUS);
+  const minutes =
+    (base || DEFAULT_DWELL_MINUTES) *
+    (1 + (significance / 100) * SIGNIFICANCE_BONUS);
   return Math.max(2, Math.round(minutes));
 }

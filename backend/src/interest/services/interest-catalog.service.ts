@@ -13,7 +13,12 @@ export class InterestCatalogService {
 
   /** Every tag that has enough places, grouped; new data means new interests without code changes. */
   async list(): Promise<Interest[]> {
-    const counts = new Map((await this.places.tagCounts(MIN_PERCENT)).map((c) => [c.tag as string, c.count]));
+    const counts = new Map(
+      (await this.places.tagCounts(MIN_PERCENT)).map((c) => [
+        c.tag as string,
+        c.count,
+      ]),
+    );
     const out: Interest[] = [];
     for (const [group, tags] of Object.entries(TAG_GROUPS)) {
       for (const tag of tags as readonly string[]) {

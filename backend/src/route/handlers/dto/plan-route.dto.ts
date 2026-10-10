@@ -69,5 +69,8 @@ export class PlanRouteDto {
   @Type(() => InterestDto)
   interests!: InterestDto[];
 
-  @IsOptional() @ValidateNested() @Type(() => PreferencesDto) preferences?: PreferencesDto;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => PreferencesDto)
+  preferences?: PreferencesDto;
 }

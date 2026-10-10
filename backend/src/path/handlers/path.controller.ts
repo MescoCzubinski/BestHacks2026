@@ -11,6 +11,8 @@ export class PathController {
   @Public()
   @Post()
   compute(@Body() dto: ComputePathDto) {
-    return this.paths.compute(dto.points, { walkingSpeedKmh: dto.walkingSpeedKmh });
+    return this.paths.compute(dto.points, {
+      walkingSpeedKmh: dto.walkingSpeedKmh,
+    });
   }
 }

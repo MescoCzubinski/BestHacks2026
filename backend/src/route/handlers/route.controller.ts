@@ -21,12 +21,16 @@ export class RouteController {
       end: dto.end,
       startAt: new Date(dto.startTime),
       availableMinutes: dto.availableMinutes,
-      interests: dto.interests.map((i) => ({ tag: i.tag, weight: i.weight ?? DEFAULT_INTEREST_WEIGHT })),
+      interests: dto.interests.map((i) => ({
+        tag: i.tag,
+        weight: i.weight ?? DEFAULT_INTEREST_WEIGHT,
+      })),
       preferences: {
         accessible: dto.preferences?.accessible ?? false,
         freeOnly: dto.preferences?.freeOnly ?? false,
         maxStops: dto.preferences?.maxStops ?? DEFAULT_MAX_STOPS,
-        walkingSpeedKmh: dto.preferences?.walkingSpeedKmh ?? DEFAULT_WALKING_SPEED_KMH,
+        walkingSpeedKmh:
+          dto.preferences?.walkingSpeedKmh ?? DEFAULT_WALKING_SPEED_KMH,
       },
     });
   }

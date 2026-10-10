@@ -50,7 +50,11 @@ export class GraphHopperClient {
         return null;
       }
       const body = (await res.json()) as {
-        paths?: { distance: number; time: number; points: { coordinates: [number, number][] } }[];
+        paths?: {
+          distance: number;
+          time: number;
+          points: { coordinates: [number, number][] };
+        }[];
       };
       const path = body.paths?.[0];
       if (!path) return null;
@@ -60,7 +64,9 @@ export class GraphHopperClient {
         geometry: path.points.coordinates,
       };
     } catch (err) {
-      this.log.warn(`GraphHopper request failed: ${err instanceof Error ? err.message : String(err)}`);
+      this.log.warn(
+        `GraphHopper request failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
       return null;
     }
   }

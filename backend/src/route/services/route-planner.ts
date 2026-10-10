@@ -20,7 +20,10 @@ export type PlannerOptions = {
  * The timeline of visiting `order` from start to end, or null when it breaks the budget or
  * a place is closed when we would arrive.
  */
-export function schedule(order: RouteCandidate[], o: PlannerOptions): Plan | null {
+export function schedule(
+  order: RouteCandidate[],
+  o: PlannerOptions,
+): Plan | null {
   let minutes = 0;
   let walk = 0;
   let visit = 0;
@@ -36,7 +39,12 @@ export function schedule(order: RouteCandidate[], o: PlannerOptions): Plan | nul
     minutes += c.dwellMinutes;
     visit += c.dwellMinutes;
     value += c.value;
-    stops.push({ candidate: c, arriveAt, departAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE), walkMinutes: w });
+    stops.push({
+      candidate: c,
+      arriveAt,
+      departAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
+      walkMinutes: w,
+    });
     prev = c.point;
     if (minutes > o.budgetMinutes) return null;
   }
@@ -44,11 +52,21 @@ export function schedule(order: RouteCandidate[], o: PlannerOptions): Plan | nul
   minutes += home;
   walk += home;
   if (minutes > o.budgetMinutes) return null;
-  return { stops, endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE), totalMinutes: minutes, walkMinutes: walk, visitMinutes: visit, value };
+  return {
+    stops,
+    endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
+    totalMinutes: minutes,
+    walkMinutes: walk,
+    visitMinutes: visit,
+    value,
+  };
 }
 
 /** Greedy insertion by value per added minute, then 2-opt, repeated. Orienteering-problem heuristic. */
-export function planRoute(candidates: RouteCandidate[], o: PlannerOptions): Plan {
+export function planRoute(
+  candidates: RouteCandidate[],
+  o: PlannerOptions,
+): Plan {
   const cache = new Map<string, number>();
   const memo: PlannerOptions = {
     ...o,
@@ -70,14 +88,18 @@ export function planRoute(candidates: RouteCandidate[], o: PlannerOptions): Plan
     // 1) insert while something fits
     for (;;) {
       if (order.length >= o.maxStops) break;
-      let pick: { order: RouteCandidate[]; plan: Plan; ratio: number } | null = null;
+      let pick: { order: RouteCandidate[]; plan: Plan; ratio: number } | null =
+        null;
       for (const c of candidates) {
         if (order.includes(c)) continue;
         for (let i = 0; i <= order.length; i++) {
           const next = [...order.slice(0, i), c, ...order.slice(i)];
           const plan = schedule(next, memo);
           if (!plan) continue;
-          const added = Math.max(MIN_ADDED_MINUTES, plan.totalMinutes - best.totalMinutes);
+          const added = Math.max(
+            MIN_ADDED_MINUTES,
+            plan.totalMinutes - best.totalMinutes,
+          );
           const ratio = (plan.value - best.value) / added;
           if (!pick || ratio > pick.ratio) pick = { order: next, plan, ratio };
         }
@@ -92,7 +114,11 @@ export function planRoute(candidates: RouteCandidate[], o: PlannerOptions): Plan
       improved = false;
       for (let i = 0; i < order.length - 1 && !improved; i++) {
         for (let j = i + 1; j < order.length && !improved; j++) {
-          const next = [...order.slice(0, i), ...order.slice(i, j + 1).reverse(), ...order.slice(j + 1)];
+          const next = [
+            ...order.slice(0, i),
+            ...order.slice(i, j + 1).reverse(),
+            ...order.slice(j + 1),
+          ];
           const plan = schedule(next, memo);
           if (plan && plan.totalMinutes < best.totalMinutes - 0.01) {
             order = next;
@@ -109,11 +135,22 @@ export function planRoute(candidates: RouteCandidate[], o: PlannerOptions): Plan
 
 function emptyPlan(o: PlannerOptions): Plan {
   const minutes = o.walkMinutes(o.start, o.end);
-  return { stops: [], endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE), totalMinutes: minutes, walkMinutes: minutes, visitMinutes: 0, value: 0 };
+  return {
+    stops: [],
+    endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
+    totalMinutes: minutes,
+    walkMinutes: minutes,
+    visitMinutes: 0,
+    value: 0,
+  };
 }
 
 /** The same order with real leg durations (minutes) instead of estimates. */
-export function timeline(order: RouteCandidate[], legMinutes: number[], o: Pick<PlannerOptions, "startAt" | "budgetMinutes">): Plan {
+export function timeline(
+  order: RouteCandidate[],
+  legMinutes: number[],
+  o: Pick<PlannerOptions, "startAt" | "budgetMinutes">,
+): Plan {
   let minutes = 0;
   let walk = 0;
   let visit = 0;
@@ -125,10 +162,22 @@ export function timeline(order: RouteCandidate[], legMinutes: number[], o: Pick<
     minutes += c.dwellMinutes;
     visit += c.dwellMinutes;
     value += c.value;
-    return { candidate: c, arriveAt, departAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE), walkMinutes: legMinutes[i] };
+    return {
+      candidate: c,
+      arriveAt,
+      departAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
+      walkMinutes: legMinutes[i],
+    };
   });
   const last = legMinutes[order.length] ?? 0;
   minutes += last;
   walk += last;
-  return { stops, endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE), totalMinutes: minutes, walkMinutes: walk, visitMinutes: visit, value };
+  return {
+    stops,
+    endAt: new Date(o.startAt.getTime() + minutes * MS_PER_MINUTE),
+    totalMinutes: minutes,
+    walkMinutes: walk,
+    visitMinutes: visit,
+    value,
+  };
 }

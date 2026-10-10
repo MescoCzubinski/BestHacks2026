@@ -1,4 +1,12 @@
-import { Check, Column, Entity, Index, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import {
+  Check,
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from "typeorm";
 import { Place } from "./place.entity";
 import { STYLE_TAGS, type StyleTag } from "./style-tag";
 

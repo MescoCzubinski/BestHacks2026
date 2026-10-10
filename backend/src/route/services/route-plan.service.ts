@@ -74,7 +74,8 @@ export class RoutePlanService {
   async plan(req: PlanRequest): Promise<RoutePlanResponse> {
     const speed = req.preferences.walkingSpeedKmh;
     const direct = estimateWalkMinutes(req.start, req.end, speed);
-    if (direct > req.availableMinutes) throw new TimeBudgetTooSmallException(direct);
+    if (direct > req.availableMinutes)
+      throw new TimeBudgetTooSmallException(direct);
 
     const candidates = await this.selection.select(req);
     if (candidates.length === 0) throw new NoMatchingPlacesException();
@@ -91,21 +92,36 @@ export class RoutePlanService {
     const planned = planRoute(candidates, options);
     if (planned.stops.length === 0) throw new NoMatchingPlacesException();
 
-    return this.confirmWithRealPaths(req, options, planned.stops.map((s) => s.candidate));
+    return this.confirmWithRealPaths(
+      req,
+      options,
+      planned.stops.map((s) => s.candidate),
+    );
   }
 
   /** Walk the chosen order with GraphHopper; if real times break the budget or a closing time, drop the weakest stop. */
-  private async confirmWithRealPaths(req: PlanRequest, options: PlannerOptions, initial: RouteCandidate[]): Promise<RoutePlanResponse> {
+  private async confirmWithRealPaths(
+    req: PlanRequest,
+    options: PlannerOptions,
+    initial: RouteCandidate[],
+  ): Promise<RoutePlanResponse> {
     let order = initial;
     for (let attempt = 0; ; attempt++) {
       const points = [req.start, ...order.map((c) => c.point), req.end];
-      const path = await this.paths.compute(points, { walkingSpeedKmh: req.preferences.walkingSpeedKmh });
+      const path = await this.paths.compute(points, {
+        walkingSpeedKmh: req.preferences.walkingSpeedKmh,
+      });
       const legMinutes = path.legs.map((l) => l.durationS / 60);
       const plan = timeline(order, legMinutes, options);
-      const closed = plan.stops.find((s) => !options.isOpen(s.candidate, s.arriveAt));
+      const closed = plan.stops.find(
+        (s) => !options.isOpen(s.candidate, s.arriveAt),
+      );
       const fits = plan.totalMinutes <= req.availableMinutes && !closed;
       if (fits || order.length === 0 || attempt >= MAX_REFINEMENTS) {
-        if (!fits) this.log.warn(`returning a route that still overshoots by ${Math.round(plan.totalMinutes - req.availableMinutes)} min`);
+        if (!fits)
+          this.log.warn(
+            `returning a route that still overshoots by ${Math.round(plan.totalMinutes - req.availableMinutes)} min`,
+          );
         return this.respond(req, plan, path.legs, path.distanceM);
       }
       const drop = closed?.candidate ?? weakest(plan);
@@ -113,12 +129,22 @@ export class RoutePlanService {
     }
   }
 
-  private respond(req: PlanRequest, plan: Plan, legs: PathLeg[], distanceM: number): RoutePlanResponse {
+  private respond(
+    req: PlanRequest,
+    plan: Plan,
+    legs: PathLeg[],
+    distanceM: number,
+  ): RoutePlanResponse {
     const sources = new Set(legs.map((l) => l.source));
     return {
       startAt: req.startAt.toISOString(),
       endAt: plan.endAt.toISOString(),
-      routing: sources.size > 1 ? "mixed" : sources.has("graphhopper") ? "graphhopper" : "estimate",
+      routing:
+        sources.size > 1
+          ? "mixed"
+          : sources.has("graphhopper")
+            ? "graphhopper"
+            : "estimate",
       totals: {
         budgetMinutes: req.availableMinutes,
         totalMinutes: Math.round(plan.totalMinutes),
@@ -170,6 +196,8 @@ function weakest(plan: Plan): RouteCandidate {
   return plan.stops.reduce((worst, s) => {
     const cost = s.walkMinutes + s.candidate.dwellMinutes;
     const worstCost = worst.walkMinutes + worst.candidate.dwellMinutes;
-    return s.candidate.value / cost < worst.candidate.value / worstCost ? s : worst;
+    return s.candidate.value / cost < worst.candidate.value / worstCost
+      ? s
+      : worst;
   }).candidate;
 }

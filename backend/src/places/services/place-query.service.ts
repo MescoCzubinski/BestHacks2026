@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import type { CandidateQuery, PlaceCandidate, TagCount } from "../place-candidate";
+import type {
+  CandidateQuery,
+  PlaceCandidate,
+  TagCount,
+} from "../place-candidate";
 import type { PlaceFacts, PositionQuality } from "../place-facts";
 import { Place } from "../place.entity";
 import type { StyleTag } from "../style-tag";
@@ -23,7 +27,9 @@ type CandidateRow = {
 /** Read side of the places slice; other slices go through this instead of touching the entities. */
 @Injectable()
 export class PlaceQueryService {
-  constructor(@InjectRepository(Place) private readonly places: Repository<Place>) {}
+  constructor(
+    @InjectRepository(Place) private readonly places: Repository<Place>,
+  ) {}
 
   /** Places in a box that match any of the tags, best significance first, with all their tag scores. */
   async findCandidates(q: CandidateQuery): Promise<PlaceCandidate[]> {

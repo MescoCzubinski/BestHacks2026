@@ -3,7 +3,8 @@ import { evaluateOpeningHours, isOpenAt } from "./opening-hours";
 const TZ = "Europe/Warsaw";
 // 2026-10-12 is a Monday; 10:00 UTC is 12:00 in Warsaw (CEST)
 const monday = (utcHour: number) => new Date(Date.UTC(2026, 9, 12, utcHour, 0));
-const saturday = (utcHour: number) => new Date(Date.UTC(2026, 9, 17, utcHour, 0));
+const saturday = (utcHour: number) =>
+  new Date(Date.UTC(2026, 9, 17, utcHour, 0));
 
 describe("opening hours", () => {
   it("reads weekday ranges in the local time zone", () => {
@@ -29,6 +30,8 @@ describe("opening hours", () => {
   it("treats missing or unreadable hours as open", () => {
     expect(isOpenAt(null, monday(10), TZ)).toBe(true);
     expect(isOpenAt("sunrise-sunset", monday(10), TZ)).toBe(true);
-    expect(evaluateOpeningHours("Apr 01-Nov 11: 07:00-20:00", monday(10), TZ)).toBeNull();
+    expect(
+      evaluateOpeningHours("Apr 01-Nov 11: 07:00-20:00", monday(10), TZ),
+    ).toBeNull();
   });
 });

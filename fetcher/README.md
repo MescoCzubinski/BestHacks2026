@@ -7,16 +7,16 @@ cleans it, grades each place against the tag vocabulary and writes the result to
 
 Set the region in `fetcher/.env` (copy `.env.example`):
 
-| Variable | Meaning |
-|---|---|
-| `REGION_ID` | stable key, prefix of every `external_id` (`[a-z0-9_-]`) |
-| `REGION_NAME` | city name written to `address.city` |
-| `REGION_BBOX` | `south,west,north,east`; every source is queried with it |
-| `REGION_MUNICIPALITY` | locality filter for the national register (NID); empty skips NID |
-| `REGION_GERMAN_UNTIL` | year before which buildings get `german_heritage` (Wrocław: 1945) |
-| `SOURCES` | `osm,wikidata,nid,commons,wroclaw_gis` |
-| `RUN_ONCE` | `1` runs once and exits; otherwise repeats every `INTERVAL_SECONDS` |
-| `EXPORT_SEED_PATH` | also writes the documents (and a `.report.json`) to a file |
+| Variable              | Meaning                                                             |
+| --------------------- | ------------------------------------------------------------------- |
+| `REGION_ID`           | stable key, prefix of every `external_id` (`[a-z0-9_-]`)            |
+| `REGION_NAME`         | city name written to `address.city`                                 |
+| `REGION_BBOX`         | `south,west,north,east`; every source is queried with it            |
+| `REGION_MUNICIPALITY` | locality filter for the national register (NID); empty skips NID    |
+| `REGION_GERMAN_UNTIL` | year before which buildings get `german_heritage` (Wrocław: 1945)   |
+| `SOURCES`             | `osm,wikidata,nid,commons,wroclaw_gis`                              |
+| `RUN_ONCE`            | `1` runs once and exits; otherwise repeats every `INTERVAL_SECONDS` |
+| `EXPORT_SEED_PATH`    | also writes the documents (and a `.report.json`) to a file          |
 
 ```
 docker compose up -d db backend      # schema is created by the backend

@@ -18,21 +18,28 @@ export class PathService {
     return this.graphhopper.enabled;
   }
 
-  async compute(points: GeoPoint[], options: PathOptions = {}): Promise<PathResult> {
+  async compute(
+    points: GeoPoint[],
+    options: PathOptions = {},
+  ): Promise<PathResult> {
     const speed = options.walkingSpeedKmh ?? DEFAULT_WALKING_SPEED_KMH;
     const pairs = points.slice(1).map((to, i) => ({ from: points[i], to }));
-    const legs = await mapLimit(pairs, CONCURRENCY, async ({ from, to }): Promise<PathLeg> => {
-      const route = await this.graphhopper.route(from, to);
-      if (!route) return straightLeg(from, to, speed);
-      return {
-        from,
-        to,
-        distanceM: route.distanceM,
-        durationS: route.durationS * (GRAPHHOPPER_SPEED_KMH / speed),
-        geometry: route.geometry,
-        source: "graphhopper",
-      };
-    });
+    const legs = await mapLimit(
+      pairs,
+      CONCURRENCY,
+      async ({ from, to }): Promise<PathLeg> => {
+        const route = await this.graphhopper.route(from, to);
+        if (!route) return straightLeg(from, to, speed);
+        return {
+          from,
+          to,
+          distanceM: route.distanceM,
+          durationS: route.durationS * (GRAPHHOPPER_SPEED_KMH / speed),
+          geometry: route.geometry,
+          source: "graphhopper",
+        };
+      },
+    );
     return {
       legs,
       distanceM: legs.reduce((s, l) => s + l.distanceM, 0),
@@ -41,15 +48,22 @@ export class PathService {
   }
 }
 
-async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
-  const out = new Array<R>(items.length);
+async function mapLimit<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const out: R[] = Array.from({ length: items.length });
   let next = 0;
-  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (next < items.length) {
-      const i = next++;
-      out[i] = await fn(items[i]);
-    }
-  });
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      while (next < items.length) {
+        const i = next++;
+        out[i] = await fn(items[i]);
+      }
+    },
+  );
   await Promise.all(workers);
   return out;
 }
