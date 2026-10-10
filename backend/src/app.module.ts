@@ -6,6 +6,7 @@ import { DbModule } from "./common/db/db.module";
 import { DomainExceptionFilter } from "./common/errors/domain-exception.filter";
 import { validateEnv } from "./common/env";
 import { HealthModule } from "./health/health.module";
+import { PlacesModule } from "./places/places.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { HealthModule } from "./health/health.module";
     DbModule,
     AuthModule,
     HealthModule,
+    PlacesModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: DomainExceptionFilter }],
 })
