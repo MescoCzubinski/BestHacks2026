@@ -9,8 +9,8 @@ import httpx
 
 log = logging.getLogger("http")
 
-USER_AGENT = "BESTHacks2026-heritage-fetcher/0.1 (https://github.com/MescoCzubinski/BestHacks2026; polite, throttled)"  # Wikimedia requires contact info
-BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0 Safari/537.36"  # the GUGiK geocoder rejects bots
+USER_AGENT = "BESTHacks2026-heritage-fetcher/0.1 (https://github.com/MescoCzubinski/BestHacks2026; polite, throttled)"
+BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0 Safari/537.36"
 RETRY_STATUS = {429, 500, 502, 503, 504}
 MAX_BACKOFF_S = 90.0
 

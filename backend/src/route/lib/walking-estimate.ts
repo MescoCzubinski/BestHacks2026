@@ -1,7 +1,6 @@
 import type { LatLng } from "../../city/bbox";
 
 const EARTH_RADIUS_M = 6_371_000;
-/** Real walking routes are longer than the crow flies; this is a typical city factor. */
 export const DETOUR_FACTOR = 1.3;
 export const DEFAULT_WALKING_SPEED_KMH = 4.5;
 
@@ -15,7 +14,6 @@ export function haversineM(a: LatLng, b: LatLng): number {
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
 }
 
-/** Minutes to walk between two points without a routing engine; the real time comes from the path finder. */
 export function estimateWalkMinutes(
   a: LatLng,
   b: LatLng,

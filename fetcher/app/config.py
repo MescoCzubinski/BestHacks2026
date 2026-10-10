@@ -18,10 +18,10 @@ class Region:
     east: float
     lang: str = "pl"
     municipality: str = ""
-    admin_area: str = ""  # voivodeship / state, only used for the address
+    admin_area: str = ""
     country: str = "Polska"
     country_code: str = "PL"
-    german_until: int | None = None  # year before which buildings count as German heritage (Wrocław: 1945)
+    german_until: int | None = None
 
     @property
     def bbox(self) -> tuple[float, float, float, float]:
@@ -52,18 +52,17 @@ class Settings:
 DEFAULT_SOURCES = ("osm", "wikidata", "nid", "commons")
 
 
-# The area this fetcher covers. One region is built in; the bounding box drives every source query.
 REGION = Region(
-    id="wroclaw",  # prefix of every external_id, cache folder name and prune scope
+    id="wroclaw",
     name="Wrocław",
     south=50.99,
     west=16.78,
     north=51.22,
     east=17.18,
     lang="pl",
-    municipality="Wrocław",  # locality filter for the national register (NID)
+    municipality="Wrocław",
     admin_area="dolnośląskie",
-    german_until=1945,  # Wrocław was German Breslau until 1945
+    german_until=1945,
 )
 
 

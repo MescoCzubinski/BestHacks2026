@@ -11,7 +11,6 @@ export class LocationSearchService {
     private readonly geocoder: Geocoder,
   ) {}
 
-  /** Addresses matching the query, only inside supported cities (not their surroundings). */
   async search(
     query: string,
     limit = DEFAULT_LOCATION_LIMIT,

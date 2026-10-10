@@ -43,7 +43,7 @@ def display_name(p: dict[str, Any], region: Region) -> str:
     name = strip_city(p.get("name") or "", region.municipality or region.name)
     street = (p.get("address") or "").strip()
     if name:
-        if street and name == name.lower() and len(name.split()) <= 2:  # bare "kamienica": say which one
+        if street and name == name.lower() and len(name.split()) <= 2:
             return f"{name[:1].upper()}{name[1:]}, {street}"
         return name
     for k in p.get("kinds") or []:

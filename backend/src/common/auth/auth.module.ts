@@ -6,7 +6,7 @@ import { AuthController } from "./auth.controller";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RolesGuard } from "./roles.guard";
 
-const TOKEN_TTL = 60 * 60; // seconds (1 hour)
+const TOKEN_TTL = 60 * 60;
 
 @Module({
   imports: [
@@ -21,7 +21,6 @@ const TOKEN_TTL = 60 * 60; // seconds (1 hour)
   controllers: [AuthController],
   exports: [JwtModule],
   providers: [
-    // Every route requires a valid JWT unless marked @Public(); then @Roles() is enforced.
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
   ],

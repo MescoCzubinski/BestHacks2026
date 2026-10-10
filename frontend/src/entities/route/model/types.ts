@@ -7,7 +7,6 @@ export type RouteStop = {
   lat: number;
   lng: number;
   visitMinutes: number;
-  /** Can be entered, so the user may set a longer visit. */
   enterable: boolean;
 };
 

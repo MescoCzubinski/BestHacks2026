@@ -7,8 +7,8 @@ import {
   MinLength,
 } from "class-validator";
 
-export const MAX_TEXTS = 64; // per request; the caller batches
-export const MAX_TEXT_LENGTH = 2000; // characters
+export const MAX_TEXTS = 64;
+export const MAX_TEXT_LENGTH = 2000;
 
 export class EmbedTextsDto {
   @IsArray()

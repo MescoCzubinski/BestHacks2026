@@ -10,7 +10,6 @@ export class PathFinderService {
     private readonly router: PathRouter,
   ) {}
 
-  /** Walking path through the points in order; every point must be inside a supported city. */
   async find(points: LatLng[]): Promise<RoutedPath> {
     await this.cities.assertInsideSupported(points);
     return this.router.route(points);

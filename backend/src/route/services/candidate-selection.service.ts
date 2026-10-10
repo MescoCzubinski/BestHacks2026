@@ -10,18 +10,17 @@ import {
 } from "../lib/walking-estimate";
 import type { RouteQuery } from "./route-planner";
 
-const MIN_TAG_PERCENT = 50; // below this a place is not "about" the tag
-const MAX_CANDIDATES = 120; // enough choice for the planner, small enough to stay fast
+const MIN_TAG_PERCENT = 50;
+const MAX_CANDIDATES = 120;
 const QUERY_LIMIT = 600;
 const KM_PER_DEGREE = 111.2;
-const BASE_SIGNIFICANCE = 0.5; // a place nobody wrote about still counts half; fame adds up to +0.5
+const BASE_SIGNIFICANCE = 0.5;
 const ACCESSIBILITY_BOOST: Record<Accessibility, number> = {
   yes: 1.3,
   limited: 1.1,
   unknown: 0.9,
 };
 
-/** Which places can be on this route and how much each one is worth. */
 @Injectable()
 export class CandidateSelectionService {
   constructor(private readonly places: PlaceQueryService) {}
@@ -75,7 +74,6 @@ export class CandidateSelectionService {
   }
 }
 
-/** Every reachable point lies within half the walkable distance of the midpoint between start and end. */
 function reachableBox(query: RouteQuery) {
   const walkKm =
     ((query.durationMinutes / 60) * DEFAULT_WALKING_SPEED_KMH) / DETOUR_FACTOR;
@@ -93,7 +91,6 @@ function reachableBox(query: RouteQuery) {
   };
 }
 
-/** Quick test: start -> place -> end plus the visit must fit the budget on its own. */
 function detourFits(c: RouteCandidate, query: RouteQuery): boolean {
   const there = estimateWalkMinutes(query.start, c.point);
   const back = estimateWalkMinutes(c.point, query.end);

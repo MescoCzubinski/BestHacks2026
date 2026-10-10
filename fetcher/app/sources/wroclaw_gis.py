@@ -19,7 +19,6 @@ MAX_FEATURES = 20000
 CULTURE = "studium2018/NR_03_UWAR_DZIEDZICTWO_KULTUROWE"
 POLICY = "studium2018/NR_12_KIER_POLITYKA_DZIEDZICTWA_KULTUROWEGO"
 
-# (service, layer id, theme hint, label, name field)
 LAYERS: list[tuple[str, int, str | None, str, str | None]] = [
     ("Pomniki_przyrody", 0, "nature", "nature monument", "NAZWA"),
     (CULTURE, 4, "fortifications", "fortress object", None),
@@ -37,7 +36,7 @@ LAYERS: list[tuple[str, int, str | None, str, str | None]] = [
     (POLICY, 28, "nature", "historic green area", None),
     ("obiekty_zzm_scalone", 0, "nature", "city green space (ZZM)", "NAZWA"),
 ]
-REGISTER_LAYER = (CULTURE, 3)  # registered monuments as unnamed points
+REGISTER_LAYER = (CULTURE, 3)
 
 
 def _fetch_layer(http: Http, service: str, layer: int) -> list[dict[str, Any]]:

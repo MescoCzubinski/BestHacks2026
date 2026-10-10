@@ -16,7 +16,6 @@ export class Place {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  /** Stable id from the data pipeline (e.g. "wr-00917"); lets re-imports upsert instead of duplicate. */
   @Index({ unique: true })
   @Column("text", { name: "external_id", nullable: true })
   externalId: string | null;
@@ -36,31 +35,25 @@ export class Place {
   @Column("jsonb")
   address: Address;
 
-  /** How trustworthy the coordinates are; routing should prefer address/point over centroid. */
   @Column("text", { name: "position_quality", default: "point" })
   positionQuality: PositionQuality;
 
-  /** Year of construction/creation when known. */
   @Column("smallint", { nullable: true })
   year: number | null;
 
-  /** Free-text date as published ("XVIII w.", "1903 r."). */
   @Column("text", { name: "date_text", nullable: true })
   dateText: string | null;
 
-  /** 0-100 "worth a stop" score (photo, description, protection, number of sources); used to rank when fitting a time budget. */
   @Index()
   @Column("smallint", { default: 0 })
   significance: number;
 
-  /** Raw attributes we keep for the story card (original style label, function, material, protection...). */
   @Column("jsonb", { default: () => "'{}'" })
   facts: PlaceFacts;
 
   @Column("jsonb", { default: () => "'{}'" })
   links: PlaceLinks;
 
-  /** Datasets this record was merged from (osm, wikidata, nid, wroclaw_gis). */
   @Column("text", { array: true, default: () => "'{}'" })
   sources: string[];
 

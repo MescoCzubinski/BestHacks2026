@@ -20,13 +20,13 @@ from .clean import GENERIC_KINDS
 
 log = logging.getLogger("tagging")
 
-INFER_MIN_PROBA = 0.30  # classifier probability below this is not emitted as a tag
+INFER_MIN_PROBA = 0.30
 INFER_MAX_PERCENT = 70
 MIN_TAG_PERCENT = 15
 MIN_CLASS_EXAMPLES = 8
 MIN_TRAIN_EXAMPLES = 60
-EXPLICIT_TRAIN_MIN = 80  # only NID-grade labels train the classifier; text-keyword hits stay out
-ACCESSIBLE_PERCENT = {"yes": 100, "limited": 50}  # "no" is kept in facts; absence of a tag means unknown
+EXPLICIT_TRAIN_MIN = 80
+ACCESSIBLE_PERCENT = {"yes": 100, "limited": 50}
 WD_WORLD_HERITAGE = "Q9259"
 WD_POMNIK_HISTORII = "Q15981101"
 WD_JUDAISM = "Q9268"
@@ -104,7 +104,6 @@ STYLE_MAP: dict[str, dict[str, int]] = {
     "alpejski": {"vernacular": 60},
     "szachulcowy": {"vernacular": 80},
 }
-# style words found in free text (name / Wikipedia extract): weaker than the NID field
 STYLE_TEXT: list[tuple[re.Pattern[str], dict[str, int]]] = [
     (_r(p), t)
     for p, t in [
@@ -131,7 +130,6 @@ STYLE_TEXT: list[tuple[re.Pattern[str], dict[str, int]]] = [
 STYLE_WORDS = _r(
     r"(neo)?(gotyck|gotyk|romańsk|renesans|barok|rokok|klasycyst|secesj|eklekty|modernist|ekspresjon|art deco|funkcjonal|brutal|bauhaus)\w*"
 )
-# year -> soft prior, used only when nothing explicit exists (cap 35)
 ERA_PRIORS: list[tuple[int, int, dict[str, int]]] = [
     (0, 1500, {"gothic": 30, "romanesque": 15}),
     (1500, 1600, {"renaissance": 30}),
@@ -143,7 +141,6 @@ ERA_PRIORS: list[tuple[int, int, dict[str, int]]] = [
     (1950, 1990, {"brutalism": 15, "modernism": 20}),
     (1990, 2100, {"contemporary": 35}),
 ]
-# near neighbours: part of a score spills over (tag -> {neighbour: factor})
 CLOSE: dict[str, dict[str, float]] = {
     "neogothic": {"gothic": 0.5, "historicism": 0.6},
     "neorenaissance": {"renaissance": 0.45, "historicism": 0.6},
@@ -156,7 +153,6 @@ CLOSE: dict[str, dict[str, float]] = {
     "mannerism": {"renaissance": 0.4, "baroque": 0.25},
     "expressionism": {"modernism": 0.4},
 }
-# Wikidata "architectural style" (P149) values -> tags; language independent, so it works outside Poland too
 WD_STYLE: dict[str, dict[str, int]] = {
     "Q245188": {"modernism": 85},
     "Q1295040": {"art_nouveau": 85, "secession": 85},
@@ -268,12 +264,12 @@ def theme_scores(p: dict[str, Any], tags: dict[str, float], sig: int, region: Re
         bump("street_art", 75)
     elif re.search(r"mural|graffiti|street art", text):
         bump("street_art", 85)
-    if theme == "dwarfs":  # Wrocław's krasnale: small figures in the street
+    if theme == "dwarfs":
         bump("sculpture", 80)
         bump("street_art", 80)
         bump("free_entry", 95)
     if any(tags.get(t) for t in OUTDOOR_TAGS):
-        bump("free_entry", 80)  # a guess: outdoor objects usually cost nothing; OSM `fee` overrides it below
+        bump("free_entry", 80)
     return s
 
 
