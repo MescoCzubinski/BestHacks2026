@@ -1,4 +1,8 @@
-import { Injectable, Logger, type OnApplicationBootstrap } from "@nestjs/common";
+import {
+  Injectable,
+  Logger,
+  type OnApplicationBootstrap,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -6,7 +10,11 @@ import { In, IsNull, Not, Repository } from "typeorm";
 import { City } from "../../../city/entities/city.entity";
 import { CITY_SEEDS } from "./city.seed";
 import type { Address } from "../../../places/address";
-import type { PlaceFacts, PlaceLinks, PositionQuality } from "../../../places/place-facts";
+import type {
+  PlaceFacts,
+  PlaceLinks,
+  PositionQuality,
+} from "../../../places/place-facts";
 import { PlaceTag } from "../../../places/place-tag.entity";
 import { Place } from "../../../places/place.entity";
 import type { StyleTag } from "../../../places/style-tag";
@@ -61,11 +69,15 @@ export class SeedService implements OnApplicationBootstrap {
       where: { externalId: Not(IsNull()) },
     });
     const current = new Set(rows.map((r) => r.externalId));
-    const staleIds = stale.filter((p) => !current.has(p.externalId!)).map((p) => p.id);
+    const staleIds = stale
+      .filter((p) => !current.has(p.externalId!))
+      .map((p) => p.id);
     for (let i = 0; i < staleIds.length; i += CHUNK_SIZE) {
       await this.places.delete({ id: In(staleIds.slice(i, i + CHUNK_SIZE)) }); // tags cascade
     }
-    this.log.log(`seeded ${rows.length} places, removed ${staleIds.length} no longer in the seed`);
+    this.log.log(
+      `seeded ${rows.length} places, removed ${staleIds.length} no longer in the seed`,
+    );
   }
 
   private async upsertChunk(chunk: SeedPlace[]): Promise<void> {
@@ -84,7 +96,11 @@ export class SeedService implements OnApplicationBootstrap {
     const ids = [...idByExternal.values()];
     await this.tags.delete({ placeId: In(ids) });
     const tagRows = chunk.flatMap((p) =>
-      p.tags.map((t) => ({ placeId: idByExternal.get(p.externalId)!, tag: t.tag, percent: t.percent })),
+      p.tags.map((t) => ({
+        placeId: idByExternal.get(p.externalId)!,
+        tag: t.tag,
+        percent: t.percent,
+      })),
     );
     for (let i = 0; i < tagRows.length; i += CHUNK_SIZE * 4) {
       await this.tags.insert(tagRows.slice(i, i + CHUNK_SIZE * 4));
