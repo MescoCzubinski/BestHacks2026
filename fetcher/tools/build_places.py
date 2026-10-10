@@ -54,7 +54,10 @@ KIND_PL = {
     "fountain": "Fontanna",
     "bridge": "Most",
 }
-DEDUPE_RADIUS_M = 35.0
+INFER_MIN_PROBA = 0.30  # classifier probability below this is not emitted as a tag
+DEDUPE_RADIUS_M = 35.0  # same-source repeats
+CROSS_SOURCE_RADIUS_M = 400.0  # same name from different sources: one is a point, the other a polygon centroid or address
+MIN_CROSS_NAME_LEN = 8  # shorter names ("Pomnik", "Kaplica") are too generic to merge across 400 m
 ZOO_CENTRE = {"lat": 51.1043, "lon": 17.0746}  # Wrocław Zoo; its animals are OSM tourism=attraction nodes
 ZOO_RADIUS_M = 600.0
 
@@ -65,8 +68,25 @@ def meters(a: dict, b: dict) -> float:
     return math.hypot(dx, dy)
 
 
+CITY_PREFIX = re.compile(r"^wroc[łl]aw\s*[-–—:]\s*", re.I)
+CITY_SUFFIX = re.compile(r"\s+(we|in|w)\s+wroc[łl]awiu$", re.I)
+
+
+def strip_city(name: str) -> str:
+    """"Wrocław - Hala Stulecia" / "Kamienica ... we Wrocławiu" are Wikipedia-style titles of the same object."""
+    return CITY_SUFFIX.sub("", CITY_PREFIX.sub("", (name or "").strip())).strip()
+
+
+GRID_LAT = CROSS_SOURCE_RADIUS_M / 111_200  # one cell is as wide as the largest match radius
+GRID_LON = CROSS_SOURCE_RADIUS_M / (111_200 * math.cos(math.radians(51.1)))
+
+
+def grid_key(p: dict) -> tuple[int, int]:
+    return int(p["lat"] / GRID_LAT), int(p["lon"] / GRID_LON)
+
+
 def norm_name(s: str) -> str:
-    return re.sub(r"[^\w]+", " ", (s or "").lower()).strip()
+    return re.sub(r"[^\w]+", " ", strip_city(s).lower()).strip()
 
 
 def is_unnamed_junk(p: dict) -> bool:
@@ -91,6 +111,17 @@ def is_not_a_place(p: dict) -> bool:
     return kinds == ["attraction"] and in_zoo and p["sources"] == ["osm"] and not (p.get("wikipedia") or p.get("wikidata"))
 
 
+def absorb(keep: dict, dup: dict) -> None:
+    """Fold a duplicate into the richer record: fill gaps, union lists."""
+    for k, v in dup.items():
+        if k in ("media", "documents", "sources", "kinds"):
+            keep[k] = list(dict.fromkeys([*(keep.get(k) or []), *(v or [])]))
+        elif k == "refs":
+            keep.setdefault("refs", {}).update({r: x for r, x in (v or {}).items() if r not in keep["refs"]})
+        elif keep.get(k) in (None, "", [], {}) and v not in (None, "", [], {}):
+            keep[k] = v
+
+
 def clean(places: list[dict]) -> tuple[list[dict], Counter]:
     drops: Counter = Counter()
     kept = []
@@ -106,23 +137,28 @@ def clean(places: list[dict]) -> tuple[list[dict], Counter]:
         else:
             kept.append(p)
 
-    # near-duplicates the first merge missed: same normalised name within a few metres
+    # near-duplicates the first merge missed: same normalised name, close by
     def richness(p: dict) -> int:
-        return len(p.get("media") or []) * 2 + len(p["sources"]) * 3 + (5 if p.get("extract") else 0)
+        return len(p.get("media") or []) * 2 + len(p["sources"]) * 3 + (5 if p.get("extract") else 0) + (2 if p.get("year") else 0)
 
     cell: dict[tuple[int, int], list[dict]] = {}
     out = []
     for p in sorted(kept, key=richness, reverse=True):
         n = norm_name(p.get("name"))
-        key = (int(p["lat"] * 2000), int(p["lon"] * 1400))
-        dup = False
+        key = grid_key(p)
+        twin = None
         if n:
             for dx in (-1, 0, 1):
                 for dy in (-1, 0, 1):
                     for q in cell.get((key[0] + dx, key[1] + dy), []):
-                        if norm_name(q.get("name")) == n and meters(p, q) < DEDUPE_RADIUS_M:
-                            dup = True
-        if dup:
+                        if norm_name(q.get("name")) != n:
+                            continue
+                        d = meters(p, q)
+                        cross = set(p["sources"]) != set(q["sources"]) and len(n) >= MIN_CROSS_NAME_LEN
+                        if d < DEDUPE_RADIUS_M or (cross and d < CROSS_SOURCE_RADIUS_M):
+                            twin = q
+        if twin:
+            absorb(twin, p)
             drops["duplicate_name_nearby"] += 1
             continue
         cell.setdefault(key, []).append(p)
@@ -143,8 +179,11 @@ def split_address(raw: str) -> tuple[str, str]:
 
 
 def display_name(p: dict) -> str:
-    name = re.sub(r"\s+we Wrocławiu$", "", (p.get("name") or "").strip())
+    name = strip_city(p.get("name") or "")
     if name:
+        street = (p.get("address") or "").strip()
+        if street and name == name.lower() and len(name.split()) <= 2:  # bare "kamienica": say which one
+            return f"{name[:1].upper()}{name[1:]}, {street}"
         return name
     for k in p.get("kinds") or []:
         if k in KIND_PL:
@@ -154,7 +193,7 @@ def display_name(p: dict) -> str:
     if fn:
         street = split_address(p.get("address") or "")[0]
         return f"{fn[:1].upper()}{fn[1:]}, {street}" if street else fn[:1].upper() + fn[1:]
-    return "Obiekt bez nazwy"
+    return ""
 
 
 def clip(s: str, n: int) -> str:
@@ -497,9 +536,10 @@ def infer_styles(places: list[dict], explicit: list[dict[str, float]], emb: np.n
         row: dict[str, float] = {}
         if not any(t in GROUPS["style"] for t in explicit[i]):
             building_like = any(explicit[i].get(t) for t in GROUPS["type"]) or p["theme"] in ("architecture", "sacred", "industrial", "culture")
-            if building_like and p["theme"] not in ("dwarfs", "memorials"):
+            text_evidence = len((p.get("extract") or p.get("description") or "")) >= 40
+            if building_like and p["theme"] not in ("dwarfs", "memorials") and (p.get("year") or text_evidence):
                 for c, pr in zip(clf.classes_, proba[i]):
-                    if pr >= 0.12:
+                    if pr >= INFER_MIN_PROBA:
                         row[c] = min(70.0, round(100 * float(pr)))
         out.append(row)
     report["styles"] = styles
@@ -567,8 +607,12 @@ def build(data: Path, out: Path, model_name: str, osm_raw: Path | None = None, w
     inferred, report = infer_styles(places, explicit, emb)
 
     seed = []
+    nameless = 0
     tag_counter: Counter = Counter()
     for p, ex, inf in zip(places, explicit, inferred):
+        if not display_name(p):
+            nameless += 1
+            continue
         sig = significance(p)
         if WD_POMNIK_HISTORII in claims.get(p.get("wikidata") or "", {}).get("P1435", []):
             sig = min(100, sig + 25)  # Pomnik Historii: the top Polish heritage designation
@@ -641,7 +685,7 @@ def build(data: Path, out: Path, model_name: str, osm_raw: Path | None = None, w
     summary = {
         "input": len(places) + sum(drops.values()),
         "kept": len(seed),
-        "dropped": dict(drops),
+        "dropped": {**drops, "no_usable_name": nameless},
         "with_style_tag": sum(1 for s in seed if any(GROUP_OF[t["tag"]] == "style" for t in s["tags"])),
         "with_type_tag": sum(1 for s in seed if any(GROUP_OF[t["tag"]] == "type" for t in s["tags"])),
         "with_any_tag": sum(1 for s in seed if s["tags"]),
