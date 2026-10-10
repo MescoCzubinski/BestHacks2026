@@ -18,14 +18,10 @@ import {
 
 const DEFAULT_TIME_ZONE = "Europe/Warsaw";
 const DEFAULT_MAX_STOPS = 12;
-const MAX_EXTRAS = 10; // matching places left out, offered as swaps
-const MAX_REFINEMENTS = 3; // re-checks against the real walking time before accepting the estimate
+const MAX_EXTRAS = 10;
+const MAX_REFINEMENTS = 3;
 const SECONDS_PER_MINUTE = 60;
 
-/**
- * Chooses and orders stops with an orienteering heuristic (value per added minute, then 2-opt),
- * planning on straight-line estimates and then confirming the total with the real walking path.
- */
 @Injectable()
 export class OrienteeringRoutePlanner extends RoutePlanner {
   private readonly log = new Logger(OrienteeringRoutePlanner.name);
@@ -60,7 +56,6 @@ export class OrienteeringRoutePlanner extends RoutePlanner {
     let plan = planRoute(candidates, options);
     if (plan.stops.length === 0) throw new NoMatchingPlacesException();
 
-    // the estimate ignores the real street network; if the real path is longer, drop the weakest stop
     for (let attempt = 0; attempt < MAX_REFINEMENTS; attempt++) {
       const order = plan.stops.map((s) => s.candidate);
       const path = await this.pathFinder.find([
@@ -107,7 +102,6 @@ function toPlannedStop(c: RouteCandidate, arriveAt?: Date): PlannedStop {
   };
 }
 
-/** The stop that gives the least value per minute it takes (walking to it plus the visit). */
 function weakest(plan: Plan): RouteCandidate {
   return plan.stops.reduce((worst, s) => {
     const cost = s.walkMinutes + s.candidate.dwellMinutes;

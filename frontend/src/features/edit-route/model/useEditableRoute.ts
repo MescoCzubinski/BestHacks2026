@@ -13,7 +13,6 @@ export type EditableRoute = {
   start: RoutePoint;
   end: RoutePoint;
   stops: RouteStop[];
-  /** Places outside the route that the user may still add. */
   extras: RouteStop[];
   path: WalkingPath;
 };

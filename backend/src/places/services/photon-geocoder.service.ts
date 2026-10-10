@@ -6,7 +6,7 @@ import { Geocoder, type GeocodedLocation } from "./geocoder";
 
 const PHOTON_URL = "https://photon.komoot.io/api/";
 const PHOTON_REVERSE_URL = "https://photon.komoot.io/reverse";
-const REQUEST_TIMEOUT = 5000; // milliseconds
+const REQUEST_TIMEOUT = 5000;
 
 @Injectable()
 export class PhotonGeocoder extends Geocoder {

@@ -1,9 +1,3 @@
-/**
- * Minimal reader for OSM `opening_hours`. It understands the common shapes (24/7, day ranges,
- * several time ranges, "off", month ranges like "Apr-Oct: ..."). Anything else is "unknown",
- * and unknown is treated as open, which is the product rule (assume 24/7 without data).
- */
-
 const DAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"] as const;
 const MONTHS = [
   "Jan",
@@ -57,7 +51,7 @@ function inRange(
     const to = names.indexOf(b);
     return from <= to
       ? index >= from && index <= to
-      : index >= from || index <= to; // wraps (Nov-Mar)
+      : index >= from || index <= to;
   });
 }
 
@@ -74,7 +68,6 @@ function inTimes(times: string, minutes: number): boolean {
   });
 }
 
-/** true/false when the string is understood, null when it is not. */
 export function evaluateOpeningHours(
   raw: string,
   at: Date,
@@ -84,7 +77,7 @@ export function evaluateOpeningHours(
   if (text === "24/7") return true;
   const local = localParts(at, timeZone);
   if (local.day < 0 || local.month < 0) return null;
-  let open: boolean | null = false; // OSM: when no rule matches the day, the place is closed
+  let open: boolean | null = false;
   for (const part of text.split(";")) {
     const rule = part.trim();
     if (!rule) continue;
@@ -97,7 +90,7 @@ export function evaluateOpeningHours(
         .split(",")
         .filter((d) => d !== "PH")
         .join(",");
-      if (!regular || !inRange(regular, local.day, DAYS)) continue; // public holidays are not modelled
+      if (!regular || !inRange(regular, local.day, DAYS)) continue;
     }
     open =
       times === "off" || times === "closed"

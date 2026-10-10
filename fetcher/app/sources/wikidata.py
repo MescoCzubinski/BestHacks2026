@@ -18,11 +18,11 @@ SPARQL_URL = "https://query.wikidata.org/sparql"
 API_URL = "https://www.wikidata.org/w/api.php"
 CACHE_TTL_S = 14 * 24 * 3600
 EXTRACT_MAX_CHARS = 1200
-CLAIM_PROPS = ("P1435", "P140", "P149")  # heritage designation, religion, architectural style; P757 (World Heritage ID) is read as a flag
+CLAIM_PROPS = ("P1435", "P140", "P149")
 BATCH = 50
 
 
-TILE_LAT_DEG = 0.12  # one SPARQL query per tile keeps each response small enough not to be cut off
+TILE_LAT_DEG = 0.12
 TILE_LON_DEG = 0.20
 TILE_PAUSE_S = 2.0
 
@@ -97,7 +97,7 @@ def fill_extracts(http: Http, cache: Cache, region: Region, items: list[dict[str
     titles = list(by_title)
     log.info("wikipedia: %d extracts to fetch", len(titles))
     api = f"https://{region.lang}.wikipedia.org/w/api.php"
-    step = 10  # larger batches trigger 429 on the extracts endpoint
+    step = 10
     for i in range(0, len(titles), step):
         batch = titles[i : i + step]
         try:
@@ -105,7 +105,7 @@ def fill_extracts(http: Http, cache: Cache, region: Region, items: list[dict[str
                 api,
                 params={"action": "query", "prop": "extracts", "exintro": 1, "explaintext": 1, "exlimit": step, "titles": "|".join(batch), "format": "json", "redirects": 1},
             )["query"]
-        except Exception as exc:  # a missing intro is not worth failing the run; it is retried next time
+        except Exception as exc:
             log.warning("extracts batch %d skipped: %s", i, exc)
             continue
         back = {n["to"]: n["from"] for n in res.get("normalized", [])}
@@ -145,7 +145,7 @@ def to_records(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     records = []
     for d in items:
         name = d.get("name") or ""
-        if re.fullmatch(r"Q\d+", name):  # unlabelled item
+        if re.fullmatch(r"Q\d+", name):
             continue
         kinds = d.get("types", [])
         records.append(

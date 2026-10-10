@@ -24,14 +24,12 @@ type CandidateRow = {
   tags: Partial<Record<StyleTag, number>>;
 };
 
-/** Read side of the places slice; other slices go through this instead of touching the entities. */
 @Injectable()
 export class PlaceQueryService {
   constructor(
     @InjectRepository(Place) private readonly places: Repository<Place>,
   ) {}
 
-  /** Places in a box that match any of the tags, best significance first, with all their tag scores. */
   async findCandidates(q: CandidateQuery): Promise<PlaceCandidate[]> {
     const rows: CandidateRow[] = await this.places.query(
       `SELECT p.id, p.name, p.latitude, p.longitude, p.description, p.main_image_url, p.significance,
@@ -63,7 +61,6 @@ export class PlaceQueryService {
     }));
   }
 
-  /** How many places carry each tag at or above `minPercent`. */
   async tagCounts(minPercent: number): Promise<TagCount[]> {
     const rows: { tag: StyleTag; count: string }[] = await this.places.query(
       `SELECT tag, count(*) AS count FROM place_tags WHERE percent >= $1 GROUP BY tag ORDER BY count(*) DESC`,

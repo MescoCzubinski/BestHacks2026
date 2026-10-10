@@ -8,7 +8,6 @@ import {
 } from "typeorm";
 import type { Bbox } from "../bbox";
 
-/** A city the app has data for; addresses are only accepted inside its bbox. */
 @Entity("supported_cities")
 export class City {
   @PrimaryGeneratedColumn("uuid")

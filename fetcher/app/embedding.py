@@ -12,9 +12,9 @@ from .http import Http
 
 log = logging.getLogger("embedding")
 
-BATCH_SIZE = 32  # texts per request; the backend accepts up to 64
-MAX_TEXT_CHARS = 1000  # the model truncates anyway; keeps requests small
-READY_TIMEOUT_S = 15 * 60  # the backend may still be starting (and downloading its model)
+BATCH_SIZE = 32
+MAX_TEXT_CHARS = 1000
+READY_TIMEOUT_S = 15 * 60
 READY_POLL_S = 5.0
 HEALTH_PATH = "/api/health"
 EMBEDDINGS_PATH = "/api/embeddings"
@@ -34,7 +34,7 @@ class BackendEmbedder:
             try:
                 self._http.get_json(self._base + HEALTH_PATH)
                 return
-            except Exception as exc:  # not up yet: connection refused, 503, ...
+            except Exception as exc:
                 if time.monotonic() > deadline:
                     raise RuntimeError(f"backend not healthy at {self._base}{HEALTH_PATH}") from exc
                 log.info("waiting for the backend (%s)", exc.__class__.__name__)

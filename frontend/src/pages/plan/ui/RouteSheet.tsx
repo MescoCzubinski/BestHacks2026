@@ -16,7 +16,6 @@ type Props = {
   onPick: (id: string) => void;
 };
 
-/** Mobile bottom drawer over the map: route summary always visible, places listed when expanded. */
 export function RouteSheet({ stops, path, onPick }: Props) {
   const [open, setOpen] = useState(false);
   const totals = routeTotals(path, stops);

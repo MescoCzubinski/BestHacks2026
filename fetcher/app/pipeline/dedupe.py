@@ -20,13 +20,12 @@ from .text import norm
 
 CROSS_SOURCE_RADIUS_M = 60.0
 SAME_SOURCE_RADIUS_M = 35.0
-IMPRECISE_POSITION_RADIUS_M = 220.0  # a register entry placed on its street can be this far from the real building
-IMPRECISE_QUALITY = 2  # pos_quality: 4 address, 3 point, 2 street, 1 centroid
+IMPRECISE_POSITION_RADIUS_M = 220.0
+IMPRECISE_QUALITY = 2
 TYPE_TAG_MIN_PERCENT = 70
-_GRID_DEG = 0.0018  # about 200 m of latitude; neighbours are searched two cells out
+_GRID_DEG = 0.0018
 PLACE_WORDS = set("plac rynek ulica aleja skwer park osiedle".split())
 
-# Words that only name a kind of object; sharing them says nothing about being the same object.
 KIND_WORDS = set(
     """kamienica dom budynek willa kosciol kaplica pomnik cmentarz park mur ogrodzenie schron fort most stacja
     plac ulica mieszkalny apteka stajnia palac szkola szpital hala zespol dworzec rzezba krzyz przydrozny
@@ -60,12 +59,11 @@ def _same_object(a: dict[str, Any], b: dict[str, Any], ta: set[str], tb: set[str
     if not small <= big:
         return False
     if not (small - KIND_WORDS):
-        return False  # only generic words in common: two different monuments, murals, crosses
-    # "Plac Teatralny" is a square; "Kamienica, Plac Teatralny 2" is a house on it
+        return False
     if small & PLACE_WORDS and any(re.search(r"\d", t) for t in big - small):
         return False
     if ta and tb and not (ta & tb):
-        return False  # incompatible kinds: a square and the air-raid shelter beneath it
+        return False
     return True
 
 
@@ -75,7 +73,6 @@ def merge_near_duplicates(places: list[dict[str, Any]], region: Region) -> tuple
         p["_tokens"] = _tokens(display_name(p, region))
     types = [_type_tags(p) for p in places]
 
-    # richer records first, so they are the ones that survive
     order = sorted(
         range(len(places)),
         key=lambda i: -(len(places[i].get("media") or []) * 2 + len(places[i]["sources"]) * 3 + (5 if places[i].get("extract") else 0)),
@@ -97,7 +94,7 @@ def merge_near_duplicates(places: list[dict[str, Any]], region: Region) -> tuple
         a = places[i]
         for j in grid.near(a["lat"], a["lon"], rings=2):
             if j == i or rank[j] < rank[i]:
-                continue  # each pair once, from the richer side
+                continue
             if find(i) == find(j):
                 continue
             if _same_object(a, places[j], types[i], types[j]):

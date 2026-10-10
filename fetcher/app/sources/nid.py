@@ -19,7 +19,6 @@ from ..pipeline.themes import theme_of
 
 log = logging.getLogger("source.nid")
 
-# the zabytek.gov.pl REST endpoints return an HTML snapshot; the open-data portal serves the real CSV files
 NID_URL = "https://api.dane.gov.pl/resources/2730055,rejestr-zabytkow-nieruchomych-plik-csv/file"
 NID_HISTORY_URL = "https://api.dane.gov.pl/resources/2730107,pomniki-historii-plik-csv/file"
 UUG_URL = "https://services.gugik.gov.pl/uug/"
@@ -27,7 +26,6 @@ CACHE_TTL_S = 30 * 24 * 3600
 GEOCODE_PAUSE_S = 0.25
 SAVE_EVERY = 100
 
-# EPSG:2180 (PUWG 1992) -> WGS84: inverse transverse Mercator on GRS80
 _A = 6378137.0
 _F = 1 / 298.257222101
 _E2 = _F * (2 - _F)
@@ -64,7 +62,7 @@ def parse_csv(raw: bytes) -> list[dict[str, str]]:
     try:
         text = raw.decode("utf-8-sig")
     except UnicodeDecodeError:
-        text = raw.decode("cp1250", errors="replace")  # the register has been published in Windows-1250
+        text = raw.decode("cp1250", errors="replace")
     return list(csv.DictReader(io.StringIO(text), delimiter=";"))
 
 
@@ -76,7 +74,7 @@ def rows_for_region(rows: list[dict[str, str]], region: Region) -> list[dict[str
 
 
 def _locate(region: Region, x: float, y: float) -> tuple[float, float] | None:
-    for e, n in ((x, y), (y, x)):  # the service is inconsistent about axis order
+    for e, n in ((x, y), (y, x)):
         lat, lon = puwg_to_wgs(e, n)
         if region.contains(lat, lon):
             return lat, lon
@@ -119,7 +117,7 @@ def geocode_rows(http: Http, cache: Cache, region: Region, rows: list[dict[str, 
         for q in queries:
             try:
                 hit = geocode(http, region, q)
-            except Exception as exc:  # one bad address must not abort the run
+            except Exception as exc:
                 log.warning("geocode %r failed: %s", q, exc)
                 hit = None
             http.sleep(GEOCODE_PAUSE_S)

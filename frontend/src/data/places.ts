@@ -11,7 +11,6 @@ export type Place = {
   lng: number;
 };
 
-/** Mock "Art Deco route" stops for Wrocław. Replace with API data. */
 export const PLACES: Place[] = [
   {
     id: "rynek",

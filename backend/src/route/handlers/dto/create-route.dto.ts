@@ -15,8 +15,8 @@ import {
 import { STYLE_TAGS, type StyleTag } from "../../../places/style-tag";
 import type { RouteQuery } from "../../services/route-planner";
 
-export const MIN_DURATION = 15; // minutes
-export const MAX_DURATION = 720; // minutes
+export const MIN_DURATION = 15;
+export const MAX_DURATION = 720;
 export const MAX_TAGS = 20;
 
 export class PointDto {
@@ -36,13 +36,11 @@ export class CreateRouteDto {
   @Type(() => PointDto)
   start!: PointDto;
 
-  /** Defaults to the start: a round trip. */
   @IsOptional()
   @ValidateNested()
   @Type(() => PointDto)
   end?: PointDto;
 
-  /** When the walk starts, used to check opening hours; defaults to now. */
   @IsOptional()
   @IsISO8601({ strict: true })
   startTime?: string;

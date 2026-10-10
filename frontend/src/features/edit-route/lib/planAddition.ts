@@ -1,6 +1,6 @@
 import type { RoutePoint, RouteStop } from "@/entities/route";
 
-const WALK_MINUTES_PER_KM = 12 * 1.3; // 5 km/h, plus a detour factor for streets
+const WALK_MINUTES_PER_KM = 12 * 1.3;
 const EARTH_RADIUS_M = 6_371_000;
 const MAX_REMOVED = 3;
 
@@ -17,7 +17,6 @@ function walkMinutes(a: RoutePoint, b: RoutePoint): number {
   return (meters / 1000) * WALK_MINUTES_PER_KM;
 }
 
-/** Cheapest place in the stop list to insert `stop`, and the extra minutes (walking + visit) it costs. */
 export function additionCost(route: Itinerary, stop: RouteStop) {
   const points = [route.start, ...route.stops, route.end];
   let index = 0;
@@ -35,7 +34,6 @@ export function additionCost(route: Itinerary, stop: RouteStop) {
   return { index, minutes: Math.round(walk + stop.visitMinutes) };
 }
 
-/** Minutes saved by dropping the stop at `i` (visit time + the shortened walk). */
 function removalSavings(route: Itinerary, i: number): number {
   const points = [route.start, ...route.stops, route.end];
   const prev = points[i] as RoutePoint;
@@ -48,7 +46,6 @@ function removalSavings(route: Itinerary, i: number): number {
 
 export type Removal = { ids: string[]; savedMinutes: number };
 
-/** Fewest, then smallest, sets of stops whose removal frees at least `neededMinutes`. */
 export function suggestRemovals(
   route: Itinerary,
   neededMinutes: number,
@@ -77,6 +74,5 @@ export function suggestRemovals(
     .slice(0, limit);
 }
 
-/** Rounds a time budget up to a quarter of an hour, the step of the hours input. */
 export const roundUpToQuarter = (minutes: number) =>
   Math.ceil(minutes / 15) * 15;
