@@ -9,6 +9,7 @@ from typing import Any
 from ..config import Region
 from ..taxonomy import GROUP_OF
 from .clean import clean
+from .dedupe import merge_near_duplicates
 from .geo import Grid, meters
 from .merge import Merger
 from .normalize import DESCRIPTION_MAX_CHARS, clean_kinds, clip, collect_images, display_name, significance, split_address
@@ -122,6 +123,8 @@ def build_documents(region: Region, data: SourceData, embedder: Embedder) -> tup
     merger = merge_sources(data)
     media_by_id = link_photos(merger.places, data.photos)
     places, drops = clean(merger.places, region)
+    places, joined = merge_near_duplicates(places, region)
+    drops["duplicate_display_name"] += joined
     log.info("merged %d records into %d places; cleanup kept %d, dropped %s", sum(map(len, [data.osm, data.wikidata, data.nid])), len(merger.places), len(places), dict(drops))
 
     explicit = [explicit_scores(p, data.wikidata_claims.get(p.get("wikidata") or "")) for p in places]
