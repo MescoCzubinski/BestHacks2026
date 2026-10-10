@@ -1,13 +1,13 @@
-"""Tag vocabulary for places, mirrored from backend/src/places/style-tag.ts.
+"""Tag vocabulary for places, mirrored from backend/src/places/style-tag.ts (test_taxonomy.py checks they match).
 
-Every tag has a short Polish+English description. The descriptions are what gets embedded, so
-they carry the "closeness" between tags (neogothic sits next to gothic because both describe
-pointed arches, brick, spires). Keep them in sync with the backend enum.
+Every tag has a short Polish+English description. The descriptions are what a future embedding match
+can use, and they document what the tag means. Groups follow the backend: style, influence, type, special.
 """
 
 STYLE: dict[str, str] = {
     "romanesque": "styl romański, romanesque: masywne mury, półokrągłe łuki, XI-XIII wiek",
     "gothic": "styl gotycki, gothic: ostre łuki, sklepienia krzyżowo-żebrowe, wysokie wieże, cegła, XIII-XVI wiek",
+    "medieval": "średniowiecze, medieval: obiekty sprzed 1500, romańskie i gotyckie",
     "renaissance": "renesans, renaissance: symetria, arkady, attyki, XVI wiek",
     "mannerism": "manieryzm, mannerism: późny renesans, bogata dekoracja, przełom XVI i XVII wieku",
     "baroque": "barok, baroque: dynamiczne formy, bogata dekoracja, XVII-XVIII wiek",
@@ -31,17 +31,23 @@ STYLE: dict[str, str] = {
     "industrial": "architektura przemysłowa, industrial: ceglane fabryki, kominy, wieże ciśnień, magazyny",
 }
 
+INFLUENCE: dict[str, str] = {
+    "communist": "czasy PRL, communist era, socrealizm, 1945-1989",
+    "jewish_heritage": "dziedzictwo żydowskie, Jewish heritage, synagoga, cmentarz żydowski",
+    "german_heritage": "dziedzictwo niemieckie, German heritage, Breslau przed 1945, pruskie",
+    "polish_heritage": "dziedzictwo polskie, Polish heritage, piastowskie, Lwów, Solidarność",
+    "habsburg": "dziedzictwo habsburskie, Habsburg, Austria, Czechy",
+}
+
 TYPE: dict[str, str] = {
     "church": "kościół, church, parafia, świątynia, kaplica",
     "cathedral": "katedra, cathedral, bazylika",
     "synagogue": "synagoga, synagogue, bóżnica, kirkut",
     "castle": "zamek, castle, twierdza, warownia",
     "palace": "pałac, palace, rezydencja, dwór",
-    "townhouse": "kamienica miejska, townhouse, dom mieszczański",
-    "tenement": "kamienica czynszowa, tenement, budynek mieszkalny wielorodzinny",
+    "tenement": "kamienica czynszowa, tenement, kamienica miejska, budynek mieszkalny wielorodzinny",
     "villa": "willa, villa, dom jednorodzinny z ogrodem",
     "town_hall": "ratusz, town hall, urząd miasta",
-    "market_square": "rynek, market square, plac targowy",
     "museum": "muzeum, museum, galeria sztuki, panorama",
     "theatre": "teatr, theatre, scena dramatyczna",
     "opera": "opera, filharmonia, opera house, sala koncertowa",
@@ -59,45 +65,27 @@ TYPE: dict[str, str] = {
     "factory": "fabryka, factory, zakład przemysłowy, elektrownia, gazownia",
     "warehouse": "magazyn, warehouse, spichlerz, skład",
     "brewery": "browar, brewery, słodownia",
-    "market_hall": "hala targowa, market hall, hala",
     "stadium": "stadion, stadium, hala sportowa, arena",
     "hotel": "hotel, hotel, zajazd, pensjonat",
-    "residential_estate": "osiedle, residential estate, zespół mieszkaniowy, kolonia",
-    "sculpture": "rzeźba, sculpture, statua, figura, instalacja artystyczna",
+    "sculpture": "rzeźba, sculpture, statua, figura, instalacja artystyczna, krasnal",
     "shrine": "kapliczka, shrine, krzyż przydrożny, figura świętego, wayside cross",
     "bunker": "bunkier, bunker, schron przeciwlotniczy, schron bojowy",
     "ruins": "ruiny, ruins, pozostałości budynku, trwała ruina",
-}
-
-NATURE: dict[str, str] = {
-    "park": "park miejski, park, zieleń, aleja, planty",
-    "garden": "ogród, garden, ogród japoński, ogród działkowy, skwer",
-    "island": "wyspa, island, ostrów, wyspa na Odrze",
-    "riverside": "nabrzeże, riverside, bulwar, brzeg rzeki Odry, kanał, fosa",
-    "botanical_garden": "ogród botaniczny, botanical garden, arboretum",
+    "park": "park miejski, park, zieleń, aleja, planty, las",
+    "garden": "ogród, garden, ogród japoński, ogród botaniczny, skwer",
     "zoo": "zoo, ogród zoologiczny, zoo",
-    "square": "plac, square, skwer, rondo",
+    "square": "plac, square, rynek, skwer, rondo",
     "viewpoint": "punkt widokowy, viewpoint, panorama miasta, wieża widokowa, taras",
+    "street_art": "street art, sztuka uliczna, krasnale, instalacje w przestrzeni publicznej",
+    "mural": "mural, graffiti, malowidło ścienne na budynku",
 }
 
-THEME: dict[str, str] = {
+SPECIAL: dict[str, str] = {
     "unesco": "Światowe Dziedzictwo UNESCO, UNESCO World Heritage",
-    "wwii": "II wojna światowa, WWII, oblężenie Festung Breslau 1945, obóz, wojna",
-    "communist_era": "czasy PRL, communist era, socrealizm, 1945-1989",
-    "jewish_heritage": "dziedzictwo żydowskie, Jewish heritage, synagoga, cmentarz żydowski",
-    "german_heritage": "dziedzictwo niemieckie, German heritage, Breslau przed 1945, pruskie",
-    "polish_heritage": "dziedzictwo polskie, Polish heritage, piastowskie, Lwów, Solidarność",
-    "habsburg": "dziedzictwo habsburskie, Habsburg, Austria, Czechy",
-    "medieval": "średniowiecze, medieval, przed 1500, romańskie i gotyckie",
-    "street_art": "street art, mural, graffiti, sztuka uliczna, krasnale",
-    "hidden_gem": "ukryte miejsce, hidden gem, mniej znane, kameralne, odkrycie",
-    "family_friendly": "dla rodzin, family friendly, dla dzieci, zabawne, krasnale",
     "free_entry": "wstęp wolny, free entry, bezpłatnie, w przestrzeni publicznej",
     "accessible": "dostępne, accessible, bez barier, dla wózków",
-    "dwarfs": "wrocławskie krasnale, krasnal, dwarf, figurka krasnala",
-    "archaeology": "archeologia, archaeology, stanowisko archeologiczne, wykopaliska",
 }
 
-GROUPS = {"style": STYLE, "type": TYPE, "nature": NATURE, "theme": THEME}
+GROUPS = {"style": STYLE, "influence": INFLUENCE, "type": TYPE, "special": SPECIAL}
 ALL_TAGS: dict[str, str] = {t: d for g in GROUPS.values() for t, d in g.items()}
 GROUP_OF = {t: g for g, tags in GROUPS.items() for t in tags}

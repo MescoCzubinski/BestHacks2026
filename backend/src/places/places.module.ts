@@ -9,6 +9,7 @@ import { Geocoder } from "./services/geocoder";
 import { LocationReverseService } from "./services/location-reverse.service";
 import { LocationSearchService } from "./services/location-search.service";
 import { PhotonGeocoder } from "./services/photon-geocoder.service";
+import { PlaceQueryService } from "./services/place-query.service";
 import { PlaceSearchService } from "./services/place-search.service";
 
 @Module({
@@ -16,10 +17,11 @@ import { PlaceSearchService } from "./services/place-search.service";
   controllers: [PlaceController, LocationController],
   providers: [
     PlaceSearchService,
+    PlaceQueryService,
     LocationSearchService,
     LocationReverseService,
     { provide: Geocoder, useClass: PhotonGeocoder },
   ],
-  exports: [PlaceSearchService],
+  exports: [PlaceSearchService, PlaceQueryService],
 })
 export class PlacesModule {}

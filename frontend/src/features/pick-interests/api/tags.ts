@@ -2,7 +2,7 @@ import { apiFetch } from "@/shared/api";
 
 export type Tag = {
   id: string;
-  group: "style" | "type" | "nature" | "theme";
+  group: "style" | "influence" | "type" | "special";
   label: string;
 };
 

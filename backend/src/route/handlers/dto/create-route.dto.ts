@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsIn,
   IsInt,
+  IsISO8601,
   IsNumber,
   IsOptional,
   Max,
@@ -41,6 +42,11 @@ export class CreateRouteDto {
   @Type(() => PointDto)
   end?: PointDto;
 
+  /** When the walk starts, used to check opening hours; defaults to now. */
+  @IsOptional()
+  @IsISO8601({ strict: true })
+  startTime?: string;
+
   @IsInt()
   @Min(MIN_DURATION)
   @Max(MAX_DURATION)
@@ -61,6 +67,7 @@ export class CreateRouteDto {
       durationMinutes: this.durationMinutes,
       wheelchair: this.wheelchair,
       tags: this.tags,
+      startTime: this.startTime ? new Date(this.startTime) : undefined,
     };
   }
 }

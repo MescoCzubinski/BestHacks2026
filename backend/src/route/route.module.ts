@@ -1,17 +1,20 @@
 import { Module } from "@nestjs/common";
 import { CityModule } from "../city/city.module";
 import { PathModule } from "../path/path.module";
+import { PlacesModule } from "../places/places.module";
 import { RouteController } from "./handlers/route.controller";
-import { MockRoutePlanner } from "./services/mock-route-planner.service";
+import { CandidateSelectionService } from "./services/candidate-selection.service";
+import { OrienteeringRoutePlanner } from "./services/orienteering-route-planner.service";
 import { RouteBuilderService } from "./services/route-builder.service";
 import { RoutePlanner } from "./services/route-planner";
 
 @Module({
-  imports: [CityModule, PathModule],
+  imports: [CityModule, PathModule, PlacesModule],
   controllers: [RouteController],
   providers: [
     RouteBuilderService,
-    { provide: RoutePlanner, useClass: MockRoutePlanner },
+    CandidateSelectionService,
+    { provide: RoutePlanner, useClass: OrienteeringRoutePlanner },
   ],
 })
 export class RouteModule {}

@@ -25,7 +25,6 @@ import { PlacesModule } from "./places/places.module";
     SeedModule,
     HealthModule,
     PlacesModule,
-    SeedModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: DomainExceptionFilter }],
 })

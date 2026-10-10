@@ -7,6 +7,8 @@ export type RouteQuery = {
   durationMinutes: number;
   wheelchair: boolean;
   tags: StyleTag[];
+  /** When the walk begins, for opening hours; defaults to now. */
+  startTime?: Date;
 };
 
 export type PlannedStop = {
@@ -15,10 +17,13 @@ export type PlannedStop = {
   description: string;
   lat: number;
   lng: number;
-  /** Typical visit: 5–15 min for a look from outside, the average visit time for places that can be entered. */
+  /** Typical time at this kind of place; the user may change it. */
   visitMinutes: number;
   /** Whether visitors can go inside (museum, church…), so the user can set a longer visit. */
   enterable: boolean;
+  /** ISO time we expect to arrive, when the planner knows it. */
+  arriveAt?: string;
+  imageUrl?: string | null;
 };
 
 export type PlannedRoute = {
