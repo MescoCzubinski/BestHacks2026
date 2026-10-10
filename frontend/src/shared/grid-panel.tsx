@@ -70,7 +70,6 @@ const CARDS: {
   },
 ];
 
-/** 35px grid with the landmark cards snapped to it (9 x 9 cells each, 1:1; each card overlaps the previous one by 2 cells; the middle card is on top). */
 export function GridPanel({ className }: { className?: string }) {
   return (
     <section

@@ -2,12 +2,14 @@ import { useEffect, useRef } from "react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import MapApp from "@/pages/map-app";
+import Plan from "@/pages/plan";
 import { useRoute, type Route } from "@/shared/lib/route";
 
 const TITLES: Record<Route, string> = {
   landing: "Atlas – trasy spacerowe po Twoich zainteresowaniach",
   login: "Logowanie – Atlas",
   app: "Mapa – Atlas",
+  plan: "Zaplanuj podróż – Atlas",
 };
 
 function focusMain() {
@@ -18,17 +20,14 @@ export default function App() {
   const route = useRoute();
   const prevRoute = useRef(route);
 
-  // WCAG 2.4.2 / 2.4.3: a new route gets its own title and keyboard focus.
   useEffect(() => {
     document.title = TITLES[route];
-    // First load keeps focus at the top so the skip link is the first Tab stop.
     if (prevRoute.current !== route) focusMain();
     prevRoute.current = route;
   }, [route]);
 
   return (
     <>
-      {/* WCAG 2.4.1. A button, not href="#main": the hash drives the router. */}
       <a
         href="#main"
         onClick={(e) => {
@@ -43,6 +42,8 @@ export default function App() {
         <Login />
       ) : route === "app" ? (
         <MapApp />
+      ) : route === "plan" ? (
+        <Plan />
       ) : (
         <Landing />
       )}

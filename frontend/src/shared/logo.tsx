@@ -1,7 +1,6 @@
 import { href } from "@/shared/lib/route";
 import { cn } from "@/shared/lib/utils";
 
-/** Plain single-colour map pin. */
 function Mark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden="true">

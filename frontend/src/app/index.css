@@ -15,10 +15,12 @@
   --grid-size: 35px;
 
   /* neutrals */
-  --background: #fef0fc;
+  --background: #fefcfe;
   --foreground: #0d010b;
   --card: #ffffff;
   --card-foreground: #0d010b;
+  --popover: #ffffff;
+  --popover-foreground: #0d010b;
   --primary: #c4129f;
   --primary-foreground: #ffffff;
   --secondary: #f8e0f4;
@@ -39,7 +41,7 @@
   --accent-tint: #fde4da;
 
   /* grid panel */
-  --grid-bg: #fef0fc;
+  --grid-bg: #fefcfe;
   --grid-line: #ecd3e8;
 
   /* elevation */
@@ -58,6 +60,8 @@
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.922 0 0);
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
@@ -83,6 +87,8 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);

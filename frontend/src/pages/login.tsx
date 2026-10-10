@@ -44,7 +44,7 @@ export default function Login() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            window.location.hash = href("app");
+            window.location.hash = href("plan");
           }}
           className="mx-auto my-auto flex w-full max-w-110 flex-col gap-5"
         >

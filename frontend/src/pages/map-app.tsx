@@ -39,7 +39,6 @@ function FlyTo({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   useEffect(() => {
     const zoom = Math.max(map.getZoom(), 14);
-    // WCAG 2.3.3: no animated pan for users who asked for reduced motion.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       map.setView([lat, lng], zoom, { animate: false });
     } else {
@@ -70,13 +69,15 @@ export default function MapApp() {
     <div className="flex min-h-screen flex-col-reverse lg:grid lg:h-screen lg:grid-cols-[1fr_4fr]">
       <h1 className="sr-only">Mapa Atlasa</h1>
 
-      {/* Sidebar (1/5 on desktop, sheet below the map on mobile) */}
       <aside
         aria-label="Wyszukiwanie i lista przystanków"
         className="flex min-h-0 flex-col border-t bg-background lg:border-t-0 lg:border-r"
       >
-        <div className="p-4">
+        <div className="flex items-center justify-between gap-2 p-4">
           <Logo size="sm" />
+          <Button asChild variant="outline" className="h-11">
+            <a href={href("plan")}>Zaplanuj podróż</a>
+          </Button>
         </div>
 
         <div className="grid gap-3 px-4 pb-4">
@@ -211,7 +212,6 @@ export default function MapApp() {
         </div>
       </aside>
 
-      {/* Map (4/5 on desktop, top of the screen on mobile) */}
       <main
         id="main"
         tabIndex={-1}
