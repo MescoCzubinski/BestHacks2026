@@ -8,6 +8,7 @@ const stop = (id: string, visitMinutes: number) => ({
   lat: 51.1,
   lng: 17,
   visitMinutes,
+  enterable: false,
 });
 
 describe("routeTotals", () => {

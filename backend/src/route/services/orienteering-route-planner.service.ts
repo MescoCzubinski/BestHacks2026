@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { PathFinderService } from "../../path/services/path-finder.service";
 import type { Plan, RouteCandidate } from "../lib/candidate";
 import { planRoute, type PlannerOptions } from "../lib/orienteering";
+import { isEnterable } from "../lib/visit-duration";
 import { isOpenAt } from "../lib/opening-hours";
 import { estimateWalkMinutes } from "../lib/walking-estimate";
 import { NoMatchingPlacesException } from "../exceptions/no-matching-places.exception";
@@ -10,12 +11,14 @@ import { TimeBudgetTooSmallException } from "../exceptions/time-budget-too-small
 import { CandidateSelectionService } from "./candidate-selection.service";
 import {
   RoutePlanner,
+  type PlannedRoute,
   type PlannedStop,
   type RouteQuery,
 } from "./route-planner";
 
 const DEFAULT_TIME_ZONE = "Europe/Warsaw";
 const DEFAULT_MAX_STOPS = 12;
+const MAX_EXTRAS = 10; // matching places left out, offered as swaps
 const MAX_REFINEMENTS = 3; // re-checks against the real walking time before accepting the estimate
 const SECONDS_PER_MINUTE = 60;
 
@@ -37,7 +40,7 @@ export class OrienteeringRoutePlanner extends RoutePlanner {
     this.timeZone = config.get<string>("REGION_TIMEZONE") ?? DEFAULT_TIME_ZONE;
   }
 
-  async plan(query: RouteQuery): Promise<PlannedStop[]> {
+  async plan(query: RouteQuery): Promise<PlannedRoute> {
     const direct = estimateWalkMinutes(query.start, query.end);
     if (direct > query.durationMinutes)
       throw new TimeBudgetTooSmallException(direct);
@@ -78,11 +81,18 @@ export class OrienteeringRoutePlanner extends RoutePlanner {
       );
       if (plan.stops.length === 0) break;
     }
-    return plan.stops.map((s) => toPlannedStop(s.candidate, s.arriveAt));
+    const chosen = new Set(plan.stops.map((s) => s.candidate));
+    return {
+      stops: plan.stops.map((s) => toPlannedStop(s.candidate, s.arriveAt)),
+      extras: candidates
+        .filter((c) => !chosen.has(c))
+        .slice(0, MAX_EXTRAS)
+        .map((c) => toPlannedStop(c)),
+    };
   }
 }
 
-function toPlannedStop(c: RouteCandidate, arriveAt: Date): PlannedStop {
+function toPlannedStop(c: RouteCandidate, arriveAt?: Date): PlannedStop {
   const p = c.place;
   return {
     id: p.id,
@@ -91,7 +101,8 @@ function toPlannedStop(c: RouteCandidate, arriveAt: Date): PlannedStop {
     lat: p.latitude,
     lng: p.longitude,
     visitMinutes: c.dwellMinutes,
-    arriveAt: arriveAt.toISOString(),
+    enterable: isEnterable(c.place.tags),
+    arriveAt: arriveAt?.toISOString(),
     imageUrl: p.mainImageUrl,
   };
 }

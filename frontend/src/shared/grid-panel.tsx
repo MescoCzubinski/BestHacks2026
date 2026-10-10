@@ -47,7 +47,7 @@ const CARDS: {
   {
     title: "Portal",
     subtitle: "Stare Miasto",
-    bg: "bg-accent",
+    bg: "bg-brand-tint",
     art: (
       <Photo
         src="/img/stare-miasto-drzwi.jpg"

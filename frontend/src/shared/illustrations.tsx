@@ -10,8 +10,8 @@ export function RynekIllustration() {
       aria-label="Ilustracja: kamienice przy Rynku"
     >
       <g className={stroke} strokeLinejoin="round">
-        <rect x="14" y="70" width="46" height="70" className="fill-accent" />
-        <path d="M14 70 37 40 60 70z" className="fill-accent" />
+        <rect x="14" y="70" width="46" height="70" className="fill-brand" />
+        <path d="M14 70 37 40 60 70z" className="fill-brand" />
         <rect x="64" y="56" width="46" height="84" className="fill-white" />
         <path d="M64 56h46l-6-12h-8l-6-10-6 10h-8z" className="fill-white" />
         <rect
@@ -27,12 +27,9 @@ export function RynekIllustration() {
           y="62"
           width="46"
           height="78"
-          className="fill-accent-tint"
+          className="fill-secondary"
         />
-        <path
-          d="M158 62h46l-8-16h-8v-8h-14v8h-8z"
-          className="fill-accent-tint"
-        />
+        <path d="M158 62h46l-8-16h-8v-8h-14v8h-8z" className="fill-secondary" />
         <rect
           x="208"
           y="74"

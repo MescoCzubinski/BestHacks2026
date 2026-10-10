@@ -26,11 +26,11 @@ export default function Login() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[3fr_2fr]">
+    <div className="grid h-dvh overflow-hidden lg:h-auto lg:min-h-screen lg:grid-cols-[3fr_2fr] lg:overflow-visible">
       <main
         id="main"
         tabIndex={-1}
-        className="flex flex-col justify-between gap-10 px-4 py-3 outline-none lg:px-18 lg:py-10"
+        className="flex flex-col justify-between gap-10 bg-grid px-4 py-3 outline-none lg:bg-background lg:bg-none lg:px-18 lg:py-10"
       >
         <div className="flex items-center justify-between pl-2 lg:pl-0">
           <Logo />
@@ -49,13 +49,10 @@ export default function Login() {
           className="mx-auto my-auto flex w-full max-w-110 flex-col gap-5"
         >
           <div className="grid gap-2">
-            <Badge variant="outline" className="mb-1">
-              Użyj w przeglądarce
-            </Badge>
             <h1 className="font-heading text-4xl leading-tight font-extrabold tracking-tight">
-              Witaj{" "}
+              Czas na{" "}
               <span className="rounded-md bg-brand box-decoration-clone px-2 text-brand-foreground">
-                ponownie
+                zwiedzanie
               </span>
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -81,15 +78,7 @@ export default function Login() {
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="pw">Hasło</Label>
-                <a
-                  href="#forgot"
-                  className="inline-flex min-h-6 items-center text-sm text-muted-foreground underline underline-offset-4"
-                >
-                  Nie pamiętasz hasła?
-                </a>
-              </div>
+              <Label htmlFor="pw">Hasło</Label>
               <Input
                 id="pw"
                 type="password"

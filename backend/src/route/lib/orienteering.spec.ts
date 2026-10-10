@@ -2,7 +2,7 @@ import type { PlaceCandidate } from "../../places/place-candidate";
 import { estimateWalkMinutes } from "./walking-estimate";
 import type { RouteCandidate } from "./candidate";
 import { planRoute, schedule, type PlannerOptions } from "./orienteering";
-import { visitMinutes } from "./visit-duration";
+import { isEnterable, visitMinutes } from "./visit-duration";
 
 const START = { lat: 51.11, lng: 17.03 };
 const startAt = new Date("2026-10-12T08:00:00Z");
@@ -105,6 +105,12 @@ describe("route planner", () => {
 });
 
 describe("visit duration", () => {
+  it("marks places with an inside as enterable", () => {
+    expect(isEnterable({ museum: 90 })).toBe(true);
+    expect(isEnterable({ museum: 20 })).toBe(false);
+    expect(isEnterable({ street_art: 90, sculpture: 80 })).toBe(false);
+  });
+
   it("uses the strongest known type tag and grows with significance", () => {
     expect(visitMinutes({ museum: 90 }, 0)).toBe(45);
     expect(visitMinutes({ museum: 90 }, 100)).toBeGreaterThan(45);

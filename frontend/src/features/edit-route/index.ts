@@ -1,3 +1,3 @@
-export { PlaceSearch } from "./ui/PlaceSearch";
+export { AddPlaces } from "./ui/AddPlaces";
 export { RouteStopList } from "./ui/RouteStopList";
 export { useEditableRoute, type EditableRoute } from "./model/useEditableRoute";
