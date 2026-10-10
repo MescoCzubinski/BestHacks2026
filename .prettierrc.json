@@ -1,0 +1,28 @@
+{
+  "printWidth": 80,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "jsxSingleQuote": false,
+  "quoteProps": "as-needed",
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "bracketSameLine": false,
+  "objectWrap": "preserve",
+  "arrowParens": "always",
+  "singleAttributePerLine": false,
+  "experimentalTernaries": false,
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": "frontend/**",
+      "options": {
+        "plugins": [
+          "./frontend/node_modules/prettier-plugin-tailwindcss/dist/index.mjs"
+        ],
+        "tailwindStylesheet": "./frontend/src/index.css"
+      }
+    }
+  ]
+}

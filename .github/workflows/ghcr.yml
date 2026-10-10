@@ -1,0 +1,43 @@
+name: ghcr
+on:
+  push:
+    tags:
+      - "v*.*.*"
+permissions:
+  contents: read
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          target: prod
+          push: true
+          tags: |
+            ghcr.io/mescoczubinski/besthacks2026-backend:${{ github.ref_name }}
+            ghcr.io/mescoczubinski/besthacks2026-backend:latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          target: prod
+          push: true
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL }}
+          tags: |
+            ghcr.io/mescoczubinski/besthacks2026-frontend:${{ github.ref_name }}
+            ghcr.io/mescoczubinski/besthacks2026-frontend:latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./fetcher
+          push: true
+          tags: |
+            ghcr.io/mescoczubinski/besthacks2026-fetcher:${{ github.ref_name }}
+            ghcr.io/mescoczubinski/besthacks2026-fetcher:latest
