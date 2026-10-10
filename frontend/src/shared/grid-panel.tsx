@@ -3,9 +3,9 @@ import {
   HalaIllustration,
   RynekIllustration,
   TumskiIllustration,
-} from "@/components/illustrations";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+} from "@/shared/illustrations";
+import { Badge } from "@/shared/ui/badge";
+import { cn } from "@/shared/lib/utils";
 
 const CARDS: {
   n: string;

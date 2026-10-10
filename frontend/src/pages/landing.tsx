@@ -1,10 +1,10 @@
 import { ArrowRight, Smartphone, TabletSmartphone } from "lucide-react";
-import { GridPanel } from "@/components/grid-panel";
-import { Logo } from "@/components/logo";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { href } from "@/lib/route";
-import { cn } from "@/lib/utils";
+import { GridPanel } from "@/shared/grid-panel";
+import { Logo } from "@/shared/logo";
+import { Button } from "@/shared/ui/button";
+import { Separator } from "@/shared/ui/separator";
+import { href } from "@/shared/lib/route";
+import { cn } from "@/shared/lib/utils";
 
 const THEMES = ["Art Deco", "Street art", "Gotyk", "Secesja", "+ więcej"];
 

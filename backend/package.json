@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "description": "NestJS API",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "start:dev": "tsc && (tsc --watch --preserveWatchOutput & node --watch dist/main.js)",
+    "start:dev": "tsc -p tsconfig.build.json && (tsc -p tsconfig.build.json --watch --preserveWatchOutput & node --watch dist/main.js)",
     "lint": "oxlint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "rm -rf .test-dist && tsc --outDir .test-dist && (NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest; r=$?; rm -rf .test-dist; exit $r)",
+    "test:e2e": "rm -rf .test-dist && tsc --outDir .test-dist && (NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest --testRegex '.*\\.e2e-spec\\.js$' --passWithNoTests; r=$?; rm -rf .test-dist; exit $r)"
   },
   "type": "commonjs",
   "dependencies": {
@@ -28,8 +30,12 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
+    "@types/supertest": "^7.2.1",
+    "jest": "^30.5.2",
     "oxlint": "^1.87.0",
+    "supertest": "^7.3.1",
     "typescript": "^7.0.2"
   },
   "private": true,

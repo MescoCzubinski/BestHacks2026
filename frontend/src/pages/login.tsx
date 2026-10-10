@@ -1,10 +1,10 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { GridPanel } from "@/components/grid-panel";
-import { Logo } from "@/components/logo";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { GridPanel } from "@/shared/grid-panel";
+import { Logo } from "@/shared/logo";
+import { Avatar } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardContent,
@@ -12,13 +12,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+} from "@/shared/ui/card";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Separator } from "@/shared/ui/separator";
 import { DEMO_PASSWORD, DEMO_USERS } from "@/data/users";
-import { href } from "@/lib/route";
-import { cn } from "@/lib/utils";
+import { href } from "@/shared/lib/route";
+import { cn } from "@/shared/lib/utils";
 
 export default function Login() {
   const [email, setEmail] = useState("");

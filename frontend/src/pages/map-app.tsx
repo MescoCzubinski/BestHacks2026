@@ -9,21 +9,16 @@ import {
   TileLayer,
   useMap,
 } from "react-leaflet";
-import { Logo } from "@/components/logo";
-import { Avatar } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { Logo } from "@/shared/logo";
+import { Avatar } from "@/shared/ui/avatar";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/shared/ui/card";
+import { Input } from "@/shared/ui/input";
+import { Separator } from "@/shared/ui/separator";
 import { CITY, PLACES, type Category } from "@/data/places";
-import { href } from "@/lib/route";
-import { cn } from "@/lib/utils";
+import { href } from "@/shared/lib/route";
+import { cn } from "@/shared/lib/utils";
 
 const FILTERS: { id: "all" | Category; label: string }[] = [
   { id: "all", label: "Wszystko" },

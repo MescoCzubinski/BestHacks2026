@@ -1,7 +1,7 @@
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import MapApp from "@/pages/map-app";
-import { useRoute } from "@/lib/route";
+import { useRoute } from "@/shared/lib/route";
 
 export default function App() {
   const route = useRoute();
