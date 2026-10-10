@@ -16,8 +16,8 @@ const POPULAR = [
   "museum",
   "park",
   "street_art",
-  "hidden_gem",
-  "family_friendly",
+  "unesco",
+  "free_entry",
 ];
 
 const MIN_TEXT_LENGTH = 2;

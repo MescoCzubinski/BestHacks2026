@@ -17,9 +17,9 @@ import type {
 } from "../../../places/place-facts";
 import { PlaceTag } from "../../../places/place-tag.entity";
 import { Place } from "../../../places/place.entity";
-import type { StyleTag } from "../../../places/style-tag";
+import { STYLE_TAGS, type StyleTag } from "../../../places/style-tag";
 
-/** Shape of one row in places.seed.json, produced by fetcher/tools/build_places.py. */
+/** Shape of one row in places.seed.json, produced by the fetcher (EXPORT_SEED_PATH). */
 type SeedPlace = {
   externalId: string;
   name: string;
@@ -40,6 +40,7 @@ type SeedPlace = {
 };
 
 const SEED_FILE = resolve(process.cwd(), "src/common/db/seed/places.seed.json");
+const KNOWN_TAGS = new Set<string>(STYLE_TAGS); // a seed made for an older vocabulary must not break the insert
 const CHUNK_SIZE = 500; // rows per statement; keeps parameter count under Postgres' 65k limit
 
 @Injectable()
@@ -64,13 +65,19 @@ export class SeedService implements OnApplicationBootstrap {
     for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
       await this.upsertChunk(rows.slice(i, i + CHUNK_SIZE));
     }
+    // only prune regions this seed covers; places the fetcher loaded for other regions stay
+    const regions = new Set(rows.map((r) => r.externalId.split(":")[0]));
     const stale = await this.places.find({
       select: { id: true, externalId: true },
       where: { externalId: Not(IsNull()) },
     });
     const current = new Set(rows.map((r) => r.externalId));
     const staleIds = stale
-      .filter((p) => !current.has(p.externalId!))
+      .filter(
+        (p) =>
+          regions.has(p.externalId!.split(":")[0]!) &&
+          !current.has(p.externalId!),
+      )
       .map((p) => p.id);
     for (let i = 0; i < staleIds.length; i += CHUNK_SIZE) {
       await this.places.delete({ id: In(staleIds.slice(i, i + CHUNK_SIZE)) }); // tags cascade
@@ -96,11 +103,13 @@ export class SeedService implements OnApplicationBootstrap {
     const ids = [...idByExternal.values()];
     await this.tags.delete({ placeId: In(ids) });
     const tagRows = chunk.flatMap((p) =>
-      p.tags.map((t) => ({
-        placeId: idByExternal.get(p.externalId)!,
-        tag: t.tag,
-        percent: t.percent,
-      })),
+      p.tags
+        .filter((t) => KNOWN_TAGS.has(t.tag))
+        .map((t) => ({
+          placeId: idByExternal.get(p.externalId)!,
+          tag: t.tag,
+          percent: t.percent,
+        })),
     );
     for (let i = 0; i < tagRows.length; i += CHUNK_SIZE * 4) {
       await this.tags.insert(tagRows.slice(i, i + CHUNK_SIZE * 4));

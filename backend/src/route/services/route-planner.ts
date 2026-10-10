@@ -7,6 +7,8 @@ export type RouteQuery = {
   durationMinutes: number;
   wheelchair: boolean;
   tags: StyleTag[];
+  /** When the walk begins, for opening hours; defaults to now. */
+  startTime?: Date;
 };
 
 export type PlannedStop = {
@@ -16,6 +18,9 @@ export type PlannedStop = {
   lat: number;
   lng: number;
   visitMinutes: number;
+  /** ISO time we expect to arrive, when the planner knows it. */
+  arriveAt?: string;
+  imageUrl?: string | null;
 };
 
 /** Chooses and orders the stops of a route; the walking path between them is found separately. */

@@ -16,10 +16,10 @@ describe("TagQueryService", () => {
       label: "Secesja",
     });
     expect(tags.find((t) => t.id === "park")).toMatchObject({
-      group: "nature",
+      group: "type",
     });
     expect(tags.find((t) => t.id === "accessible")).toMatchObject({
-      group: "theme",
+      group: "special",
     });
   });
 

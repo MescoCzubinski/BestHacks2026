@@ -46,12 +46,9 @@ export const TAG_PHRASES: Record<StyleTag, string> = {
   castle:
     "zamek, ruiny zamku, średniowieczna warownia, zamki i twierdze, castle",
   palace: "pałac, pałacyk, rezydencja arystokracji, palace",
-  townhouse: "dom miejski, patrycjuszowska kamienica, townhouse",
   tenement: "kamienica czynszowa, kamienice miejskie, tenement house",
   villa: "willa, miejska willa, villa",
   town_hall: "ratusz, siedziba władz miasta, town hall",
-  market_square:
-    "rynek miejski, rynek starego miasta, główny plac miasta, market square",
   museum: "muzeum, wystawy, galeria sztuki, muzea sztuki, museum",
   theatre: "teatr, scena teatralna, spektakle, theatre",
   opera: "opera, operetka, filharmonia, opera house",
@@ -70,23 +67,14 @@ export const TAG_PHRASES: Record<StyleTag, string> = {
   factory: "fabryka, zakład przemysłowy, factory",
   warehouse: "magazyn, spichlerz, warehouse",
   brewery: "browar, piwo, brewery",
-  market_hall: "hala targowa, targ, market hall",
   stadium: "stadion, arena sportowa, stadium",
   hotel: "hotel, historyczny hotel",
-  residential_estate:
-    "osiedle mieszkaniowe, zabudowa mieszkaniowa, housing estate",
   park: "park, parki miejskie, zieleń i spacery wśród drzew, park",
   garden: "ogród, ogrody, japoński ogród, garden",
-  island: "wyspa, wyspy na rzece, island",
-  riverside: "nabrzeże, bulwar nad rzeką, spacer nad wodą, riverside",
-  botanical_garden: "ogród botaniczny, rośliny, botanical garden",
   zoo: "zoo, ogród zoologiczny, zwierzęta, zoo",
   square: "plac, skwer, plac miejski, square",
   viewpoint: "punkt widokowy, widok na miasto, panorama, viewpoint",
   unesco: "UNESCO, światowe dziedzictwo, wpis na listę UNESCO",
-  wwii: "II wojna światowa, wojna 1939-1945, wwii",
-  communist_era:
-    "czasy PRL, komunizm, socrealizm, okres komunistyczny, communist era",
   jewish_heritage:
     "dziedzictwo żydowskie, żydowska historia, kultura żydowska, jewish heritage",
   german_heritage:
@@ -97,18 +85,15 @@ export const TAG_PHRASES: Record<StyleTag, string> = {
     "Habsburgowie, epoka austriacka, cesarstwo austro-węgierskie, habsburg",
   medieval: "średniowiecze, średniowieczne budowle, medieval",
   street_art: "street art, murale, graffiti, sztuka uliczna",
-  hidden_gem:
-    "ukryte perełki, mało znane miejsca, nieoczywiste atrakcje, hidden gems",
-  family_friendly:
-    "dla rodzin, dla dzieci, atrakcje z dziećmi, family friendly",
   free_entry: "wstęp wolny, darmowe atrakcje, bezpłatne zwiedzanie, free entry",
   accessible:
     "dostępne dla wózków, bez barier, dla osób z niepełnosprawnością, wózek inwalidzki, accessible",
-  archaeology:
-    "archeologia, wykopaliska, stanowiska archeologiczne, pozostałości dawnych osad, archaeology",
   bunker: "schrony, bunkry, fortyfikacje, schrony przeciwlotnicze, bunker",
-  dwarfs: "krasnale, wrocławskie krasnale, figurki krasnali, dwarfs",
   ruins: "ruiny, zrujnowane budowle, ruiny zamków, ruins",
   sculpture: "rzeźby, pomniki, posągi, sculpture, monument",
   shrine: "kapliczki, krzyże przydrożne, figury świętych, shrine",
+  communist:
+    "czasy PRL, socrealizm, architektura komunistyczna, Polska Ludowa, 1945-1989, communist era",
+  mural:
+    "mural, murale, malowidła ścienne, graffiti, wielkie obrazy na budynkach",
 };
