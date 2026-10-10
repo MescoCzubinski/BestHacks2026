@@ -1,6 +1,5 @@
 const REQUIRED = ["DATABASE_URL", "JWT_SECRET"] as const;
 
-/** Fails fast at boot when required environment variables are missing. */
 export function validateEnv(env: Record<string, unknown>) {
   const missing = REQUIRED.filter((key) => !env[key]);
   if (missing.length) {

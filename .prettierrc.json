@@ -21,7 +21,7 @@
         "plugins": [
           "./frontend/node_modules/prettier-plugin-tailwindcss/dist/index.mjs"
         ],
-        "tailwindStylesheet": "./frontend/src/index.css"
+        "tailwindStylesheet": "./frontend/src/app/index.css"
       }
     }
   ]
