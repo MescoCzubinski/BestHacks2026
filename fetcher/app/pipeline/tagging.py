@@ -43,7 +43,6 @@ TYPE_RULES: list[tuple[str, re.Pattern[str], int]] = [
     ("castle", _r(r"zamek|castle"), 90),
     ("palace", _r(r"pałac|palace|dwór|rezydencj"), 85),
     ("tenement", _r(r"kamienic|tenement|budynek mieszkaln|dom czynszow"), 85),
-    ("townhouse", _r(r"kamienic|dom mieszczańsk|townhouse"), 55),
     ("villa", _r(r"willa|villa"), 90),
     ("town_hall", _r(r"ratusz|town hall"), 95),
     ("market_square", _r(r"^rynek\b|marketplace|plac targow"), 80),
@@ -64,23 +63,19 @@ TYPE_RULES: list[tuple[str, re.Pattern[str], int]] = [
     ("factory", _r(r"fabryk|zakład|elektrown|gazowni|wodoci|przemysł|factory|oczyszczalni|kotłowni|pompown"), 80),
     ("warehouse", _r(r"magazyn|spichlerz|warehouse"), 85),
     ("brewery", _r(r"browar|słodown|brewery"), 90),
-    ("market_hall", _r(r"hala targow|market hall|hala stulecia"), 75),
     ("stadium", _r(r"stadion|stadium|hala sportow"), 90),
     ("hotel", _r(r"\bhotel\b|zajazd|pensjonat"), 85),
-    ("residential_estate", _r(r"osiedle|kolonia|estate"), 80),
     ("sculpture", _r(r"rzeźb|sculpture|\bstatu|figur|installation|artwork"), 80),
     ("shrine", _r(r"kapliczk|krzyż|shrine|wayside"), 90),
     ("bunker", _r(r"bunkier|bunker|schron"), 90),
     ("ruins", _r(r"ruin"), 85),
 ]
 NATURE_RULES: list[tuple[str, re.Pattern[str], int]] = [
-    ("botanical_garden", _r(r"botaniczn"), 95),
     ("zoo", _r(r"\bzoo\b|zoolog"), 95),
     ("park", _r(r"\bpark\b|zieleń|zieleni|planty|historic green"), 85),
     ("park", _r(r"\blas\b|leśn|łąk|city green space"), 60),
     ("garden", _r(r"ogród|ogrod|garden"), 75),
-    ("island", _r(r"\bwysp|ostrów|ostrow|island"), 85),
-    ("riverside", _r(r"bulwar|nabrzeż|\bodr[aąy]\b|fosa|kanał|river|śluz|\bjaz\b"), 70),
+    ("garden", _r(r"botaniczn"), 90),
     ("square", _r(r"\bplac\b|skwer|rondo|square"), 70),
     ("viewpoint", _r(r"widokow|viewpoint|taras"), 90),
 ]
@@ -105,7 +100,7 @@ STYLE_MAP: dict[str, dict[str, int]] = {
     "modernistyczny": {"modernism": 90},
     "funkcjonalistyczny": {"modernism": 85, "bauhaus": 40},
     "brutalistyczny": {"brutalism": 90},
-    "socrealistyczny": {"communist_era": 90},
+    "socrealistyczny": {"communist": 90},
     "alpejski": {"vernacular": 60},
     "szachulcowy": {"vernacular": 80},
 }
@@ -185,12 +180,12 @@ WD_STYLE: dict[str, dict[str, int]] = {
     "Q4692": {"renaissance": 90},
     "Q46261": {"romanesque": 90, "medieval": 70},
     "Q51879601": {"historicism": 90},
-    "Q180902": {"communist_era": 90},
-    "Q11686646": {"communist_era": 90},
+    "Q180902": {"communist": 90},
+    "Q11686646": {"communist": 90},
     "Q131808": {"mannerism": 90, "renaissance": 40},
     "Q1755128": {"historicism": 70},
 }
-OUTDOOR_TAGS = ("monument", "sculpture", "fountain", "shrine", "park", "square", "bridge", "island", "riverside", "bunker", "viewpoint", "garden")
+OUTDOOR_TAGS = ("monument", "sculpture", "fountain", "shrine", "park", "square", "bridge", "bunker", "viewpoint", "garden", "street_art", "mural")
 
 
 class Embedder(Protocol):
@@ -255,6 +250,7 @@ def explicit_scores(p: dict[str, Any], claims: dict[str, Any] | None = None) -> 
 
 
 def theme_scores(p: dict[str, Any], tags: dict[str, float], sig: int, region: Region) -> dict[str, float]:
+    """Influence, street-art and special tags that depend on era, text and the coarse theme."""
     s: dict[str, float] = {}
     text = text_blob(p)
     year = p.get("year") or 0
@@ -266,10 +262,8 @@ def theme_scores(p: dict[str, Any], tags: dict[str, float], sig: int, region: Re
 
     if "unesco" in kinds:
         bump("unesco", 100)
-    if re.search(r"1939|194[0-5]\b|wojn|festung|powstani|obóz|oblężeni", text) or "bunker" in kinds:
-        bump("wwii", 70)
-    if 1945 <= year < 1990 or re.search(r"\bprl\b|socrealiz|komunist", text):
-        bump("communist_era", 70)
+    if 1945 <= year < 1990 or re.search(r"prl|socrealiz|komunist", text):
+        bump("communist", 70)
     if re.search(r"żydow|synagog|jewish|kirkut", text):
         bump("jewish_heritage", 85)
     if re.search(r"niemieck|prusk|hohenzoll|breslau", text):
@@ -280,26 +274,17 @@ def theme_scores(p: dict[str, Any], tags: dict[str, float], sig: int, region: Re
         bump("habsburg", 60)
     if (0 < year < 1500) or "medieval" in text or re.search(r"średniowiecz", text):
         bump("medieval", 75)
-    if theme == "public_art" and re.search(r"mural|graffiti|street", kinds + text):
-        bump("street_art", 90)
-    elif re.search(r"\bmural|graffiti|street art", text):
+    if theme == "public_art" and re.search(r"mural|graffiti", kinds + text):
+        bump("mural", 90)
+        bump("street_art", 75)
+    elif re.search(r"mural|graffiti|street art", text):
         bump("street_art", 85)
-    if theme == "dwarfs":
-        bump("dwarfs", 100)
-        bump("family_friendly", 80)
-        bump("street_art", 40)
+    if theme == "dwarfs":  # Wrocław's krasnale: small figures in the street
+        bump("sculpture", 80)
+        bump("street_art", 80)
         bump("free_entry", 95)
-    if theme == "archaeology":
-        bump("archaeology", 90)
-    if tags.get("zoo") or tags.get("park"):
-        bump("family_friendly", 60)
-    if tags.get("fountain"):
-        bump("family_friendly", 45)
     if any(tags.get(t) for t in OUTDOOR_TAGS):
         bump("free_entry", 80)  # a guess: outdoor objects usually cost nothing; OSM `fee` overrides it below
-    has_story = len(p.get("extract") or p.get("description") or "") >= 60
-    if not p.get("wikipedia") and has_story and p.get("media") and sig < 45:
-        bump("hidden_gem", 60)  # interesting but not famous: something to say, no encyclopedia article
     return s
 
 
