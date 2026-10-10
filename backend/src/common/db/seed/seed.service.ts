@@ -53,11 +53,8 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    // Supported cities are reference data the app cannot work without, so they are seeded in every
-    // environment; without them every location is reported as "outside the supported area".
     await this.cities.upsert(CITY_SEEDS, ["name"]);
     this.log.log(`seeded ${CITY_SEEDS.length} cities`);
-    // Demo places are a dev bootstrap only; in production the fetcher fills the tables.
     if (process.env.NODE_ENV === "production") return;
     if (!existsSync(SEED_FILE)) {
       this.log.warn(`no seed file at ${SEED_FILE}, skipping`);
