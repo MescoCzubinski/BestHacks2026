@@ -42,5 +42,8 @@
   "private": true,
   "engines": {
     "node": ">=24"
+  },
+  "overrides": {
+    "js-yaml": "^4.1.1"
   }
 }
