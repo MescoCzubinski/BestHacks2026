@@ -9,6 +9,7 @@ import io
 import logging
 import math
 import re
+from collections.abc import Iterator
 from typing import Any
 
 from ..cache import Cache
@@ -58,19 +59,28 @@ def puwg_to_wgs(e: float, n: float) -> tuple[float, float]:
     return math.degrees(lat), math.degrees(lon)
 
 
-def parse_csv(raw: bytes) -> list[dict[str, str]]:
-    try:
-        text = raw.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        text = raw.decode("cp1250", errors="replace")
-    return list(csv.DictReader(io.StringIO(text), delimiter=";"))
+def iter_csv(raw: bytes, encoding: str) -> Iterator[dict[str, str]]:
+    """Yield rows one at a time, decoding on the fly instead of building a second copy of the file."""
+    with io.TextIOWrapper(io.BytesIO(raw), encoding=encoding, errors="replace" if encoding == "cp1250" else "strict", newline="") as text:
+        yield from csv.DictReader(text, delimiter=";")
 
 
-def rows_for_region(rows: list[dict[str, str]], region: Region) -> list[dict[str, str]]:
+def rows_for_region(raw: bytes, region: Region) -> list[dict[str, str]]:
+    """Filter the national register while reading it, so only the region's rows are ever kept in memory."""
     if not region.municipality:
         return []
     wanted = region.municipality.casefold()
-    return [r for r in rows if (r.get("MIEJSCOWOSC") or "").casefold() == wanted]
+    try:
+        return [r for r in iter_csv(raw, "utf-8-sig") if (r.get("MIEJSCOWOSC") or "").casefold() == wanted]
+    except UnicodeDecodeError:
+        return [r for r in iter_csv(raw, "cp1250") if (r.get("MIEJSCOWOSC") or "").casefold() == wanted]
+
+
+def parse_csv(raw: bytes) -> list[dict[str, str]]:
+    try:
+        return list(iter_csv(raw, "utf-8-sig"))
+    except UnicodeDecodeError:
+        return list(iter_csv(raw, "cp1250"))
 
 
 def _locate(region: Region, x: float, y: float) -> tuple[float, float] | None:
@@ -134,8 +144,7 @@ def geocode_rows(http: Http, cache: Cache, region: Region, rows: list[dict[str, 
 
 def fetch_rows(http: Http, cache: Cache, region: Region) -> list[dict[str, str]]:
     def fetch() -> list[dict[str, str]]:
-        raw = http.get_bytes(NID_URL)
-        return rows_for_region(parse_csv(raw), region)
+        return rows_for_region(http.get_bytes(NID_URL), region)
 
     return cache.load_or_fetch("nid_rows", CACHE_TTL_S, fetch)
 
