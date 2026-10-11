@@ -31,13 +31,22 @@ describe("SeedService", () => {
     process.env.NODE_ENV = original;
   });
 
-  it("seeds the supported cities in production, and nothing else", async () => {
+  it("fills an empty database with the places in production", async () => {
+    process.env.NODE_ENV = "production";
+    const { service, cities, places } = repos();
+    await service.onApplicationBootstrap();
+    expect(cities.upsert).toHaveBeenCalledWith(CITY_SEEDS, ["name"]);
+    expect(places.upsert).toHaveBeenCalled();
+  });
+
+  it("leaves existing places to the fetcher in production", async () => {
     process.env.NODE_ENV = "production";
     const { service, cities, places, tags } = repos();
+    places.count.mockResolvedValue(6241);
     await service.onApplicationBootstrap();
     expect(cities.upsert).toHaveBeenCalledWith(CITY_SEEDS, ["name"]);
     expect(places.upsert).not.toHaveBeenCalled();
-    expect(places.find).not.toHaveBeenCalled();
+    expect(places.delete).not.toHaveBeenCalled();
     expect(tags.insert).not.toHaveBeenCalled();
   });
 
