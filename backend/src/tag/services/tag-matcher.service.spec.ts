@@ -1,6 +1,7 @@
 import type { Embedder } from "./embedder";
 import { TagMatcherService } from "./tag-matcher.service";
 import { TagQueryService } from "./tag-query.service";
+import { TagRankingService } from "./tag-ranking.service";
 
 const VECTORS: Record<string, number[]> = {
   Gotyk: [1, 0, 0],
@@ -13,9 +14,11 @@ function setup() {
   const embed = jest.fn(async (texts: string[]) =>
     texts.map((text) => VECTORS[text] ?? [0, 0, 1]),
   );
-  const service = new TagMatcherService(new TagQueryService(), {
-    embed,
-  } as unknown as Embedder);
+  const service = new TagMatcherService(
+    new TagQueryService(),
+    { embed } as unknown as Embedder,
+    new TagRankingService(),
+  );
   return { service, embed };
 }
 
@@ -53,9 +56,11 @@ describe("TagMatcherService", () => {
       .mockImplementation(async (texts: string[]) =>
         texts.map((t) => VECTORS[t] ?? [0, 0, 1]),
       );
-    const service = new TagMatcherService(new TagQueryService(), {
-      embed,
-    } as unknown as Embedder);
+    const service = new TagMatcherService(
+      new TagQueryService(),
+      { embed } as unknown as Embedder,
+      new TagRankingService(),
+    );
     await expect(service.match("gotyckie kościoły")).rejects.toThrow(
       "model down",
     );

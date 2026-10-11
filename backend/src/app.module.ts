@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER } from "@nestjs/core";
+import { AccountModule } from "./account/account.module";
 import { AuthModule } from "./common/auth/auth.module";
 import { DbModule } from "./common/db/db.module";
 import { SeedModule } from "./common/db/seed/seed.module";
@@ -10,6 +11,7 @@ import { CityModule } from "./city/city.module";
 import { HealthModule } from "./health/health.module";
 import { PathModule } from "./path/path.module";
 import { RouteModule } from "./route/route.module";
+import { SavedRouteModule } from "./saved-route/saved-route.module";
 import { TagModule } from "./tag/tag.module";
 import { PlacesModule } from "./places/places.module";
 
@@ -18,9 +20,11 @@ import { PlacesModule } from "./places/places.module";
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
     DbModule,
     AuthModule,
+    AccountModule,
     CityModule,
     PathModule,
     RouteModule,
+    SavedRouteModule,
     TagModule,
     SeedModule,
     HealthModule,

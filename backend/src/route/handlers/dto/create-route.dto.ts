@@ -6,30 +6,18 @@ import {
   IsIn,
   IsInt,
   IsISO8601,
-  IsNumber,
   IsOptional,
   Max,
   Min,
   ValidateNested,
 } from "class-validator";
+import { PointDto } from "../../../common/dto/point.dto";
 import { STYLE_TAGS, type StyleTag } from "../../../places/style-tag";
 import type { RouteQuery } from "../../services/route-planner";
 
-export const MIN_DURATION = 15;
-export const MAX_DURATION = 720;
-export const MAX_TAGS = 20;
-
-export class PointDto {
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
-  lat!: number;
-
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
-  lng!: number;
-}
+const MIN_DURATION = 15;
+const MAX_DURATION = 720;
+const MAX_TAGS = 20;
 
 export class CreateRouteDto {
   @ValidateNested()

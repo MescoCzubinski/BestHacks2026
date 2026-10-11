@@ -2,11 +2,10 @@ import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { APP_GUARD } from "@nestjs/core";
 import { JwtModule } from "@nestjs/jwt";
-import { AuthController } from "./auth.controller";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RolesGuard } from "./roles.guard";
 
-const TOKEN_TTL = 60 * 60;
+const TOKEN_TTL = 12 * 60 * 60; // seconds; a session should outlive a presentation
 
 @Module({
   imports: [
@@ -18,7 +17,6 @@ const TOKEN_TTL = 60 * 60;
       }),
     }),
   ],
-  controllers: [AuthController],
   exports: [JwtModule],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },

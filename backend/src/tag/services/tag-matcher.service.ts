@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { rankTags, type TagVector } from "../lib/rank-tags";
 import type { StyleTag } from "../../places/style-tag";
 import { TAG_PHRASES } from "../tag-phrases";
 import { Embedder } from "./embedder";
+import { TagRankingService, type TagVector } from "./tag-ranking.service";
 import { TagQueryService, type TagView } from "./tag-query.service";
 
 export type MatchedTag = TagView & { score: number };
@@ -14,6 +14,7 @@ export class TagMatcherService {
   constructor(
     private readonly tags: TagQueryService,
     private readonly embedder: Embedder,
+    private readonly ranking: TagRankingService,
   ) {}
 
   async match(text: string): Promise<MatchedTag[]> {
@@ -21,7 +22,7 @@ export class TagMatcherService {
     const [query] = await this.embedder.embed([text.trim()]);
     if (!query) return [];
     const byId = new Map(this.tags.list().map((tag) => [tag.id, tag]));
-    return rankTags(query, vectors).flatMap(({ id, score }) => {
+    return this.ranking.rank(query, vectors).flatMap(({ id, score }) => {
       const tag = byId.get(id);
       return tag ? [{ ...tag, score }] : [];
     });
