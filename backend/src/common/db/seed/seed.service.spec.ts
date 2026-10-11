@@ -6,6 +6,7 @@ import type { City } from "../../../city/entities/city.entity";
 import type { PlaceTag } from "../../../places/place-tag.entity";
 import type { Place } from "../../../places/place.entity";
 import { CITY_SEEDS } from "./city.seed";
+import { DEMO_USER } from "./demo-user.seed";
 import { SeedService } from "./seed.service";
 
 function repos(demoPassword?: string) {
@@ -70,34 +71,36 @@ describe("SeedService", () => {
     expect(cities.upsert).toHaveBeenCalledWith(CITY_SEEDS, ["name"]);
   });
 
-  it("seeds the demo account outside production", async () => {
-    process.env.NODE_ENV = "development";
-    const { service, users, hasher } = repos();
+  it.each(["development", "production"])(
+    "seeds the demo account with a stored hash when NODE_ENV is %s",
+    async (env) => {
+      process.env.NODE_ENV = env;
+      const { service, users, hasher } = repos();
+      await service.onApplicationBootstrap();
+      expect(hasher.hash).not.toHaveBeenCalled();
+      expect(users.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: "anna@atlas.pl",
+          passwordHash: DEMO_USER.passwordHash,
+          role: "user",
+        }),
+      );
+      expect(DEMO_USER.passwordHash).toMatch(/^scrypt:/);
+    },
+  );
+
+  it("hashes DEMO_USER_PASSWORD when it is configured", async () => {
+    process.env.NODE_ENV = "production";
+    const { service, users, hasher } = repos("a-long-demo-password");
     await service.onApplicationBootstrap();
-    expect(hasher.hash).toHaveBeenCalledWith("demo1234");
+    expect(hasher.hash).toHaveBeenCalledWith("a-long-demo-password");
     expect(users.save).toHaveBeenCalledWith(
-      expect.objectContaining({
-        email: "anna@atlas.pl",
-        passwordHash: "hashed",
-        role: "user",
-      }),
+      expect.objectContaining({ passwordHash: "hashed" }),
     );
   });
 
-  it("does not seed the demo account in production unless a password is set", async () => {
-    process.env.NODE_ENV = "production";
-    const none = repos();
-    await none.service.onApplicationBootstrap();
-    expect(none.users.save).not.toHaveBeenCalled();
-
-    const set = repos("a-long-demo-password");
-    await set.service.onApplicationBootstrap();
-    expect(set.hasher.hash).toHaveBeenCalledWith("a-long-demo-password");
-    expect(set.users.save).toHaveBeenCalled();
-  });
-
   it("keeps an existing demo account untouched", async () => {
-    process.env.NODE_ENV = "development";
+    process.env.NODE_ENV = "production";
     const { service, users } = repos();
     users.existsBy.mockResolvedValue(true);
     await service.onApplicationBootstrap();

@@ -12,7 +12,7 @@ import { User } from "../../../account/entities/user.entity";
 import { PasswordHasher } from "../../../account/services/password-hasher.service";
 import { City } from "../../../city/entities/city.entity";
 import { CITY_SEEDS } from "./city.seed";
-import { DEMO_USER, DEMO_USER_PASSWORD } from "./demo-user.seed";
+import { DEMO_USER } from "./demo-user.seed";
 import type { Address } from "../../../places/address";
 import type {
   PlaceFacts,
@@ -98,15 +98,17 @@ export class SeedService implements OnApplicationBootstrap {
     );
   }
 
-  /** The demo account exists outside production, or in production when DEMO_USER_PASSWORD is set. */
+  /** The demo account is created in every environment; its password is stored hashed. */
   private async seedDemoUser(): Promise<void> {
-    const configured = this.config.get<string>("DEMO_USER_PASSWORD");
-    if (process.env.NODE_ENV === "production" && !configured) return;
     if (await this.users.existsBy({ email: DEMO_USER.email })) return;
+    const configured = this.config.get<string>("DEMO_USER_PASSWORD");
     await this.users.save(
       this.users.create({
-        ...DEMO_USER,
-        passwordHash: await this.hasher.hash(configured || DEMO_USER_PASSWORD),
+        email: DEMO_USER.email,
+        name: DEMO_USER.name,
+        passwordHash: configured
+          ? await this.hasher.hash(configured)
+          : DEMO_USER.passwordHash,
         role: "user",
       }),
     );
