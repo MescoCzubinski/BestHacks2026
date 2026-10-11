@@ -1,11 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import type {
-  CandidateQuery,
-  PlaceCandidate,
-  TagCount,
-} from "../place-candidate";
+import type { CandidateQuery, PlaceCandidate } from "../place-candidate";
 import type { PlaceFacts, PositionQuality } from "../place-facts";
 import { Place } from "../place.entity";
 import type { StyleTag } from "../style-tag";
@@ -46,26 +42,40 @@ export class PlaceQueryService {
         LIMIT $7`,
       [q.south, q.north, q.west, q.east, q.tags, q.minPercent, q.limit],
     );
-    return rows.map((r) => ({
-      id: r.id,
-      name: r.name,
-      latitude: r.latitude,
-      longitude: r.longitude,
-      description: r.description,
-      mainImageUrl: r.main_image_url,
-      significance: r.significance,
-      positionQuality: r.position_quality,
-      year: r.year,
-      facts: r.facts,
-      tags: r.tags,
-    }));
+    return rows.map(toCandidate);
   }
 
-  async tagCounts(minPercent: number): Promise<TagCount[]> {
-    const rows: { tag: StyleTag; count: string }[] = await this.places.query(
-      `SELECT tag, count(*) AS count FROM place_tags WHERE percent >= $1 GROUP BY tag ORDER BY count(*) DESC`,
-      [minPercent],
+  /** Places whose name contains the text; names that start with it come first, then the more notable ones. */
+  async searchByName(text: string, limit: number): Promise<PlaceCandidate[]> {
+    const escaped = text.replace(/[\\%_]/g, (c) => `\\${c}`);
+    const rows: CandidateRow[] = await this.places.query(
+      `SELECT p.id, p.name, p.latitude, p.longitude, p.description, p.main_image_url, p.significance,
+              p.position_quality, p.year, p.facts,
+              COALESCE(jsonb_object_agg(t.tag, t.percent) FILTER (WHERE t.tag IS NOT NULL), '{}'::jsonb) AS tags
+         FROM places p
+         LEFT JOIN place_tags t ON t.place_id = p.id
+        WHERE p.name ILIKE $1
+        GROUP BY p.id
+        ORDER BY (p.name ILIKE $2) DESC, p.significance DESC, p.name
+        LIMIT $3`,
+      [`%${escaped}%`, `${escaped}%`, limit],
     );
-    return rows.map((r) => ({ tag: r.tag, count: Number(r.count) }));
+    return rows.map(toCandidate);
   }
+}
+
+function toCandidate(r: CandidateRow): PlaceCandidate {
+  return {
+    id: r.id,
+    name: r.name,
+    latitude: r.latitude,
+    longitude: r.longitude,
+    description: r.description,
+    mainImageUrl: r.main_image_url,
+    significance: r.significance,
+    positionQuality: r.position_quality,
+    year: r.year,
+    facts: r.facts,
+    tags: r.tags,
+  };
 }

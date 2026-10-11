@@ -24,4 +24,16 @@ describe("validateEnv", () => {
       "at least 32 characters",
     );
   });
+
+  it("accepts an unset or long demo password and rejects a short one", () => {
+    expect(() =>
+      validateEnv({ ...valid, DEMO_USER_PASSWORD: "" }),
+    ).not.toThrow();
+    expect(() =>
+      validateEnv({ ...valid, DEMO_USER_PASSWORD: "long-enough-secret" }),
+    ).not.toThrow();
+    expect(() =>
+      validateEnv({ ...valid, DEMO_USER_PASSWORD: "short" }),
+    ).toThrow("DEMO_USER_PASSWORD");
+  });
 });

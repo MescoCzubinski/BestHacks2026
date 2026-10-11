@@ -24,5 +24,3 @@ export type CandidateQuery = {
   minPercent: number;
   limit: number;
 };
-
-export type TagCount = { tag: StyleTag; count: number };

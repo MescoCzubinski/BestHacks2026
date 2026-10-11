@@ -4,9 +4,9 @@ import type { LatLng } from "../../city/bbox";
 import { PathNotFoundException } from "../exceptions/path-not-found.exception";
 import { PathRouterUnavailableException } from "../exceptions/path-router-unavailable.exception";
 import {
-  mapGraphHopperPath,
+  GraphHopperPathMapper,
   type GraphHopperResponse,
-} from "../lib/graphhopper-mapper";
+} from "./graphhopper-path-mapper.service";
 import { PathRouter, type RoutedPath } from "./path-router";
 
 const PROFILE = "safe_pedestrian";
@@ -18,7 +18,10 @@ export class GraphHopperRouter extends PathRouter {
   private readonly baseUrl: string;
   private readonly token: string;
 
-  constructor(config: ConfigService) {
+  constructor(
+    config: ConfigService,
+    private readonly mapper: GraphHopperPathMapper,
+  ) {
     super();
     this.baseUrl = config.getOrThrow<string>("GRAPHHOPPER_URL");
     this.token = config.getOrThrow<string>("GRAPHHOPPER_TOKEN");
@@ -49,7 +52,7 @@ export class GraphHopperRouter extends PathRouter {
       this.logger.warn(`GraphHopper responded ${res.status}`);
       throw new PathRouterUnavailableException();
     }
-    const path = mapGraphHopperPath((await res.json()) as GraphHopperResponse);
+    const path = this.mapper.map((await res.json()) as GraphHopperResponse);
     if (!path) throw new PathNotFoundException();
     return path;
   }

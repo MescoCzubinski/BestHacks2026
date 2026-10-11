@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import type { PlaceCandidate } from "../../places/place-candidate";
 import { PlaceQueryService } from "../../places/services/place-query.service";
-import type { Accessibility, RouteCandidate } from "../lib/candidate";
-import { visitMinutes } from "../lib/visit-duration";
+import { VisitDurationService } from "../../places/services/visit-duration.service";
+import type { Accessibility, RouteCandidate } from "../route-candidate";
+import type { RouteQuery } from "./route-planner";
 import {
   DEFAULT_WALKING_SPEED_KMH,
   DETOUR_FACTOR,
-  estimateWalkMinutes,
-} from "../lib/walking-estimate";
-import type { RouteQuery } from "./route-planner";
+  WalkingEstimateService,
+} from "./walking-estimate.service";
 
 const MIN_TAG_PERCENT = 50;
 const MAX_CANDIDATES = 120;
@@ -23,11 +23,15 @@ const ACCESSIBILITY_BOOST: Record<Accessibility, number> = {
 
 @Injectable()
 export class CandidateSelectionService {
-  constructor(private readonly places: PlaceQueryService) {}
+  constructor(
+    private readonly places: PlaceQueryService,
+    private readonly visits: VisitDurationService,
+    private readonly walking: WalkingEstimateService,
+  ) {}
 
   async select(query: RouteQuery): Promise<RouteCandidate[]> {
     if (query.tags.length === 0) return [];
-    const box = reachableBox(query);
+    const box = this.reachableBox(query);
     const found = await this.places.findCandidates({
       ...box,
       tags: query.tags,
@@ -37,7 +41,7 @@ export class CandidateSelectionService {
     return found
       .map((p) => this.toCandidate(p, query))
       .filter((c): c is RouteCandidate => c !== null)
-      .filter((c) => detourFits(c, query))
+      .filter((c) => this.detourFits(c, query))
       .sort((a, b) => b.value - a.value)
       .slice(0, MAX_CANDIDATES);
   }
@@ -67,32 +71,33 @@ export class CandidateSelectionService {
       place: p,
       point: { lat: p.latitude, lng: p.longitude },
       value: relevance * notable * accessBoost,
-      dwellMinutes: visitMinutes(p.tags, p.significance),
+      dwellMinutes: this.visits.visitMinutes(p.tags, p.significance),
       openingHours: p.facts.openingHours ?? null,
       accessibility,
     };
   }
-}
 
-function reachableBox(query: RouteQuery) {
-  const walkKm =
-    ((query.durationMinutes / 60) * DEFAULT_WALKING_SPEED_KMH) / DETOUR_FACTOR;
-  const centre = {
-    lat: (query.start.lat + query.end.lat) / 2,
-    lng: (query.start.lng + query.end.lng) / 2,
-  };
-  const dLat = walkKm / 2 / KM_PER_DEGREE;
-  const dLng = dLat / Math.cos((centre.lat * Math.PI) / 180);
-  return {
-    south: centre.lat - dLat,
-    north: centre.lat + dLat,
-    west: centre.lng - dLng,
-    east: centre.lng + dLng,
-  };
-}
+  private detourFits(c: RouteCandidate, query: RouteQuery): boolean {
+    const there = this.walking.minutes(query.start, c.point);
+    const back = this.walking.minutes(c.point, query.end);
+    return there + c.dwellMinutes + back <= query.durationMinutes;
+  }
 
-function detourFits(c: RouteCandidate, query: RouteQuery): boolean {
-  const there = estimateWalkMinutes(query.start, c.point);
-  const back = estimateWalkMinutes(c.point, query.end);
-  return there + c.dwellMinutes + back <= query.durationMinutes;
+  private reachableBox(query: RouteQuery) {
+    const walkKm =
+      ((query.durationMinutes / 60) * DEFAULT_WALKING_SPEED_KMH) /
+      DETOUR_FACTOR;
+    const centre = {
+      lat: (query.start.lat + query.end.lat) / 2,
+      lng: (query.start.lng + query.end.lng) / 2,
+    };
+    const dLat = walkKm / 2 / KM_PER_DEGREE;
+    const dLng = dLat / Math.cos((centre.lat * Math.PI) / 180);
+    return {
+      south: centre.lat - dLat,
+      north: centre.lat + dLat,
+      west: centre.lng - dLng,
+      east: centre.lng + dLng,
+    };
+  }
 }

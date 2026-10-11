@@ -8,21 +8,50 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Separator } from "@/shared/ui/separator";
-import { DEMO_PASSWORD, DEMO_USERS } from "@/data/users";
+import { AuthError, login, register } from "@/features/auth";
+import { setSession } from "@/shared/auth";
 import { href } from "@/shared/lib/route";
 import { cn } from "@/shared/lib/utils";
 
+const DEMO_ACCOUNT = {
+  name: "Anna Kowalska",
+  email: "anna@atlas.pl",
+  password: "demo1234",
+  initials: "AK",
+  role: "Konto demo",
+};
+
 export default function Login() {
+  const [mode, setMode] = useState<"login" | "register">("login");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [picked, setPicked] = useState("");
+  const [picked, setPicked] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
 
-  function pick(id: string) {
-    const user = DEMO_USERS.find((u) => u.id === id);
-    if (!user) return;
-    setEmail(user.email);
-    setPassword(DEMO_PASSWORD);
-    setPicked(id);
+  function pickDemo() {
+    setMode("login");
+    setEmail(DEMO_ACCOUNT.email);
+    setPassword(DEMO_ACCOUNT.password);
+    setPicked(true);
+  }
+
+  async function submit() {
+    setPending(true);
+    setError("");
+    try {
+      const session =
+        mode === "login"
+          ? await login(email.trim(), password)
+          : await register(name.trim(), email.trim(), password);
+      setSession(session);
+      window.location.hash = href("plan");
+    } catch (e) {
+      setError(e instanceof AuthError ? e.message : "Nie udało się zalogować.");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -44,7 +73,7 @@ export default function Login() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            window.location.hash = href("plan");
+            void submit();
           }}
           className="mx-auto my-auto flex w-full max-w-110 flex-col gap-5"
         >
@@ -56,12 +85,27 @@ export default function Login() {
               </span>
             </h1>
             <p className="text-sm text-muted-foreground">
-              Zaloguj się, aby zaplanować kolejną tematyczną podróż, albo użyj
-              konta demo poniżej.
+              {mode === "login"
+                ? "Zaloguj się, aby zaplanować kolejną tematyczną podróż, albo użyj konta demo poniżej."
+                : "Utwórz konto, aby planować trasy i wracać do poprzednich."}
             </p>
           </div>
 
           <div className="grid gap-4">
+            {mode === "register" && (
+              <div className="grid gap-2">
+                <Label htmlFor="name">Imię</Label>
+                <Input
+                  id="name"
+                  autoComplete="name"
+                  required
+                  maxLength={100}
+                  placeholder="np. Jan Nowak"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="email">E-mail</Label>
               <Input
@@ -73,7 +117,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  setPicked("");
+                  setPicked(false);
                 }}
               />
             </div>
@@ -82,44 +126,66 @@ export default function Login() {
               <Input
                 id="pw"
                 type="password"
-                autoComplete="current-password"
+                autoComplete={
+                  mode === "login" ? "current-password" : "new-password"
+                }
                 required
+                minLength={mode === "register" ? 8 : undefined}
+                maxLength={128}
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
-            <Button type="submit" size="lg" className="h-11 shadow-brand">
-              Zaloguj się <ArrowRight />
+            {error && (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              size="lg"
+              className="h-11 shadow-brand"
+              disabled={pending}
+            >
+              {mode === "login" ? "Zaloguj się" : "Utwórz konto"} <ArrowRight />
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setMode(mode === "login" ? "register" : "login");
+                setError("");
+              }}
+            >
+              {mode === "login"
+                ? "Nie masz konta? Utwórz je"
+                : "Masz już konto? Zaloguj się"}
             </Button>
 
             <Separator className="mt-1">Konto demo</Separator>
 
-            <div role="group" aria-label="Konto demo" className="grid gap-2">
-              {DEMO_USERS.map((u) => (
-                <button
-                  key={u.id}
-                  type="button"
-                  aria-pressed={picked === u.id}
-                  onClick={() => pick(u.id)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring",
-                    picked === u.id &&
-                      "border-primary bg-muted ring-1 ring-primary",
-                  )}
-                >
-                  <Avatar aria-hidden="true">{u.initials}</Avatar>
-                  <span className="grid min-w-0 flex-1 leading-snug">
-                    <span className="text-sm font-medium">{u.name}</span>
-                    <span className="truncate text-sm text-muted-foreground">
-                      {u.email}
-                    </span>
-                  </span>
-                  <Badge variant="secondary">{u.role}</Badge>
-                </button>
-              ))}
-            </div>
+            <button
+              type="button"
+              aria-pressed={picked}
+              onClick={pickDemo}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring",
+                picked && "border-primary bg-muted ring-1 ring-primary",
+              )}
+            >
+              <Avatar aria-hidden="true">{DEMO_ACCOUNT.initials}</Avatar>
+              <span className="grid min-w-0 flex-1 leading-snug">
+                <span className="text-sm font-medium">{DEMO_ACCOUNT.name}</span>
+                <span className="truncate text-sm text-muted-foreground">
+                  {DEMO_ACCOUNT.email}
+                </span>
+              </span>
+              <Badge variant="secondary">{DEMO_ACCOUNT.role}</Badge>
+            </button>
           </div>
         </form>
       </main>

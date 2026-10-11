@@ -3,7 +3,9 @@ import { useState } from "react";
 import { RouteRequestError } from "@/entities/route";
 import { createRoute } from "@/features/build-route";
 import { useEditableRoute } from "@/features/edit-route";
+import { saveRoute } from "@/features/saved-routes";
 import { RouteMap } from "@/features/route-map";
+import { clearSession } from "@/shared/auth";
 import { Button } from "@/shared/ui/button";
 import { Modal } from "@/shared/ui/modal";
 import { cn } from "@/shared/lib/utils";
@@ -69,6 +71,15 @@ export default function PlanPage() {
   }
 
   function accept() {
+    if (route) {
+      void saveRoute({
+        tags: form.tags,
+        durationMinutes: Math.round(Number(form.hours) * 60),
+        start: route.start,
+        end: route.end,
+        stops: route.stops,
+      }).catch(() => undefined);
+    }
     const desktop = window.matchMedia("(min-width: 1024px)").matches;
     setSelectedId(desktop ? route?.stops[0]?.id : undefined);
     setPhase("accepted");
@@ -123,6 +134,7 @@ export default function PlanPage() {
             error={error}
             submitLabel={route ? "Wygeneruj ponownie" : "Wygeneruj trasę"}
             onShowHistory={() => setHistoryPopup(true)}
+            onLogout={clearSession}
           />
         )}
       </div>

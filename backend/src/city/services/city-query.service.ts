@@ -5,9 +5,9 @@ import { bboxContains, type Bbox, type LatLng } from "../bbox";
 import { City } from "../entities/city.entity";
 import { OutsideSupportedAreaException } from "../exceptions/outside-supported-area.exception";
 
-export type SupportedCity = { name: string; bbox: Bbox };
+type SupportedCity = { name: string; bbox: Bbox };
 
-export type SupportCheck = { supported: boolean; supportedCities: string[] };
+type SupportCheck = { supported: boolean; supportedCities: string[] };
 
 @Injectable()
 export class CityQueryService {
@@ -26,6 +26,13 @@ export class CityQueryService {
       supported: supported.some((city) => bboxContains(city.bbox, lat, lng)),
       supportedCities: supported.map((city) => city.name),
     };
+  }
+
+  async nameAt(lat: number, lng: number): Promise<string | null> {
+    const supported = await this.listSupported();
+    return (
+      supported.find((city) => bboxContains(city.bbox, lat, lng))?.name ?? null
+    );
   }
 
   async assertInsideSupported(points: LatLng[]): Promise<void> {

@@ -3,12 +3,16 @@ import {
   Logger,
   type OnApplicationBootstrap,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { In, IsNull, Not, Repository } from "typeorm";
+import { User } from "../../../account/entities/user.entity";
+import { PasswordHasher } from "../../../account/services/password-hasher.service";
 import { City } from "../../../city/entities/city.entity";
 import { CITY_SEEDS } from "./city.seed";
+import { DEMO_USER } from "./demo-user.seed";
 import type { Address } from "../../../places/address";
 import type {
   PlaceFacts,
@@ -50,11 +54,15 @@ export class SeedService implements OnApplicationBootstrap {
     @InjectRepository(City) private readonly cities: Repository<City>,
     @InjectRepository(Place) private readonly places: Repository<Place>,
     @InjectRepository(PlaceTag) private readonly tags: Repository<PlaceTag>,
+    @InjectRepository(User) private readonly users: Repository<User>,
+    private readonly hasher: PasswordHasher,
+    private readonly config: ConfigService,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
     await this.cities.upsert(CITY_SEEDS, ["name"]);
     this.log.log(`seeded ${CITY_SEEDS.length} cities`);
+    await this.seedDemoUser();
     if (!existsSync(SEED_FILE)) {
       this.log.warn(`no seed file at ${SEED_FILE}, skipping`);
       return;
@@ -88,6 +96,23 @@ export class SeedService implements OnApplicationBootstrap {
     this.log.log(
       `seeded ${rows.length} places, removed ${staleIds.length} no longer in the seed`,
     );
+  }
+
+  /** The demo account is created in every environment; its password is stored hashed. */
+  private async seedDemoUser(): Promise<void> {
+    if (await this.users.existsBy({ email: DEMO_USER.email })) return;
+    const configured = this.config.get<string>("DEMO_USER_PASSWORD");
+    await this.users.save(
+      this.users.create({
+        email: DEMO_USER.email,
+        name: DEMO_USER.name,
+        passwordHash: configured
+          ? await this.hasher.hash(configured)
+          : DEMO_USER.passwordHash,
+        role: "user",
+      }),
+    );
+    this.log.log(`seeded the demo account ${DEMO_USER.email}`);
   }
 
   private async upsertChunk(chunk: SeedPlace[]): Promise<void> {

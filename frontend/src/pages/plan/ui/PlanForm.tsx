@@ -22,6 +22,7 @@ type Props = {
   error: string;
   submitLabel: string;
   onShowHistory: () => void;
+  onLogout: () => void;
 };
 
 export function PlanForm({
@@ -32,6 +33,7 @@ export function PlanForm({
   error,
   submitLabel,
   onShowHistory,
+  onLogout,
 }: Props) {
   const problem = formProblem(value);
   const patch = (changes: Partial<PlanFormState>) =>
@@ -41,15 +43,20 @@ export function PlanForm({
     <div className="flex flex-col gap-4 p-4 lg:gap-10 lg:px-18 lg:py-10">
       <div className="flex items-center justify-between gap-2 pl-2 lg:pl-0">
         <Logo />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="lg:hidden"
-          onClick={onShowHistory}
-        >
-          Poprzednie trasy
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="lg:hidden"
+            onClick={onShowHistory}
+          >
+            Poprzednie trasy
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={onLogout}>
+            Wyloguj
+          </Button>
+        </div>
       </div>
       <div className="mx-auto my-auto grid w-full max-w-110 gap-4 lg:gap-6">
         <div className="grid gap-1">
