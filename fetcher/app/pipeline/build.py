@@ -1,5 +1,3 @@
-"""Source records -> place documents ready for the backend (merge, link photos, clean, normalise, tag)."""
-
 import hashlib
 import logging
 from collections import Counter
@@ -77,7 +75,6 @@ def merge_sources(data: SourceData) -> Merger:
 
 
 def link_photos(places: list[dict[str, Any]], photos: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    """Attach each geotagged photo to the nearest named place(s) within a few metres."""
     grid = Grid()
     for i, p in enumerate(places):
         if p.get("lat") is not None:

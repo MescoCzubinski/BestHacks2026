@@ -1,5 +1,3 @@
-"""Turning a merged place into the fields of the backend `places` table."""
-
 import re
 from typing import Any
 
@@ -63,7 +61,6 @@ def clip(s: str, n: int) -> str:
 
 
 def significance(p: dict[str, Any]) -> int:
-    """0-100: how much a visitor would care. Photos, an encyclopedia article, protection and several sources raise it."""
     s = 5 if (p.get("name") or "").strip() else 0
     s += 25 if p.get("wikipedia") else 0
     s += 10 if p.get("wikidata") else 0

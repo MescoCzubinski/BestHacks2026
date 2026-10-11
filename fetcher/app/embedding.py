@@ -1,9 +1,3 @@
-"""Embeddings come from the backend, so the model lives in one place and this image stays small.
-
-Vectors are kept as float32 and cached on disk by text hash: a weekly re-run only sends the texts that
-changed, which spares both this process and the backend's CPU.
-"""
-
 import hashlib
 import logging
 import threading
@@ -40,7 +34,6 @@ class BackendEmbedder:
         self._cache_path = cache_path
 
     def wait_until_ready(self) -> None:
-        """Block until the backend answers its health check, or raise after the timeout."""
         deadline = time.monotonic() + READY_TIMEOUT_S
         while True:
             try:
@@ -88,12 +81,11 @@ class BackendEmbedder:
         try:
             with np.load(self._cache_path, allow_pickle=False) as f:
                 return {str(k): row for k, row in zip(f["keys"], f["vectors"])}
-        except Exception as exc:  # a damaged cache only costs a re-embed
+        except Exception as exc:
             log.warning("ignoring unreadable embedding cache %s: %s", self._cache_path, exc)
             return {}
 
     def _save(self, vectors: dict[str, np.ndarray]) -> None:
-        """Keep only the texts of this run, so the cache never grows past one region."""
         if self._cache_path is None:
             return
         tmp = self._cache_path.with_suffix(".tmp.npz")

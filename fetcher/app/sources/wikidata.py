@@ -1,5 +1,3 @@
-"""Wikidata items inside the region (SPARQL box query), their Wikipedia intros, and heritage claims."""
-
 import logging
 import math
 import re
@@ -88,7 +86,6 @@ def fetch_items(http: Http, cache: Cache, region: Region) -> list[dict[str, Any]
 
 
 def fill_extracts(http: Http, cache: Cache, region: Region, items: list[dict[str, Any]]) -> None:
-    """Add `extract` (Wikipedia intro) in place. Missing ones are retried on the next run."""
     by_title: dict[str, dict[str, Any]] = {}
     for d in items:
         if d.get("wiki") and "extract" not in d:

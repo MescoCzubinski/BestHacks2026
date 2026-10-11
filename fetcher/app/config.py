@@ -1,5 +1,3 @@
-"""Configuration, read once from environment variables (fails at boot when required ones are missing)."""
-
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -7,9 +5,6 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class Region:
-    """The area the pipeline covers. The bounding box drives every source; the municipality is only
-    used to filter the national monument register (NID), which is published for the whole country."""
-
     id: str
     name: str
     south: float

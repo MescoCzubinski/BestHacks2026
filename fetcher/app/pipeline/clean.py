@@ -1,5 +1,3 @@
-"""Cleanup of merged places: drop what is not a visitable object, then merge leftover duplicates."""
-
 import re
 from collections import Counter
 from typing import Any
@@ -40,7 +38,6 @@ def is_not_a_place(p: dict[str, Any]) -> bool:
 
 
 def absorb(keep: dict[str, Any], dup: dict[str, Any]) -> None:
-    """Fold a duplicate into the richer record: fill gaps, union lists."""
     for k, v in dup.items():
         if k in ("media", "sources", "kinds"):
             keep[k] = list(dict.fromkeys([*(keep.get(k) or []), *(v or [])]))

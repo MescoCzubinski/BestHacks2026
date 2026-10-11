@@ -13,7 +13,6 @@ function derive(password: string, salt: Buffer): Promise<Buffer> {
   );
 }
 
-/** Salted scrypt; the stored form is "scrypt:<salt>:<key>" with both parts in base64. */
 @Injectable()
 export class PasswordHasher {
   async hash(password: string): Promise<string> {

@@ -1,8 +1,3 @@
-"""Writes place documents into the tables the backend owns (`places`, `place_tags`). Never runs DDL.
-
-All statements are parameterised and idempotent: places upsert on `external_id`, tags are replaced per place.
-"""
-
 import json
 import logging
 import re
@@ -56,7 +51,6 @@ def _chunks(items: Sequence[Any], size: int) -> Iterable[Sequence[Any]]:
 
 
 def save_places(conn: psycopg.Connection, region_id: str, docs: list[dict[str, Any]]) -> dict[str, int]:
-    """Upsert every document, replace its tags, and remove this region's places that are no longer produced."""
     if not _REGION_ID.fullmatch(region_id):
         raise ValueError("invalid region id")
     ids = [d["externalId"] for d in docs]

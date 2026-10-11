@@ -1,11 +1,3 @@
-"""Graded tags (0-100) per place.
-
-* Explicit labels from the sources (NID style and function, OSM/Wikidata kinds, source flags) score 80-100.
-* An embedding + logistic regression trained on those labels fills in unlabelled buildings (capped at 70,
-  so an inference never outranks an explicit label).
-* Neighbouring tags spill part of their score (neogothic -> gothic, secession <-> art_nouveau).
-"""
-
 import logging
 import re
 from collections import Counter
@@ -185,8 +177,6 @@ OUTDOOR_TAGS = ("monument", "sculpture", "fountain", "shrine", "park", "square",
 
 
 class Embedder(Protocol):
-    """Turns texts into vectors. The production one asks the backend; tests pass a stub."""
-
     def wait_until_ready(self) -> None: ...
 
     def embed(self, texts: Sequence[str]) -> np.ndarray: ...
@@ -235,7 +225,6 @@ def explicit_scores(p: dict[str, Any], claims: dict[str, Any] | None = None) -> 
 
 
 def theme_scores(p: dict[str, Any], tags: dict[str, float], sig: int, region: Region) -> dict[str, float]:
-    """Influence, street-art and special tags that depend on era, text and the coarse theme."""
     s: dict[str, float] = {}
     text = text_blob(p)
     year = p.get("year") or 0
@@ -274,7 +263,6 @@ def theme_scores(p: dict[str, Any], tags: dict[str, float], sig: int, region: Re
 
 
 def apply_signals(scores: dict[str, float], flags: dict[str, str], claims: dict[str, Any]) -> str | None:
-    """Explicit facts from OSM tags and Wikidata claims override guesses. Returns the wheelchair value."""
     wheelchair = flags.get("wheelchair")
     if wheelchair in ACCESSIBLE_PERCENT:
         scores["accessible"] = ACCESSIBLE_PERCENT[wheelchair]
@@ -290,7 +278,6 @@ def apply_signals(scores: dict[str, float], flags: dict[str, str], claims: dict[
 
 
 def classifier_text(p: dict[str, Any]) -> str:
-    """Text the classifier sees: explicit style words are removed so it learns from everything else."""
     raw = " . ".join(
         x
         for x in [p.get("name") or "", p.get("function") or "", ", ".join(_kinds(p)), p.get("material") or "", (p.get("extract") or p.get("description") or "")[:350]]

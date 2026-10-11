@@ -1,5 +1,3 @@
-"""Heritage data worker: for a configured region, fetches public sources, merges and tags places, writes them to Postgres."""
-
 import json
 import logging
 import multiprocessing
@@ -34,7 +32,6 @@ interval_s = 0
 
 
 def is_healthy() -> bool:
-    """Healthy while a run is in progress (within the grace period) or the last success is recent."""
     now = time.time()
     if run_started is not None and now - run_started < HEALTH_GRACE_S:
         return True
@@ -72,7 +69,6 @@ def heartbeat() -> None:
 
 
 def failure_delay(consecutive_failures: int) -> int:
-    """Back off from the public APIs: 15 min, 30 min, 1 h ... capped at 6 h."""
     return min(MAX_FAILURE_RETRY_S, FAILURE_RETRY_S * 2 ** max(0, consecutive_failures - 1))
 
 
@@ -80,13 +76,12 @@ def _peak_memory_mb() -> int | None:
     try:
         import resource
 
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss // 1024  # KiB on Linux
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss // 1024
     except ImportError:
         return None
 
 
 def _run_in_child(settings: Settings, conn: Connection) -> None:
-    """Entry point of the run process: it owns every large object, so exiting returns all of its memory."""
     child_stop = threading.Event()
     signal.signal(signal.SIGTERM, lambda *_: child_stop.set())
     http = Http(child_stop)
@@ -107,19 +102,18 @@ def _run_in_child(settings: Settings, conn: Connection) -> None:
 
 
 def run_isolated(settings: Settings) -> dict[str, Any]:
-    """Run the pipeline in a short-lived process. An out-of-memory kill ends only that process, not the worker."""
-    ctx = multiprocessing.get_context("spawn")  # fork would copy this process's threads and locks
+    ctx = multiprocessing.get_context("spawn")
     recv, send = ctx.Pipe(duplex=False)
     proc = ctx.Process(target=_run_in_child, args=(settings, send), name="fetcher-run")
     proc.start()
     send.close()
     try:
-        while not recv.poll(CHILD_POLL_S):  # also true at end-of-file, i.e. when the child died silently
+        while not recv.poll(CHILD_POLL_S):
             if stop.is_set():
-                proc.terminate()  # SIGTERM: the child stops at its next cancellable wait
+                proc.terminate()
                 raise InterruptedError("shutdown requested")
             if not proc.is_alive() and not recv.poll():
-                break  # exited without sending anything
+                break
         try:
             message = recv.recv() if recv.poll() else None
         except EOFError:

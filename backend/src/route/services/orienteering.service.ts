@@ -19,13 +19,8 @@ export type PlannerOptions = {
 
 type Insertion = { order: RouteCandidate[]; plan: Plan; ratio: number };
 
-/**
- * Orienteering heuristic: greedily insert the stop with the best value per added minute, then
- * shorten the order with 2-opt, and repeat while stops are still being added.
- */
 @Injectable()
 export class OrienteeringService {
-  /** The timeline of a fixed order, or `null` when it breaks the budget or a stop is closed on arrival. */
   schedule(order: RouteCandidate[], o: PlannerOptions): Plan | null {
     let minutes = 0;
     let walk = 0;
@@ -123,7 +118,6 @@ export class OrienteeringService {
     return pick;
   }
 
-  /** 2-opt: reverse a segment while that makes the whole route shorter. */
   private shorten(
     start: RouteCandidate[],
     plan: Plan,

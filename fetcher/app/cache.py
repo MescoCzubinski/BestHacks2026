@@ -1,5 +1,3 @@
-"""Tiny JSON file cache so a restart or a rate-limited source never forces a full re-download."""
-
 import json
 import logging
 import time

@@ -1,5 +1,3 @@
-"""Text normalisation shared by merging and cleaning."""
-
 import re
 import unicodedata
 
@@ -34,7 +32,6 @@ def year_of(s: str | None) -> int | None:
 
 
 def strip_city(name: str, city: str) -> str:
-    """Wikipedia-style titles ("Wrocław - Hala Stulecia", "Kamienica ... we Wrocławiu") name the same object."""
     n = (name or "").strip()
     if not city:
         return n

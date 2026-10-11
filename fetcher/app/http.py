@@ -1,5 +1,3 @@
-"""One HTTP client for every integration: timeouts, retry with backoff, Retry-After, cancellable sleeps."""
-
 import logging
 import threading
 from collections.abc import Mapping
@@ -49,7 +47,6 @@ class Http:
         raise last
 
     def get_json(self, url: str, params: Mapping[str, Any] | None = None, headers: Mapping[str, str] | None = None) -> Any:
-        """GET and parse JSON; a truncated body (the server cut a large response) is retried like a network error."""
         for attempt in range(1, self._attempts + 1):
             try:
                 return self._request("GET", url, params=params, headers=headers).json()

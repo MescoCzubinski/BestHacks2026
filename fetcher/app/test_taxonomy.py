@@ -1,5 +1,3 @@
-"""The backend enum is the source of truth; the fetcher vocabulary must match it exactly."""
-
 import re
 from pathlib import Path
 

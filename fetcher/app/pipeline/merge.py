@@ -1,10 +1,3 @@
-"""Merging of records from different sources into one list of places.
-
-A new record is matched against existing places within a radius by name similarity (or by being
-equally nameless and very close, with the same theme). Matched records fill gaps and union their
-provenance; the register's name and the best position win.
-"""
-
 from typing import Any
 
 from .geo import Grid, meters
@@ -90,7 +83,6 @@ class Merger:
         return j, True
 
     def ingest_register_point(self, rec: dict[str, Any], radius_m: float = 30.0) -> bool:
-        """Unnamed registered-monument points: attach to a protected place nearby, else keep as new."""
         for i in self._grid.near(rec["lat"], rec["lon"]):
             p = self.places[i]
             if (p.get("protection") or "nid" in p["sources"]) and meters(rec["lat"], rec["lon"], p["lat"], p["lon"]) <= radius_m:

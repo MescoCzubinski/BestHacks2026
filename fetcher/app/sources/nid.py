@@ -1,9 +1,3 @@
-"""National Heritage Board (NID) register of immovable monuments, filtered to the region.
-
-The register is a national CSV without coordinates; rows are geocoded by address with the GUGiK UUG
-service. Geocoding results are cached per INSPIRE id, so an interrupted run resumes where it stopped.
-"""
-
 import csv
 import io
 import logging
@@ -60,13 +54,11 @@ def puwg_to_wgs(e: float, n: float) -> tuple[float, float]:
 
 
 def iter_csv(raw: bytes, encoding: str) -> Iterator[dict[str, str]]:
-    """Yield rows one at a time, decoding on the fly instead of building a second copy of the file."""
     with io.TextIOWrapper(io.BytesIO(raw), encoding=encoding, errors="replace" if encoding == "cp1250" else "strict", newline="") as text:
         yield from csv.DictReader(text, delimiter=";")
 
 
 def rows_for_region(raw: bytes, region: Region) -> list[dict[str, str]]:
-    """Filter the national register while reading it, so only the region's rows are ever kept in memory."""
     if not region.municipality:
         return []
     wanted = region.municipality.casefold()
@@ -181,8 +173,6 @@ def to_records(rows: list[dict[str, str]], geocoded: dict[str, dict[str, Any]]) 
 
 
 def fetch_history_monuments(http: Http, cache: Cache, region: Region) -> list[dict[str, Any]]:
-    """"Pomniki historii": the top designation. The national list carries coordinates (N, E)."""
-
     def fetch() -> list[dict[str, str]]:
         rows = parse_csv(http.get_bytes(NID_HISTORY_URL))
         out = []
