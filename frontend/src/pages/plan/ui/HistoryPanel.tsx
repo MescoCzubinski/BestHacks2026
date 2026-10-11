@@ -1,9 +1,8 @@
 import { ArrowLeft, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { PLACES } from "@/data/places";
-import { SAVED_ROUTES } from "@/data/routes";
 import { formatMinutes } from "@/entities/route";
 import { useTags } from "@/features/pick-interests";
+import { useSavedRoutes } from "@/features/saved-routes";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Card } from "@/shared/ui/card";
@@ -23,7 +22,7 @@ type Props = {
 export function HistoryPanel({ onBack }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const { tags } = useTags();
-  const placeName = (id: string) => PLACES.find((p) => p.id === id)?.name ?? id;
+  const { routes, status } = useSavedRoutes();
   const tagLabel = (id: string) => tags.find((t) => t.id === id)?.label ?? id;
 
   return (
@@ -41,8 +40,24 @@ export function HistoryPanel({ onBack }: Props) {
           </Button>
         )}
       </div>
+      {status === "loading" && (
+        <p role="status" className="text-sm text-muted-foreground">
+          Wczytujemy Twoje trasy…
+        </p>
+      )}
+      {status === "error" && (
+        <p role="alert" className="text-sm text-destructive">
+          Nie udało się wczytać poprzednich tras.
+        </p>
+      )}
+      {status === "ready" && routes.length === 0 && (
+        <p className="text-sm text-muted-foreground">
+          Nie masz jeszcze zapisanych tras. Zaakceptowane trasy pojawią się
+          tutaj.
+        </p>
+      )}
       <ul className="grid gap-3">
-        {SAVED_ROUTES.map((r) => {
+        {routes.map((r) => {
           const open = openId === r.id;
           return (
             <li key={r.id}>
@@ -59,9 +74,9 @@ export function HistoryPanel({ onBack }: Props) {
                       {r.title}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {r.city} ·{" "}
-                      {dateFmt.format(new Date(`${r.date}T12:00:00`))} ·{" "}
-                      {formatMinutes(r.durationMin)} · {r.placeIds.length}{" "}
+                      {r.city ? `${r.city} · ` : ""}
+                      {dateFmt.format(new Date(r.date))} ·{" "}
+                      {formatMinutes(r.durationMinutes)} · {r.stops.length}{" "}
                       przystanki
                     </span>
                     <span className="flex flex-wrap gap-1.5">
@@ -86,9 +101,9 @@ export function HistoryPanel({ onBack }: Props) {
                       aria-label={`Przystanki: ${r.title}`}
                       className="grid gap-2 border-t px-4 py-3"
                     >
-                      {r.placeIds.map((id, i) => (
+                      {r.stops.map((stop, i) => (
                         <li
-                          key={id}
+                          key={`${stop.id}-${i}`}
                           className="flex items-center gap-2 text-sm"
                         >
                           <span
@@ -97,7 +112,7 @@ export function HistoryPanel({ onBack }: Props) {
                           >
                             {i + 1}
                           </span>
-                          {placeName(id)}
+                          {stop.name}
                         </li>
                       ))}
                     </ol>

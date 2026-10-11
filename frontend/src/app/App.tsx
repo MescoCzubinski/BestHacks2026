@@ -2,7 +2,8 @@ import { useEffect, useRef } from "react";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Plan from "@/pages/plan";
-import { useRoute, type Route } from "@/shared/lib/route";
+import { useSession } from "@/shared/auth";
+import { href, useRoute, type Route } from "@/shared/lib/route";
 
 const TITLES: Record<Route, string> = {
   landing: "Atlas | Trasy spacerowe po Twoich zainteresowaniach",
@@ -15,8 +16,14 @@ function focusMain() {
 }
 
 export default function App() {
-  const route = useRoute();
+  const requested = useRoute();
+  const session = useSession();
+  const route: Route = requested === "plan" && !session ? "login" : requested;
   const prevRoute = useRef(route);
+
+  useEffect(() => {
+    if (route !== requested) window.location.hash = href(route);
+  }, [route, requested]);
 
   useEffect(() => {
     document.title = TITLES[route];
