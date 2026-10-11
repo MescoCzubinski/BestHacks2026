@@ -12,15 +12,15 @@ const STORES = [
 
 export default function Landing() {
   return (
-    <div className="grid h-dvh overflow-hidden lg:h-auto lg:min-h-screen lg:grid-cols-[3fr_2fr] lg:overflow-visible">
+    <div className="grid h-dvh overflow-y-auto lg:h-auto lg:min-h-screen lg:grid-cols-[3fr_2fr] lg:overflow-visible">
       <main
         id="main"
         tabIndex={-1}
-        className="flex flex-col justify-between gap-12 px-6 py-5 outline-none lg:px-18 lg:py-10"
+        className="flex flex-col justify-between gap-12 px-6 py-5 outline-none lg:px-18 lg:py-10 short:gap-6 short:py-3"
       >
         <Logo className="self-start" />
 
-        <div className="my-auto flex max-w-full flex-col gap-6 lg:gap-7">
+        <div className="my-auto flex max-w-full flex-col gap-6 lg:gap-7 short:gap-4">
           <h1 className="text-[8vw] leading-[1.5] tracking-normal lg:text-[72px]">
             Wybierz motyw.{" "}
             <span className="rounded-md bg-brand box-decoration-clone px-3 whitespace-nowrap text-brand-foreground">
@@ -37,7 +37,7 @@ export default function Landing() {
               <Button
                 key={label}
                 variant="outline"
-                className="h-14 justify-start gap-3 rounded-lg px-4"
+                className="h-14 justify-start gap-3 rounded-lg px-4 short:h-12"
                 type="button"
                 aria-disabled
               >

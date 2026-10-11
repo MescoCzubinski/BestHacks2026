@@ -55,11 +55,11 @@ export default function Login() {
   }
 
   return (
-    <div className="grid h-dvh overflow-hidden lg:h-auto lg:min-h-screen lg:grid-cols-[3fr_2fr] lg:overflow-visible">
+    <div className="grid h-dvh overflow-y-auto lg:h-auto lg:min-h-screen lg:grid-cols-[3fr_2fr] lg:overflow-visible">
       <main
         id="main"
         tabIndex={-1}
-        className="flex flex-col justify-between gap-10 bg-grid px-4 py-3 outline-none lg:bg-background lg:bg-none lg:px-18 lg:py-10"
+        className="flex flex-col justify-between gap-10 bg-grid px-4 py-3 outline-none lg:bg-background lg:bg-none lg:px-18 lg:py-10 short:gap-4"
       >
         <div className="flex items-center justify-between pl-2 lg:pl-0">
           <Logo />
@@ -75,10 +75,10 @@ export default function Login() {
             e.preventDefault();
             void submit();
           }}
-          className="mx-auto my-auto flex w-full max-w-110 flex-col gap-5"
+          className="mx-auto my-auto flex w-full max-w-110 flex-col gap-5 short:gap-3"
         >
           <div className="grid gap-2">
-            <h1 className="font-heading text-4xl leading-tight font-extrabold tracking-tight">
+            <h1 className="font-heading text-4xl leading-tight font-extrabold tracking-tight short:text-3xl">
               Czas na{" "}
               <span className="rounded-md bg-brand box-decoration-clone px-2 text-brand-foreground">
                 zwiedzanie
@@ -91,7 +91,7 @@ export default function Login() {
             </p>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4 short:gap-3">
             {mode === "register" && (
               <div className="grid gap-2">
                 <Label htmlFor="name">Imię</Label>

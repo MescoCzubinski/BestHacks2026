@@ -9,7 +9,12 @@ import { clearSession } from "@/shared/auth";
 import { Button } from "@/shared/ui/button";
 import { Modal } from "@/shared/ui/modal";
 import { cn } from "@/shared/lib/utils";
-import { toRouteRequest, type PlanFormState } from "../lib/planForm";
+import {
+  formatHours,
+  hoursToMinutes,
+  toRouteRequest,
+  type PlanFormState,
+} from "../lib/planForm";
 import { HistoryPanel } from "./HistoryPanel";
 import { RouteSheet } from "./RouteSheet";
 import { PlanForm } from "./PlanForm";
@@ -74,7 +79,7 @@ export default function PlanPage() {
     if (route) {
       void saveRoute({
         tags: form.tags,
-        durationMinutes: Math.round(Number(form.hours) * 60),
+        durationMinutes: hoursToMinutes(form.hours),
         start: route.start,
         end: route.end,
         stops: route.stops,
@@ -97,7 +102,7 @@ export default function PlanPage() {
     >
       <div
         className={cn(
-          "min-w-0 lg:overflow-y-auto",
+          "min-w-0 max-lg:min-h-0 max-lg:overflow-y-auto lg:overflow-y-auto",
           phase === "proposal" && "hidden lg:block",
         )}
       >
@@ -164,7 +169,7 @@ export default function PlanPage() {
             route={route}
             recalculating={editor.recalculating}
             error={editor.error}
-            availableMinutes={Math.round(Number(form.hours) * 60)}
+            availableMinutes={hoursToMinutes(form.hours)}
             compact={phase === "accepted"}
             onSelect={setSelectedId}
             onMove={editor.move}
@@ -173,7 +178,7 @@ export default function PlanPage() {
             onSetVisitMinutes={editor.setVisitMinutes}
             onSwap={editor.swap}
             onExtendTime={(minutes) =>
-              setForm((f) => ({ ...f, hours: String(minutes / 60) }))
+              setForm((f) => ({ ...f, hours: formatHours(minutes) }))
             }
             onAccept={accept}
             onShowHistory={() => setShowHistory(true)}
