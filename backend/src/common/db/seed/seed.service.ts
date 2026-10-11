@@ -67,8 +67,6 @@ export class SeedService implements OnApplicationBootstrap {
       this.log.warn(`no seed file at ${SEED_FILE}, skipping`);
       return;
     }
-    // In production the seed only fills an empty database. After that the fetcher owns the places,
-    // and re-applying the (older) seed on every restart would overwrite and prune its work.
     if (process.env.NODE_ENV === "production" && (await this.places.count())) {
       this.log.log("places already present, keeping them for the fetcher");
       return;
@@ -98,7 +96,6 @@ export class SeedService implements OnApplicationBootstrap {
     );
   }
 
-  /** The demo account is created in every environment; its password is stored hashed. */
   private async seedDemoUser(): Promise<void> {
     if (await this.users.existsBy({ email: DEMO_USER.email })) return;
     const configured = this.config.get<string>("DEMO_USER_PASSWORD");

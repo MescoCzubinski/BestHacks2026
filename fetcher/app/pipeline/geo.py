@@ -1,5 +1,3 @@
-"""Plain geometry helpers (no dependencies)."""
-
 import math
 from collections import defaultdict
 from collections.abc import Iterator
@@ -24,7 +22,6 @@ def polygon_centroid(ring: list[tuple[float, float]]) -> tuple[float, float]:
 
 
 def geometry_point(geom: dict) -> tuple[float, float, str] | None:
-    """GeoJSON geometry -> (lat, lon, kind) where kind is point | line | area."""
     t, c = geom.get("type"), geom.get("coordinates")
     if not c:
         return None
@@ -48,8 +45,6 @@ def geometry_point(geom: dict) -> tuple[float, float, str] | None:
 
 
 class Grid:
-    """Bucket grid for neighbour lookups; the cell size is in degrees."""
-
     def __init__(self, cell_deg: float = 0.0006) -> None:
         self._cell = cell_deg
         self._g: dict[tuple[int, int], list[int]] = defaultdict(list)

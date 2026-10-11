@@ -1,5 +1,3 @@
-"""Geotagged Wikimedia Commons photos inside the region (thumbnail URL, licence, author)."""
-
 import logging
 import math
 import re

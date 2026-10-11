@@ -1,9 +1,3 @@
-"""Tag vocabulary for places, mirrored from backend/src/places/style-tag.ts (test_taxonomy.py checks they match).
-
-Every tag has a short Polish+English description. The descriptions are what a future embedding match
-can use, and they document what the tag means. Groups follow the backend: style, influence, type, special.
-"""
-
 STYLE: dict[str, str] = {
     "romanesque": "styl romański, romanesque: masywne mury, półokrągłe łuki, XI-XIII wiek",
     "gothic": "styl gotycki, gothic: ostre łuki, sklepienia krzyżowo-żebrowe, wysokie wieże, cegła, XIII-XVI wiek",

@@ -1,9 +1,3 @@
-"""OpenStreetMap heritage objects via the Overpass API.
-
-Raw elements are cached as returned by Overpass (`out center tags`); `to_records` turns them into
-pipeline records.
-"""
-
 import logging
 from typing import Any
 

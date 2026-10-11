@@ -7,7 +7,6 @@ export const DEFAULT_WALKING_SPEED_KMH = 4.5;
 
 @Injectable()
 export class WalkingEstimateService {
-  /** Straight-line walking time stretched by a detour factor; the real path refines it later. */
   minutes(a: LatLng, b: LatLng, speedKmh = DEFAULT_WALKING_SPEED_KMH): number {
     return ((this.meters(a, b) * DETOUR_FACTOR) / 1000 / speedKmh) * 60;
   }

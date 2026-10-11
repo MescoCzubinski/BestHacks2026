@@ -34,9 +34,7 @@ export function setSession(session: Session | null): void {
     if (session)
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
     else window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // Storage can be blocked; the session then lasts until the tab closes.
-  }
+  } catch {}
   listeners.forEach((notify) => notify());
 }
 

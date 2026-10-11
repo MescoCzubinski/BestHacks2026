@@ -1,5 +1,3 @@
-"""One full pipeline run for a region: fetch sources -> build documents -> save (and optionally export)."""
-
 import json
 import logging
 from typing import Any

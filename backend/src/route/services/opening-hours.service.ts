@@ -24,7 +24,6 @@ const RULE =
 
 @Injectable()
 export class OpeningHoursService {
-  /** Product rule: no data (or data we cannot read) means open. */
   isOpenAt(
     raw: string | null | undefined,
     at: Date,
@@ -34,7 +33,6 @@ export class OpeningHoursService {
     return this.evaluate(raw, at, timeZone) ?? true;
   }
 
-  /** `null` when the OSM opening_hours text cannot be read. */
   evaluate(raw: string, at: Date, timeZone: string): boolean | null {
     const text = raw.trim();
     if (text === "24/7") return true;

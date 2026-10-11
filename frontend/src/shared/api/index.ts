@@ -3,10 +3,6 @@ import { API_URL } from "@/shared/config";
 
 const PUBLIC_PATHS = ["/auth/login", "/auth/register", "/health"];
 
-/**
- * fetch against the API with the signed-in user's token. A 401 on a protected path
- * means the session ended, so it is cleared and the app goes back to the login page.
- */
 export async function apiFetch(
   path: string,
   init?: RequestInit,

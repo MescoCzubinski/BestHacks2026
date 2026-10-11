@@ -45,7 +45,6 @@ export class PlaceQueryService {
     return rows.map(toCandidate);
   }
 
-  /** Places whose name contains the text; names that start with it come first, then the more notable ones. */
   async searchByName(text: string, limit: number): Promise<PlaceCandidate[]> {
     const escaped = text.replace(/[\\%_]/g, (c) => `\\${c}`);
     const rows: CandidateRow[] = await this.places.query(

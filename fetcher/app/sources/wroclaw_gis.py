@@ -1,5 +1,3 @@
-"""Wrocław city GIS (ArcGIS REST) heritage layers. Plugin: only meaningful for the Wrocław region."""
-
 import logging
 import urllib.parse
 from typing import Any

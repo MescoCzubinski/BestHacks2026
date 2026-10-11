@@ -13,7 +13,7 @@ const saturday = (utcHour: number) =>
 describe("opening hours", () => {
   it("reads weekday ranges in the local time zone", () => {
     expect(isOpenAt("Mo-Fr 09:00-17:00", monday(10), TZ)).toBe(true);
-    expect(isOpenAt("Mo-Fr 09:00-17:00", monday(16), TZ)).toBe(false); // 18:00 local
+    expect(isOpenAt("Mo-Fr 09:00-17:00", monday(16), TZ)).toBe(false);
     expect(isOpenAt("Mo-Fr 09:00-17:00", saturday(10), TZ)).toBe(false);
   });
 
@@ -21,14 +21,14 @@ describe("opening hours", () => {
     const raw = "Mo-Su 09:00-18:00; Sa off";
     expect(isOpenAt(raw, monday(10), TZ)).toBe(true);
     expect(isOpenAt(raw, saturday(10), TZ)).toBe(false);
-    expect(isOpenAt("Mo 09:00-12:00,14:00-18:00", monday(11), TZ)).toBe(false); // 13:00 local
+    expect(isOpenAt("Mo 09:00-12:00,14:00-18:00", monday(11), TZ)).toBe(false);
   });
 
   it("handles 24/7, month ranges and times past midnight", () => {
     expect(isOpenAt("24/7", saturday(2), TZ)).toBe(true);
-    expect(isOpenAt("Nov-Mar: Mo-Su 09:00-16:00", monday(10), TZ)).toBe(false); // October is outside the season
+    expect(isOpenAt("Nov-Mar: Mo-Su 09:00-16:00", monday(10), TZ)).toBe(false);
     expect(isOpenAt("Apr-Oct: Mo-Su 09:00-18:00", monday(10), TZ)).toBe(true);
-    expect(isOpenAt("Mo-Su 20:00-02:00", monday(22), TZ)).toBe(true); // 00:00 local, same rule
+    expect(isOpenAt("Mo-Su 20:00-02:00", monday(22), TZ)).toBe(true);
   });
 
   it("treats missing or unreadable hours as open", () => {

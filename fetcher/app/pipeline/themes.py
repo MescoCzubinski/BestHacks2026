@@ -1,5 +1,3 @@
-"""Coarse theme of a record, used for merge decisions and a few tag rules. Rules are keyword based."""
-
 import re
 
 from .text import norm
@@ -52,7 +50,6 @@ def theme_of(*texts: str | None, hint: str | None = None) -> str:
 
 
 def osm_theme(tags: dict[str, str]) -> str:
-    """Theme from structured OSM tags; falls back to keyword rules on name and kind."""
     at, hist, name = tags.get("artwork_type"), tags.get("historic"), (tags.get("name") or "").lower()
     if at == "dwarf":
         return "dwarfs"

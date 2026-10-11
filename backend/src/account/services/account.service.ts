@@ -58,7 +58,6 @@ export class AccountService {
     const user = await this.users.findOneBy({
       email: normaliseEmail(emailInput),
     });
-    // Always verify once, so an unknown e-mail takes as long as a wrong password.
     const stored = user?.passwordHash ?? (await this.decoy());
     const ok = await this.hasher.verify(password, stored);
     if (!user || !ok) throw new InvalidCredentialsException();

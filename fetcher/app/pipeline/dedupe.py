@@ -1,11 +1,3 @@
-"""Second duplicate pass, on final display names.
-
-The first merge matches records by name similarity while they are still raw ("czesalnia" from the
-register vs "czesalnia, Stabłowicka 118a" from Wikidata). After names are normalised the same object
-shows up under names where one contains the other. This pass joins those, with guards against merging
-different things that merely share a word ("Pomnik", "Plac Solny" vs the shelter below it).
-"""
-
 import re
 from collections import defaultdict
 from typing import Any
@@ -68,7 +60,6 @@ def _same_object(a: dict[str, Any], b: dict[str, Any], ta: set[str], tb: set[str
 
 
 def merge_near_duplicates(places: list[dict[str, Any]], region: Region) -> tuple[list[dict[str, Any]], int]:
-    """Join places whose display names contain one another and that stand on the same spot."""
     for p in places:
         p["_tokens"] = _tokens(display_name(p, region))
     types = [_type_tags(p) for p in places]
