@@ -1,5 +1,7 @@
 import threading
 
+import numpy as np
+
 import pytest
 
 from app.embedding import BATCH_SIZE, BackendEmbedder
@@ -25,8 +27,8 @@ class FakeHttp:
         return {"dimensions": 2, "vectors": [[float(len(t)), 1.0] for t in payload["texts"]]}
 
 
-def embedder(http, stop=None):
-    return BackendEmbedder(http, "http://backend:8000/", "secret", stop or threading.Event())
+def embedder(http, stop=None, cache_path=None):
+    return BackendEmbedder(http, "http://backend:8000/", "secret", stop or threading.Event(), cache_path)
 
 
 def test_embeds_in_batches_keeping_order_and_sends_the_service_token():
@@ -57,3 +59,37 @@ def test_shutdown_interrupts_the_wait():
     stop.set()
     with pytest.raises(InterruptedError):
         embedder(FakeHttp(fail_health=5), stop).wait_until_ready()
+
+
+def test_vectors_are_float32_to_keep_memory_small():
+    out = embedder(FakeHttp()).embed(["a", "bb"])
+    assert out.dtype == np.float32
+
+
+def test_cached_texts_are_not_requested_again(tmp_path, monkeypatch):
+    monkeypatch.setattr("app.embedding.BATCH_PAUSE_S", 0.0)
+    cache = tmp_path / "embeddings.npz"
+    first = FakeHttp()
+    a = embedder(first, cache_path=cache).embed(["alpha", "beta"])
+    second = FakeHttp()
+    b = embedder(second, cache_path=cache).embed(["beta", "gamma", "alpha"])
+    assert second.posts == [["gamma"]]
+    assert np.array_equal(b[0], a[1]) and np.array_equal(b[2], a[0])
+
+
+def test_cache_keeps_only_the_texts_of_the_latest_run(tmp_path, monkeypatch):
+    monkeypatch.setattr("app.embedding.BATCH_PAUSE_S", 0.0)
+    cache = tmp_path / "embeddings.npz"
+    embedder(FakeHttp(), cache_path=cache).embed(["alpha", "beta"])
+    embedder(FakeHttp(), cache_path=cache).embed(["beta", "gamma"])
+    third = FakeHttp()
+    embedder(third, cache_path=cache).embed(["alpha"])
+    assert third.posts == [["alpha"]]
+
+
+def test_a_damaged_cache_is_ignored(tmp_path):
+    cache = tmp_path / "embeddings.npz"
+    cache.write_bytes(b"not a zip")
+    http = FakeHttp()
+    out = embedder(http, cache_path=cache).embed(["alpha"])
+    assert out.shape == (1, 2) and http.posts == [["alpha"]]

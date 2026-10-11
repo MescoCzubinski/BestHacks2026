@@ -85,8 +85,11 @@ services:
     volumes:
       - fetchercache:/cache # downloads and geocoding results
     tmpfs:
-      - /tmp
+      - /tmp:size=64m
     read_only: true
+    mem_limit: 512m # a run that outgrows this is killed alone; the worker and the other services keep running
+    cpus: 1.0
+    pids_limit: 128
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
     networks: [internal]

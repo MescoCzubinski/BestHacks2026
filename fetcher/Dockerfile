@@ -20,7 +20,11 @@ ENV PATH="/venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONFAULTHANDLER=1 \
-    CACHE_DIR=/cache
+    CACHE_DIR=/cache \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    MALLOC_ARENA_MAX=2
 # Fixed non-root user, no login shell, no home; /cache is the only writable path (a volume).
 RUN groupadd --system --gid 10001 fetcher \
  && useradd --system --uid 10001 --gid fetcher --no-create-home --shell /usr/sbin/nologin fetcher \
