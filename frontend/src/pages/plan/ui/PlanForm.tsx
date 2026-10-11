@@ -1,3 +1,4 @@
+import { LogOut } from "lucide-react";
 import { Logo } from "@/shared/logo";
 import { InterestTags } from "@/features/pick-interests";
 import { LocationField } from "@/features/pick-location";
@@ -7,12 +8,7 @@ import { Collapse } from "@/shared/ui/collapse";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { cn } from "@/shared/lib/utils";
-import {
-  formProblem,
-  MAX_HOURS,
-  MIN_HOURS,
-  type PlanFormState,
-} from "../lib/planForm";
+import { formProblem, type PlanFormState } from "../lib/planForm";
 
 type Props = {
   value: PlanFormState;
@@ -40,9 +36,9 @@ export function PlanForm({
     onChange({ ...value, ...changes });
 
   return (
-    <div className="flex flex-col gap-4 p-4 lg:gap-10 lg:px-18 lg:py-10">
+    <div className="flex flex-col gap-4 p-4 lg:gap-10 lg:px-18 lg:py-10 short:gap-2 short:py-2">
       <div className="flex items-center justify-between gap-2 pl-2 lg:pl-0">
-        <Logo />
+        <Logo className="short:[&>span]:text-[28px] short:[&>svg]:size-9" />
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -51,16 +47,24 @@ export function PlanForm({
             className="lg:hidden"
             onClick={onShowHistory}
           >
-            Poprzednie trasy
+            <span className="sm:hidden">Historia</span>
+            <span className="max-sm:hidden">Poprzednie trasy</span>
           </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={onLogout}>
-            Wyloguj
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            aria-label="Wyloguj"
+            onClick={onLogout}
+          >
+            <LogOut aria-hidden="true" />
+            <span className="max-sm:hidden">Wyloguj</span>
           </Button>
         </div>
       </div>
-      <div className="mx-auto my-auto grid w-full max-w-110 gap-4 lg:gap-6">
+      <div className="mx-auto my-auto grid w-full max-w-110 gap-4 lg:gap-6 short:gap-2">
         <div className="grid gap-1">
-          <h1 className="font-heading text-3xl font-extrabold">
+          <h1 className="font-heading text-3xl font-extrabold short:text-2xl">
             Zaplanuj podróż
           </h1>
           <p className="text-sm text-muted-foreground max-lg:hidden">
@@ -73,7 +77,7 @@ export function PlanForm({
             e.preventDefault();
             if (!problem && !submitting) onSubmit();
           }}
-          className="grid gap-3 lg:gap-5"
+          className="grid gap-3 lg:gap-5 short:gap-2"
         >
           <LocationField
             label="Punkt startu"
@@ -83,7 +87,7 @@ export function PlanForm({
           />
 
           <div className="grid">
-            <div className="flex items-center gap-2 pb-3">
+            <div className="flex items-center gap-2 pb-3 short:pb-1">
               <Checkbox
                 id="same-end"
                 checked={value.sameEnd}
@@ -106,11 +110,10 @@ export function PlanForm({
             <Label htmlFor="hours">Ile masz czasu? (godz.)</Label>
             <Input
               id="hours"
-              type="number"
+              type="text"
               inputMode="decimal"
-              min={MIN_HOURS}
-              max={MAX_HOURS}
-              step={0.25}
+              autoComplete="off"
+              placeholder="np. 1,5 lub 1:30"
               value={value.hours}
               onChange={(e) => patch({ hours: e.target.value })}
             />

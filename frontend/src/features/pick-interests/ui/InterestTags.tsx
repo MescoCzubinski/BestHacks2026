@@ -4,6 +4,7 @@ import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
+import { cn } from "@/shared/lib/utils";
 import { matchTags, type Tag } from "../api/tags";
 import { useTags } from "../model/useTags";
 
@@ -76,7 +77,7 @@ export function InterestTags({ value, onChange }: Props) {
   }
 
   return (
-    <div className="grid gap-2">
+    <div className="grid gap-2 short:gap-1.5">
       <Label htmlFor={inputId}>Co Cię interesuje?</Label>
       {value.length > 0 && (
         <ul aria-label="Wybrane motywy" className="flex flex-wrap gap-2">
@@ -125,7 +126,13 @@ export function InterestTags({ value, onChange }: Props) {
           <Plus />
         </Button>
       </div>
-      <p role="status" className="text-xs text-muted-foreground">
+      <p
+        role="status"
+        className={cn(
+          "text-xs text-muted-foreground",
+          !busy && state !== "error" && !note && "short:hidden",
+        )}
+      >
         {busy
           ? "Dopasowujemy do naszych motywów… (pierwsze użycie może potrwać)"
           : state === "error"
@@ -137,14 +144,14 @@ export function InterestTags({ value, onChange }: Props) {
         <div
           role="group"
           aria-label="Podpowiedzi motywów"
-          className="flex flex-wrap gap-1.5"
+          className="flex flex-wrap gap-1.5 short:[&>button:nth-child(n+8)]:hidden"
         >
           {popular.map((tag) => (
             <button
               key={tag.id}
               type="button"
               onClick={() => add([tag])}
-              className="h-8 rounded-md border border-dashed px-2.5 text-xs text-muted-foreground outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-ring"
+              className="h-8 rounded-md border border-dashed px-2.5 text-xs text-muted-foreground outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-ring short:h-7"
             >
               + {tag.label}
             </button>
