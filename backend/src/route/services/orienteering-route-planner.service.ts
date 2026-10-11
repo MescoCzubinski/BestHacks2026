@@ -17,7 +17,7 @@ import {
 } from "./route-planner";
 
 const DEFAULT_TIME_ZONE = "Europe/Warsaw";
-const DEFAULT_MAX_STOPS = 12;
+const MAX_STOPS = 60; // a safety bound; the time budget decides how many stops fit
 const MAX_EXTRAS = 10;
 const MAX_REFINEMENTS = 3;
 const SECONDS_PER_MINUTE = 60;
@@ -49,7 +49,7 @@ export class OrienteeringRoutePlanner extends RoutePlanner {
       end: query.end,
       startAt: query.startTime ?? new Date(),
       budgetMinutes: query.durationMinutes,
-      maxStops: DEFAULT_MAX_STOPS,
+      maxStops: MAX_STOPS,
       walkMinutes: (a, b) => estimateWalkMinutes(a, b),
       isOpen: (c, at) => isOpenAt(c.openingHours, at, this.timeZone),
     };
