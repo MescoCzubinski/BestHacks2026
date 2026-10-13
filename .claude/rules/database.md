@@ -5,34 +5,37 @@ paths:
   - "db/**"
 ---
 
-# Database rules (PostgreSQL as a document store, schema defined by Nest)
+# Database rules (PostgreSQL as a document store, schema defined in db/)
 
 - PostgreSQL 17 only. The data model is **document-oriented**: one table per aggregate (the thing a user thinks of as one "document"), with nested data stored as `jsonb` instead of many join tables.
-- **NestJS owns the schema.** The TypeORM entity is the only definition of a table. Python or any other service writes only to tables the backend defined and never runs DDL.
+- **`db/init/*.sql` owns the schema and the roles.** Postgres applies it on the first start of the `pgdata` volume. No migrations (MVP, no production data): a schema change means editing the SQL (and the backend entity), then resetting the volume. Nothing creates or alters tables at runtime; `synchronize` is off.
+- **Three roles:**
+  - the owner: runs `db/init`, used by nobody at runtime;
+  - `backend_ro`: `SELECT` only, the backend's `DATABASE_URL`;
+  - `fetcher_rw`: `INSERT/UPDATE/DELETE` on data tables, no DDL, the fetcher's URL.
+- **Only the fetcher writes data; the backend only reads.** This is enforced by role permissions, not by convention. Reference rows (e.g. the city/region) are written by the fetcher too.
 
-## Entity shape
+## Entity shape (backend: a read mapping of a table defined in db/init)
 
 ```ts
-@Entity("tasks")
-export class Task {
+@Entity("places")
+export class Place {
   @PrimaryGeneratedColumn("uuid") id!: string;
-  @Index() @Column({ type: "uuid" }) ownerId!: string; // anything you filter, join or sort by = real column
-  @Column({ type: "jsonb" }) data!: TaskData; // the document body, typed in TS
-  @CreateDateColumn() createdAt!: Date;
-  @UpdateDateColumn() updatedAt!: Date;
+  @Index() @Column("text", { name: "external_id" }) externalId!: string; // anything you filter, join or sort by = real column
+  @Column("jsonb") facts!: PlaceFacts; // the document body, typed in TS
+  @Column("timestamptz", { name: "updated_at" }) updatedAt!: Date;
 }
 ```
 
 - Real columns for: id, foreign keys, status/type enums, timestamps, anything queried often or needing a unique constraint.
 - `jsonb` for: flexible or nested content, lists that belong to the parent, data that is always read and written together with its parent.
-- Give the document type a TypeScript `type`/class in the slice and validate its shape with a DTO before saving. The jsonb column is never "anything goes".
-- Add a GIN index (`@Index({ using: "gin" })` on the jsonb column) only when you actually query inside the jsonb (`@>`, `->>`).
+- The document type has a TypeScript `type`/class in the slice. The fetcher writes exactly that shape; the jsonb column is never "anything goes".
+- Add a GIN index (in `db/init`) only when you actually query inside the jsonb (`@>`, `->>`).
 - Cross-slice references are plain uuid columns (no TypeORM relations across slices) so slices stay independent.
 - Raw SQL only for jsonb queries TypeORM cannot express, and always parameterized.
 
-## Repositories and seed data
+## Repositories and data
 
-- A repository serves a **business object**, not a table. `TaskRepository` exposes what the domain needs (`findOpenForUser`, `save(task)`), even when that touches several tables or a jsonb document. It is optional: use `Repository<T>` directly in a service until queries justify one.
-- **No per-slice seed files.** Demo/seed data lives in one shared place, `backend/src/common/db/seed/`, run once on startup by a `SeedService` (idempotent upsert by id, only outside production). It may write several entities at once, so relations between demo objects stay consistent.
-- Demo data comes from public sources or is fictional; never real personal data.
-- Connection string comes from `DATABASE_URL`. Docker Compose provides the `db` service with the `pgdata` volume.
+- A backend repository serves a **business object**, not a table, and only **reads** (`findNearby`, `findByTags`), even when that touches several tables or a jsonb document.
+- **The backend has no seed.** Demo and real data come only from the fetcher. Data comes from public sources or is fictional; never real personal data.
+- Connection strings come from `DATABASE_URL` (backend, `backend_ro`) and the fetcher's own `.env` (`fetcher_rw`). Docker Compose provides the `db` service with the `pgdata` volume and mounts `db/init` into `/docker-entrypoint-initdb.d`.
