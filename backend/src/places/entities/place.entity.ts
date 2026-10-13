@@ -1,7 +1,6 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 import type { Address } from "./address";
 import type { PlaceFacts, PlaceLinks, PositionQuality } from "./place-facts";
-import { PlaceTag } from "./place-tag.entity";
 
 @Entity("places")
 export class Place {
@@ -52,9 +51,6 @@ export class Place {
 
   @Column("text", { array: true })
   images: string[];
-
-  @OneToMany(() => PlaceTag, (tag) => tag.place)
-  tags: PlaceTag[];
 
   @Column("timestamptz", { name: "updated_at" })
   updatedAt: Date;

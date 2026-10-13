@@ -1,30 +1,26 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-slim AS base
+FROM oven/bun:1.3-slim AS base
 WORKDIR /app
-RUN chown node:node /app
-USER node
-COPY --chown=node:node package.json package-lock.json ./
+RUN chown bun:bun /app
+USER bun
+COPY --chown=bun:bun package.json bun.lock ./
 
 FROM base AS deps
-RUN --mount=type=cache,target=/home/node/.npm,uid=1000 npm ci
+RUN bun install --frozen-lockfile
 
 FROM deps AS dev
-COPY --chown=node:node . .
+COPY --chown=bun:bun . .
 EXPOSE 8000
-CMD ["npm", "run", "start:dev"]
-
-FROM deps AS build
-COPY --chown=node:node tsconfig.json tsconfig.build.json ./
-COPY --chown=node:node src ./src
-RUN npm run build
+CMD ["bun", "run", "start:dev"]
 
 FROM base AS prod-deps
-RUN --mount=type=cache,target=/home/node/.npm,uid=1000 npm ci --omit=dev
+RUN bun install --frozen-lockfile --production
 
 FROM base AS prod
 ENV NODE_ENV=production PORT=8000
-COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
-COPY --from=build --chown=node:node /app/dist ./dist
+COPY --from=prod-deps --chown=bun:bun /app/node_modules ./node_modules
+COPY --chown=bun:bun tsconfig.json ./
+COPY --chown=bun:bun src ./src
 EXPOSE 8000
-CMD ["node", "dist/main.js"]
+CMD ["bun", "src/main.ts"]

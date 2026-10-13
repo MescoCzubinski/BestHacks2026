@@ -1,6 +1,5 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 import { STYLE_TAGS, type StyleTag } from "../../common/types/style-tag";
-import { Place } from "./place.entity";
 
 @Entity("place_tags")
 export class PlaceTag {
@@ -12,8 +11,4 @@ export class PlaceTag {
 
   @Column("smallint")
   percent: number;
-
-  @ManyToOne(() => Place, (place) => place.tags)
-  @JoinColumn({ name: "place_id" })
-  place: Place;
 }

@@ -1,24 +1,25 @@
 # syntax=docker/dockerfile:1
 
-FROM node:24-alpine AS base
+FROM oven/bun:1.3-slim AS base
 WORKDIR /app
-RUN chown node:node /app
-USER node
-COPY --chown=node:node package.json package-lock.json ./
-RUN --mount=type=cache,target=/home/node/.npm,uid=1000 npm ci
+RUN chown bun:bun /app
+USER bun
+COPY --chown=bun:bun package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
 FROM base AS dev
-COPY --chown=node:node . .
+COPY --chown=bun:bun . .
 EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["bun", "--bun", "run", "dev"]
 
 FROM base AS build
-COPY --chown=node:node . .
-RUN npm run build
+COPY --chown=bun:bun . .
+RUN bun --bun run build
 
-FROM node:24-alpine AS prod
-RUN npm install -g serve@14 && npm cache clean --force
-COPY --from=build /app/dist /app
-USER node
+FROM oven/bun:1.3-slim AS prod
+WORKDIR /srv
+RUN bun add serve@14 && chown -R bun:bun /srv
+COPY --from=build --chown=bun:bun /app/dist ./dist
+USER bun
 EXPOSE 3000
-CMD ["serve", "-s", "/app", "-l", "3000"]
+CMD ["bun", "--bun", "x", "serve", "-s", "dist", "-l", "3000"]

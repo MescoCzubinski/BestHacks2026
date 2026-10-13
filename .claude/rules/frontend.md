@@ -32,7 +32,7 @@ frontend/src/
 
 ## shadcn/ui, heavily customized
 
-- Base every control on shadcn/ui (`npx shadcn@latest add <component>`), generated into `ui/`.
+- Base every control on shadcn/ui (`bunx shadcn@latest add <component>`), generated into `ui/`.
 - Do **not** ship the default look. Customize the components in `ui/` themselves: tokens, radius, shadows, typography, variants, motion. The app should look like our product, not a template.
 - Customize through the design tokens in `index.css` (CSS variables, Tailwind 4 `@theme`) first, then through new `cva` variants, and edit component internals last.
 - Compose domain components (`StopCard`) from `ui/` pieces in the screen that needs them. Do not fork a second copy of a primitive.
@@ -60,4 +60,4 @@ frontend/src/
 
 ## Checks
 
-From `frontend/`: `npm run lint && npm run build`. From the root: `npx prettier --check .` (run from `frontend/node_modules/.bin` if not installed at root).
+From `frontend/`: `bun run lint && bun --bun run build && bun --bun run test`. From the root: `bun --bun frontend/node_modules/.bin/prettier --check .`. The package manager is Bun (`oven/bun` images, `bun.lock`); oxlint also enforces that screens never import each other (`.oxlintrc.json`).

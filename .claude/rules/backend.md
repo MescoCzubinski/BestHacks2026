@@ -101,8 +101,8 @@ Hackathon pace, but the backend is where correctness matters. Tests are **coloca
 - **Handlers are not tested.** They contain no logic (controllers, DTOs, guards, filters, listeners); the integration test below covers them.
 - **One integration test per module (not e2e)**: `<slice>.integration.spec.ts` next to `<slice>.module.ts`, using `supertest` against the Nest app with the real module wiring. It exercises the slice's main paths end to end (HTTP → service → repository) and the error mapping (validation failure, not found, upstream unavailable).
 - Test behaviour and error cases, not implementation details. No tests for trivial getters or plain CRUD wiring.
-- Runner: Jest on a temporary `tsc` build in `backend/.test-dist` (Nest 12 is ESM-only, so Jest runs with `--experimental-vm-modules`). `npm test` compiles, runs all `*.spec.ts` (including integration), prints results to the console and deletes the build. `npm run test:integration` runs only the integration tests.
+- Runner: `bun test` (Jest-compatible API: `describe`, `it`, `expect`, `jest.fn`) straight on the TypeScript sources, no build step. `bun run test` runs all `*.spec.ts` (including integration); `bun run test:integration` runs only the integration tests. Integration tests that need Postgres skip unless `TEST_DATABASE_URL` points to a throwaway server.
 
 ## Checks
 
-From `backend/`: `npm run lint && npm run typecheck && npm test`.
+From `backend/`: `bun run lint && bun run typecheck && bun run test`. The runtime and package manager is Bun (`oven/bun` images, `bun.lock`).

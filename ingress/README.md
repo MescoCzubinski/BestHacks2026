@@ -10,7 +10,7 @@ inside the network. The backend, the database and the fetcher publish no ports.
 - After changing the allowlist, regenerate the config (CI fails when it is out of date):
 
 ```
-node ingress/render-nginx.mjs
+bun ingress/render-nginx.mjs
 ```
 
 - The backend trusts one proxy hop (`trust proxy`), so its rate limit uses the client IP

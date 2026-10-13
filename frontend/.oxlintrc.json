@@ -1,0 +1,94 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "overrides": [
+    {
+      "files": ["src/screens/start/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/screens/plan/**",
+                  "**/screens/plan/**",
+                  "@/screens/route/**",
+                  "**/screens/route/**"
+                ],
+                "message": "Screens never import each other; move shared code to components/, hooks/, lib/ or api/."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/screens/plan/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/screens/start/**",
+                  "**/screens/start/**",
+                  "@/screens/route/**",
+                  "**/screens/route/**"
+                ],
+                "message": "Screens never import each other; move shared code to components/, hooks/, lib/ or api/."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/screens/route/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/screens/start/**",
+                  "**/screens/start/**",
+                  "@/screens/plan/**",
+                  "**/screens/plan/**"
+                ],
+                "message": "Screens never import each other; move shared code to components/, hooks/, lib/ or api/."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "src/components/**",
+        "src/hooks/**",
+        "src/lib/**",
+        "src/api/**",
+        "src/ui/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/screens/**", "**/screens/**"],
+                "message": "Shared code never imports a screen."
+              },
+              {
+                "group": ["**/index", "@/**/index"],
+                "message": "No index.ts barrels; import files directly."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

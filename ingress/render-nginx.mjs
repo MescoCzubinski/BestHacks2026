@@ -1,6 +1,6 @@
 // Renders nginx.conf from public-routes.json, the single allowlist shared with the Vite dev proxy.
-// node ingress/render-nginx.mjs          writes ingress/nginx.conf
-// node ingress/render-nginx.mjs --check  fails when the committed file is out of date
+// bun ingress/render-nginx.mjs          writes ingress/nginx.conf
+// bun ingress/render-nginx.mjs --check  fails when the committed file is out of date
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -60,7 +60,7 @@ if (process.argv.includes("--check")) {
   } catch {}
   if (current !== conf) {
     console.error(
-      "ingress/nginx.conf is out of date: run node ingress/render-nginx.mjs",
+      "ingress/nginx.conf is out of date: run bun ingress/render-nginx.mjs",
     );
     process.exit(1);
   }
