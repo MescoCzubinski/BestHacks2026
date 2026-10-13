@@ -32,7 +32,6 @@ export function listRecentRoutes(
   }
 }
 
-/** Newest first; the same link saved again replaces its older entry. */
 export function saveRecentRoute(
   route: Omit<RecentRoute, "id" | "date">,
   storage: Store | null = browserStorage(),

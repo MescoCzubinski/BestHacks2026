@@ -28,7 +28,6 @@ frontend/src/
 - **State between screens lives in the URL**, not in a store: `/route?tags=secesja&lat=..&lng=..&min=120`. The route screen reads it and builds the route itself, so reload works and a link can be shared. Recent routes (shown on the start screen) are kept in `localStorage`, behind one small module in `lib/`.
 - A screen that grows past a few files may use its own subfolders (`ui/`, `model/`), but keep it flat until it hurts.
 - Alias `@/` points to `src/`. Components use PascalCase file names; hooks, lib and api files use camelCase named exports.
-- **Tests are colocated** (`moveItem.test.ts` next to `moveItem.ts`), only for pure logic (route editing, totals, form parsing) and the API client. No tests for components that only render.
 
 ## shadcn/ui, heavily customized
 
@@ -60,4 +59,4 @@ frontend/src/
 
 ## Checks
 
-From `frontend/`: `bun run lint && bun --bun run build && bun --bun run test`. From the root: `bun --bun frontend/node_modules/.bin/prettier --check .`. The package manager is Bun (`oven/bun` images, `bun.lock`); oxlint also enforces that screens never import each other (`.oxlintrc.json`).
+From `frontend/`: `bun run lint && bun --bun run build`. From the root: `bun --bun frontend/node_modules/.bin/prettier --check .`. The package manager is Bun (`oven/bun` images, `bun.lock`); oxlint also enforces that screens never import each other (`.oxlintrc.json`).

@@ -1,6 +1,5 @@
 export type PlannedPoint = { lat: number; lng: number; label: string };
 
-/** Everything the route screen needs to build a route; it lives in the URL so reload and sharing work. */
 export type RoutePlan = {
   tags: string[];
   start: PlannedPoint;

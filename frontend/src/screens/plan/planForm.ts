@@ -14,7 +14,6 @@ export const MIN_HOURS = 0.25;
 export const MAX_HOURS = 12;
 const MINUTES_PER_HOUR = 60;
 
-/** "2", "1,5", "1.5" and "1:30" all mean a number of hours; anything else is not a time. */
 export function parseHours(text: string): number | null {
   const t = text.trim().replace(",", ".");
   const clock = /^(\d{1,2}):([0-5]\d)$/.exec(t);
