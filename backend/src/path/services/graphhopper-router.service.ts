@@ -1,6 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import type { LatLng } from "../../city/bbox";
+import type { LatLng } from "../../common/types/geo";
 import { PathNotFoundException } from "../exceptions/path-not-found.exception";
 import { PathRouterUnavailableException } from "../exceptions/path-router-unavailable.exception";
 import {

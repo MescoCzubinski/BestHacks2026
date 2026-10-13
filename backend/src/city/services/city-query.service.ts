@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { bboxContains, type Bbox, type LatLng } from "../bbox";
+import { bboxContains } from "../bbox";
+import type { Bbox, LatLng } from "../../common/types/geo";
 import { City } from "../entities/city.entity";
 import { OutsideSupportedAreaException } from "../exceptions/outside-supported-area.exception";
 

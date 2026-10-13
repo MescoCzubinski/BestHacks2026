@@ -1,5 +1,5 @@
-import type { LatLng } from "../../city/bbox";
-import type { StyleTag } from "../../places/style-tag";
+import type { LatLng } from "../../common/types/geo";
+import type { StyleTag } from "../../common/types/style-tag";
 
 export type RouteQuery = {
   start: LatLng;

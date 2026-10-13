@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { StyleTag } from "../../places/style-tag";
+import type { StyleTag } from "../../common/types/style-tag";
 import { TAG_PHRASES } from "../tag-phrases";
 import { Embedder } from "./embedder";
 import { TagRankingService, type TagVector } from "./tag-ranking.service";

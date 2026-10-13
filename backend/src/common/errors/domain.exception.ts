@@ -4,7 +4,7 @@ export type DomainErrorKind =
   | "forbidden"
   | "not_found"
   | "conflict"
-  | "upstream";
+  | "unavailable";
 
 export abstract class DomainException extends Error {
   constructor(

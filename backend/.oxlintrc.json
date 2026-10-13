@@ -1,0 +1,196 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "overrides": [
+    {
+      "files": ["src/city/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/health",
+                  "**/health/**",
+                  "**/path",
+                  "**/path/**",
+                  "**/places",
+                  "**/places/**",
+                  "**/route",
+                  "**/route/**",
+                  "**/tag",
+                  "**/tag/**"
+                ],
+                "message": "A slice never imports another slice; use the bus (common/bus)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/health/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/city",
+                  "**/city/**",
+                  "**/path",
+                  "**/path/**",
+                  "**/places",
+                  "**/places/**",
+                  "**/route",
+                  "**/route/**",
+                  "**/tag",
+                  "**/tag/**"
+                ],
+                "message": "A slice never imports another slice; use the bus (common/bus)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/path/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/city",
+                  "**/city/**",
+                  "**/health",
+                  "**/health/**",
+                  "**/places",
+                  "**/places/**",
+                  "**/route",
+                  "**/route/**",
+                  "**/tag",
+                  "**/tag/**"
+                ],
+                "message": "A slice never imports another slice; use the bus (common/bus)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/places/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/city",
+                  "**/city/**",
+                  "**/health",
+                  "**/health/**",
+                  "**/path",
+                  "**/path/**",
+                  "**/route",
+                  "**/route/**",
+                  "**/tag",
+                  "**/tag/**"
+                ],
+                "message": "A slice never imports another slice; use the bus (common/bus)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/route/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/city",
+                  "**/city/**",
+                  "**/health",
+                  "**/health/**",
+                  "**/path",
+                  "**/path/**",
+                  "**/places",
+                  "**/places/**",
+                  "**/tag",
+                  "**/tag/**"
+                ],
+                "message": "A slice never imports another slice; use the bus (common/bus)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/tag/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/city",
+                  "**/city/**",
+                  "**/health",
+                  "**/health/**",
+                  "**/path",
+                  "**/path/**",
+                  "**/places",
+                  "**/places/**",
+                  "**/route",
+                  "**/route/**"
+                ],
+                "message": "A slice never imports another slice; use the bus (common/bus)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/common/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "**/city",
+                  "**/city/**",
+                  "**/health",
+                  "**/health/**",
+                  "**/path",
+                  "**/path/**",
+                  "**/places",
+                  "**/places/**",
+                  "**/route",
+                  "**/route/**",
+                  "**/tag",
+                  "**/tag/**"
+                ],
+                "message": "common/ never imports a slice."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

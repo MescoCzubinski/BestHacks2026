@@ -13,7 +13,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { PointDto } from "../../../common/dto/point.dto";
-import { STYLE_TAGS } from "../../../places/style-tag";
+import { STYLE_TAGS } from "../../../common/types/style-tag";
 
 const MAX_STOPS = 100;
 const MAX_TAGS = 20;

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { TAG_GROUPS, type StyleTag } from "../../places/style-tag";
+import { TAG_GROUPS, type StyleTag } from "../../common/types/style-tag";
 import { TAG_LABELS } from "../tag-labels";
 
 export type TagGroup = keyof typeof TAG_GROUPS;

@@ -21,7 +21,7 @@ import type {
 } from "../../../places/place-facts";
 import { PlaceTag } from "../../../places/place-tag.entity";
 import { Place } from "../../../places/place.entity";
-import { STYLE_TAGS, type StyleTag } from "../../../places/style-tag";
+import { STYLE_TAGS, type StyleTag } from "../../types/style-tag";
 
 type SeedPlace = {
   externalId: string;

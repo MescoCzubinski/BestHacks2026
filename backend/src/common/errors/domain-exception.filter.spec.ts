@@ -26,7 +26,7 @@ describe("DomainExceptionFilter", () => {
   it("maps an upstream failure to a 502 body", () => {
     class UpstreamDown extends DomainException {
       constructor() {
-        super("upstream", "geocoder down");
+        super("unavailable", "geocoder down");
       }
     }
     const json = jest.fn();
@@ -40,7 +40,7 @@ describe("DomainExceptionFilter", () => {
     expect(status).toHaveBeenCalledWith(502);
     expect(json).toHaveBeenCalledWith({
       statusCode: 502,
-      error: "upstream",
+      error: "unavailable",
       message: "geocoder down",
     });
   });

@@ -1,4 +1,5 @@
-import { bboxContains, type Bbox } from "./bbox";
+import type { Bbox } from "../common/types/geo";
+import { bboxContains } from "./bbox";
 
 const WROCLAW: Bbox = [16.8, 51.04, 17.18, 51.21];
 

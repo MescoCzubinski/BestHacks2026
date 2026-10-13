@@ -12,7 +12,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { PointDto } from "../../../common/dto/point.dto";
-import { STYLE_TAGS, type StyleTag } from "../../../places/style-tag";
+import { STYLE_TAGS, type StyleTag } from "../../../common/types/style-tag";
 import type { RouteQuery } from "../../services/route-planner";
 
 const MIN_DURATION = 15;

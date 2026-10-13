@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { StyleTag } from "../style-tag";
+import type { StyleTag } from "../../common/types/style-tag";
 
 type TagPercents = Partial<Record<StyleTag, number>>;
 

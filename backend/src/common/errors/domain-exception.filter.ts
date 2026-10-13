@@ -14,7 +14,7 @@ const STATUS: Record<DomainErrorKind, HttpStatus> = {
   forbidden: HttpStatus.FORBIDDEN,
   not_found: HttpStatus.NOT_FOUND,
   conflict: HttpStatus.CONFLICT,
-  upstream: HttpStatus.BAD_GATEWAY,
+  unavailable: HttpStatus.BAD_GATEWAY,
 };
 
 @Catch(DomainException)

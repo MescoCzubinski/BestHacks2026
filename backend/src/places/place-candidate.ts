@@ -1,5 +1,5 @@
 import type { PlaceFacts, PositionQuality } from "./place-facts";
-import type { StyleTag } from "./style-tag";
+import type { StyleTag } from "../common/types/style-tag";
 
 export type PlaceCandidate = {
   id: string;

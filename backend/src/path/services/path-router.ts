@@ -1,4 +1,4 @@
-import type { LatLng } from "../../city/bbox";
+import type { LatLng } from "../../common/types/geo";
 
 export type RoutedPath = {
   distanceMeters: number;

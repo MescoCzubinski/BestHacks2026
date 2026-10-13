@@ -6,7 +6,7 @@ import {
   Matches,
   MaxLength,
 } from "class-validator";
-import type { LatLng } from "../../../city/bbox";
+import type { LatLng } from "../../../common/types/geo";
 
 const POINT_PATTERN = /^-?\d{1,3}(\.\d{1,8})?,-?\d{1,3}(\.\d{1,8})?$/;
 export const MAX_PATH_POINTS = 30;

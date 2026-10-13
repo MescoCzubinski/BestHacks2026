@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import type { LatLng } from "../../city/bbox";
+import type { LatLng } from "../../common/types/geo";
 import { SavedRoute, type SavedStop } from "../entities/saved-route.entity";
 
 export type SavedRouteView = {

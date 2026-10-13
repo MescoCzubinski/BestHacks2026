@@ -1,4 +1,4 @@
-import type { Bbox } from "../../city/bbox";
+import type { Bbox } from "../../common/types/geo";
 
 export type GeocodedLocation = {
   label: string;

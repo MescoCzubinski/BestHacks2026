@@ -8,7 +8,7 @@ import {
   PrimaryColumn,
 } from "typeorm";
 import { Place } from "./place.entity";
-import { STYLE_TAGS, type StyleTag } from "./style-tag";
+import { STYLE_TAGS, type StyleTag } from "../common/types/style-tag";
 
 @Entity("place_tags")
 @Check(`"percent" BETWEEN 0 AND 100`)

@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import type { CandidateQuery, PlaceCandidate } from "../place-candidate";
 import type { PlaceFacts, PositionQuality } from "../place-facts";
 import { Place } from "../place.entity";
-import type { StyleTag } from "../style-tag";
+import type { StyleTag } from "../../common/types/style-tag";
 
 type CandidateRow = {
   id: string;

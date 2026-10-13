@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { LatLng } from "../../city/bbox";
+import type { LatLng } from "../../common/types/geo";
 import { CityQueryService } from "../../city/services/city-query.service";
 import { PathRouter, type RoutedPath } from "./path-router";
 

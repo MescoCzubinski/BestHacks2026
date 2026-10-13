@@ -1,4 +1,4 @@
-import type { StyleTag } from "../places/style-tag";
+import type { StyleTag } from "../common/types/style-tag";
 
 export const TAG_LABELS: Record<StyleTag, string> = {
   romanesque: "Romanizm",

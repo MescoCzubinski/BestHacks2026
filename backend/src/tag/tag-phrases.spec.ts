@@ -1,4 +1,4 @@
-import { STYLE_TAGS } from "../places/style-tag";
+import { STYLE_TAGS } from "../common/types/style-tag";
 import { TAG_PHRASES } from "./tag-phrases";
 
 describe("TAG_PHRASES", () => {

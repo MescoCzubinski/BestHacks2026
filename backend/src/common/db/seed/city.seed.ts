@@ -1,4 +1,4 @@
-import type { Bbox } from "../../../city/bbox";
+import type { Bbox } from "../../types/geo";
 
 type SeedCity = {
   name: string;

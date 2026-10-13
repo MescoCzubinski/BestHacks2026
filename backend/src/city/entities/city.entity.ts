@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import type { Bbox } from "../bbox";
+import type { Bbox } from "../../common/types/geo";
 
 @Entity("supported_cities")
 export class City {

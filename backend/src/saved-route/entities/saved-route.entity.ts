@@ -5,7 +5,7 @@ import {
   Index,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import type { LatLng } from "../../city/bbox";
+import type { LatLng } from "../../common/types/geo";
 
 export type SavedStop = {
   id: string;
