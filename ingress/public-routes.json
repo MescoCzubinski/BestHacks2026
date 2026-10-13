@@ -1,0 +1,10 @@
+{
+  "prefix": [
+    "/api/places",
+    "/api/locations",
+    "/api/paths",
+    "/api/routes",
+    "/api/tags"
+  ],
+  "exact": ["/api/embeddings/warmup"]
+}

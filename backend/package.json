@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "typecheck": "tsc --noEmit",
     "test": "rm -rf .test-dist && tsc --outDir .test-dist && (NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest; r=$?; rm -rf .test-dist; exit $r)",
-    "test:e2e": "rm -rf .test-dist && tsc --outDir .test-dist && (NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest --testRegex '.*\\.e2e-spec\\.js$' --passWithNoTests; r=$?; rm -rf .test-dist; exit $r)"
+    "test:integration": "rm -rf .test-dist && tsc --outDir .test-dist && (NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest --testRegex '.*\\.integration\\.spec\\.js$'; r=$?; rm -rf .test-dist; exit $r)"
   },
   "type": "commonjs",
   "dependencies": {
@@ -30,9 +30,11 @@
     "typeorm": "^1.1.2"
   },
   "devDependencies": {
+    "@nestjs/testing": "^12.1.3",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
     "@types/supertest": "^7.2.1",
     "jest": "^30.5.2",
     "oxlint": "^1.87.0",

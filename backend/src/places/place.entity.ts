@@ -1,22 +1,13 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  Index,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import type { Address } from "./address";
 import type { PlaceFacts, PlaceLinks, PositionQuality } from "./place-facts";
 import { PlaceTag } from "./place-tag.entity";
 
 @Entity("places")
 export class Place {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn("uuid")
   id: string;
 
-  @Index({ unique: true })
   @Column("text", { name: "external_id", nullable: true })
   externalId: string | null;
 
@@ -35,7 +26,7 @@ export class Place {
   @Column("jsonb")
   address: Address;
 
-  @Column("text", { name: "position_quality", default: "point" })
+  @Column("text", { name: "position_quality" })
   positionQuality: PositionQuality;
 
   @Column("smallint", { nullable: true })
@@ -44,31 +35,27 @@ export class Place {
   @Column("text", { name: "date_text", nullable: true })
   dateText: string | null;
 
-  @Index()
-  @Column("smallint", { default: 0 })
+  @Column("smallint")
   significance: number;
 
-  @Column("jsonb", { default: () => "'{}'" })
+  @Column("jsonb")
   facts: PlaceFacts;
 
-  @Column("jsonb", { default: () => "'{}'" })
+  @Column("jsonb")
   links: PlaceLinks;
 
-  @Column("text", { array: true, default: () => "'{}'" })
+  @Column("text", { array: true })
   sources: string[];
 
   @Column("text", { name: "main_image_url", nullable: true })
   mainImageUrl: string | null;
 
-  @Column("text", { array: true, default: () => "'{}'" })
+  @Column("text", { array: true })
   images: string[];
 
-  @OneToMany(() => PlaceTag, (tag) => tag.place, { cascade: true })
+  @OneToMany(() => PlaceTag, (tag) => tag.place)
   tags: PlaceTag[];
 
-  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
+  @Column("timestamptz", { name: "updated_at" })
   updatedAt: Date;
 }

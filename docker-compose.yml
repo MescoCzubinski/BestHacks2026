@@ -7,6 +7,7 @@ services:
     env_file: ./db/.env
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro # schema and roles, applied on the first start of pgdata
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -27,8 +28,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "127.0.0.1:8000:8000"
     healthcheck:
       test:
         [
@@ -54,6 +53,7 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+      - ./ingress:/ingress:ro # the /api allowlist the Vite dev proxy shares with the ingress
     ports:
       - "127.0.0.1:5173:5173"
     healthcheck:

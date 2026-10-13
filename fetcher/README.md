@@ -19,7 +19,7 @@ area, German-until year). Everything else is configured in `fetcher/.env` (copy 
 To cover another city, change `REGION` (and use sources that exist there; `wroclaw_gis` is Wrocław only).
 
 ```
-docker compose up -d db backend      # schema is created by the backend
+docker compose up -d db backend      # schema and roles come from db/init
 docker compose run --rm -e RUN_ONCE=1 fetcher
 ```
 
@@ -44,7 +44,8 @@ most 70, an era prior at most 35, and neighbouring styles (neogothic → gothic)
 
 - A run that produces less than half of the existing places for the region saves but **does not prune**.
 - An empty result never overwrites the database.
-- Only the tables defined by the backend are written; no DDL.
+- Only the tables defined in `db/init/` are written, as the `fetcher_rw` role (no DDL).
+- The city row (`supported_cities`) comes from `REGION` and is upserted on every run.
 
 ## Tests
 

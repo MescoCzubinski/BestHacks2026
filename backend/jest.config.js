@@ -1,6 +1,6 @@
 module.exports = {
   rootDir: ".test-dist",
-  testRegex: ".*\\.(spec|e2e-spec)\\.js$",
+  testRegex: ".*\\.spec\\.js$",
   testEnvironment: "node",
   transform: {},
 };

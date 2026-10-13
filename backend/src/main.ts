@@ -1,15 +1,12 @@
-import { Logger, ValidationPipe } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { NextFunction, Request, Response } from "express";
-import helmet from "helmet";
 import { AppModule } from "./app.module";
-
-const TRUSTED_PROXY_HOPS = 1; // the ingress (or the Vite dev proxy) in front of the API
+import { configureApp } from "./common/app-setup";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.set("trust proxy", TRUSTED_PROXY_HOPS);
 
   const http = new Logger("HTTP");
   app.use((req: Request, res: Response, next: NextFunction) => {
@@ -23,16 +20,7 @@ async function bootstrap() {
     next();
   });
 
-  app.use(helmet());
-  app.enableCors({ origin: process.env.CORS_ORIGIN?.split(",") ?? false });
-  app.setGlobalPrefix("api");
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  configureApp(app);
   app.enableShutdownHooks();
 
   const port = Number(process.env.PORT ?? 8000);

@@ -1,18 +1,8 @@
-import {
-  Check,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-} from "typeorm";
-import { Place } from "./place.entity";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { STYLE_TAGS, type StyleTag } from "../common/types/style-tag";
+import { Place } from "./place.entity";
 
 @Entity("place_tags")
-@Check(`"percent" BETWEEN 0 AND 100`)
-@Index(["tag", "percent"])
 export class PlaceTag {
   @PrimaryColumn("uuid", { name: "place_id" })
   placeId: string;
@@ -23,7 +13,7 @@ export class PlaceTag {
   @Column("smallint")
   percent: number;
 
-  @ManyToOne(() => Place, (place) => place.tags, { onDelete: "CASCADE" })
+  @ManyToOne(() => Place, (place) => place.tags)
   @JoinColumn({ name: "place_id" })
   place: Place;
 }

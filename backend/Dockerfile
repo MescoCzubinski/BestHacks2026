@@ -26,7 +26,5 @@ FROM base AS prod
 ENV NODE_ENV=production PORT=8000
 COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
 COPY --from=build --chown=node:node /app/dist ./dist
-# Read at start-up to fill an empty database, so the app works before the fetcher has finished.
-COPY --chown=node:node src/common/db/seed/places.seed.json ./src/common/db/seed/places.seed.json
 EXPOSE 8000
 CMD ["node", "dist/main.js"]
