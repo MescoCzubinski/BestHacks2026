@@ -6,13 +6,13 @@ Each phase is its own branch and PR, and `main` stays demo-ready throughout.
 
 ## Decisions
 
-| # | Decision |
-|---|---|
-| 1 | Saved routes are removed from the backend and kept in the frontend's `localStorage`. |
-| 2 | The schema and the roles live in `db/init/*.sql`, applied by Postgres on the first start of the volume. No `synchronize`, no one-shot schema step. Entities only map tables. |
-| 3 | The backend has no seed. The fetcher is the only writer and also writes the city/region row. `SeedService` and `places.seed.json` go away. |
-| 4 | The fetcher's run mode (daemon vs on-demand) is **deferred**. For now it writes to the DB and calls the backend for embeddings. |
-| 5 | The embedding model loads lazily (first use or explicit warmup) and unloads after an idle TTL. If memory does not return to the OS after dispose, move the model to a worker thread that is killed on idle. |
+| #   | Decision                                                                                                                                                                                                    |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Saved routes are removed from the backend and kept in the frontend's `localStorage`.                                                                                                                        |
+| 2   | The schema and the roles live in `db/init/*.sql`, applied by Postgres on the first start of the volume. No `synchronize`, no one-shot schema step. Entities only map tables.                                |
+| 3   | The backend has no seed. The fetcher is the only writer and also writes the city/region row. `SeedService` and `places.seed.json` go away.                                                                  |
+| 4   | The fetcher's run mode (daemon vs on-demand) is **deferred**. For now it writes to the DB and calls the backend for embeddings.                                                                             |
+| 5   | The embedding model loads lazily (first use or explicit warmup) and unloads after an idle TTL. If memory does not return to the OS after dispose, move the model to a worker thread that is killed on idle. |
 
 ## Current state (what the refactor has to change)
 
