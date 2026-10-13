@@ -1,9 +1,11 @@
-import type { PlaceCandidate } from "../place-candidate";
-import { PlaceQueryService } from "./place-query.service";
+import type {
+  PlaceRepository,
+  PlaceRow,
+} from "../repositories/place.repository";
 import { PlaceSearchService } from "./place-search.service";
 import { VisitDurationService } from "./visit-duration.service";
 
-const museum: PlaceCandidate = {
+const museum: PlaceRow = {
   id: "p1",
   name: "Muzeum Narodowe",
   latitude: 51.11,
@@ -11,26 +13,24 @@ const museum: PlaceCandidate = {
   description: null,
   mainImageUrl: "https://img/p1.jpg",
   significance: 0,
-  positionQuality: "address",
-  year: null,
   facts: {},
   tags: { museum: 90 },
 };
 
-function service(found: PlaceCandidate[]) {
-  const searchByName = jest.fn().mockResolvedValue(found);
-  const places = { searchByName } as unknown as PlaceQueryService;
+function service(found: PlaceRow[]) {
+  const findByName = jest.fn().mockResolvedValue(found);
+  const places = { findByName } as unknown as PlaceRepository;
   return {
-    searchByName,
+    findByName,
     search: new PlaceSearchService(places, new VisitDurationService()),
   };
 }
 
 describe("PlaceSearchService", () => {
   it("looks up the trimmed text with the requested limit", async () => {
-    const { search, searchByName } = service([]);
+    const { search, findByName } = service([]);
     await search.search("  muzeum ", 5);
-    expect(searchByName).toHaveBeenCalledWith("muzeum", 5);
+    expect(findByName).toHaveBeenCalledWith("muzeum", 5);
   });
 
   it("describes each match as a stop with a visit time and entry flag", async () => {

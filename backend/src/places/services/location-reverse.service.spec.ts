@@ -1,4 +1,4 @@
-import type { CityQueryService } from "../../city/services/city-query.service";
+import type { EventBus } from "../../common/bus/event-bus";
 import { NotFoundDomainException } from "../../common/errors/domain.exception";
 import type { Geocoder, GeocodedLocation } from "./geocoder";
 import { LocationReverseService } from "./location-reverse.service";
@@ -18,8 +18,8 @@ function setup(options: { supported?: boolean; found?: boolean } = {}) {
   const reverse = jest.fn().mockResolvedValue(found ? LOCATION : null);
   const service = new LocationReverseService(
     {
-      checkSupport: async () => ({ supported, supportedCities: ["Wrocław"] }),
-    } as unknown as CityQueryService,
+      request: async () => ({ supported, supportedCities: ["Wrocław"] }),
+    } as unknown as EventBus,
     { reverse } as unknown as Geocoder,
   );
   return { service, reverse };

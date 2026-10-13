@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
-import { STYLE_TAGS, type StyleTag } from "../common/types/style-tag";
+import { STYLE_TAGS, type StyleTag } from "../../common/types/style-tag";
 import { Place } from "./place.entity";
 
 @Entity("place_tags")

@@ -1,6 +1,7 @@
-import { OutsideSupportedAreaException } from "../../city/exceptions/outside-supported-area.exception";
-import type { CityQueryService } from "../../city/services/city-query.service";
-import type { PathRouter, RoutedPath } from "./path-router";
+import type { RoutedPath } from "../../common/bus/contracts";
+import type { EventBus } from "../../common/bus/event-bus";
+import { DomainException } from "../../common/errors/domain.exception";
+import type { PathRouter } from "./path-router";
 import { PathFinderService } from "./path-finder.service";
 
 const POINTS = [
@@ -14,31 +15,37 @@ const PATH: RoutedPath = {
   coordinates: POINTS,
 };
 
+class Outside extends DomainException {
+  constructor() {
+    super("invalid", "outside");
+  }
+}
+
 function setup(inside = true) {
   const route = jest.fn().mockResolvedValue(PATH);
-  const assertInsideSupported = jest.fn(async () => {
-    if (!inside) throw new OutsideSupportedAreaException();
+  const request = jest.fn(async () => {
+    if (!inside) throw new Outside();
   });
   const service = new PathFinderService(
-    { assertInsideSupported } as unknown as CityQueryService,
+    { request } as unknown as EventBus,
     { route } as unknown as PathRouter,
   );
-  return { service, route, assertInsideSupported };
+  return { service, route, request };
 }
 
 describe("PathFinderService", () => {
-  it("routes through the points after checking them", async () => {
-    const { service, route, assertInsideSupported } = setup();
+  it("routes through the points after the city slice accepts them", async () => {
+    const { service, route, request } = setup();
     expect(await service.find(POINTS)).toBe(PATH);
-    expect(assertInsideSupported).toHaveBeenCalledWith(POINTS);
+    expect(request).toHaveBeenCalledWith("city.ensure-inside", {
+      points: POINTS,
+    });
     expect(route).toHaveBeenCalledWith(POINTS);
   });
 
   it("does not call the router for points outside supported cities", async () => {
     const { service, route } = setup(false);
-    await expect(service.find(POINTS)).rejects.toThrow(
-      OutsideSupportedAreaException,
-    );
+    await expect(service.find(POINTS)).rejects.toThrow(Outside);
     expect(route).not.toHaveBeenCalled();
   });
 });

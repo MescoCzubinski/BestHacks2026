@@ -1,7 +1,4 @@
 import { Module } from "@nestjs/common";
-import { CityModule } from "../city/city.module";
-import { PathModule } from "../path/path.module";
-import { PlacesModule } from "../places/places.module";
 import { RouteController } from "./handlers/route.controller";
 import { CandidateSelectionService } from "./services/candidate-selection.service";
 import { OpeningHoursService } from "./services/opening-hours.service";
@@ -12,7 +9,6 @@ import { RoutePlanner } from "./services/route-planner";
 import { WalkingEstimateService } from "./services/walking-estimate.service";
 
 @Module({
-  imports: [CityModule, PathModule, PlacesModule],
   controllers: [RouteController],
   providers: [
     RouteBuilderService,

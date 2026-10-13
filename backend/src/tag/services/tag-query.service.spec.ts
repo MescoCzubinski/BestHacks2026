@@ -1,5 +1,5 @@
 import { STYLE_TAGS } from "../../common/types/style-tag";
-import { TAG_LABELS } from "../tag-labels";
+import { TAG_LABELS } from "./tag-labels";
 import { TagQueryService } from "./tag-query.service";
 
 describe("TagQueryService", () => {

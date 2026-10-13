@@ -1,39 +1,24 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { bboxContains } from "../bbox";
-import type { Bbox, LatLng } from "../../common/types/geo";
-import { City } from "../entities/city.entity";
+import type { SupportCheck, SupportedCity } from "../../common/bus/contracts";
+import type { LatLng } from "../../common/types/geo";
+import { bboxContains } from "./bbox";
 import { OutsideSupportedAreaException } from "../exceptions/outside-supported-area.exception";
-
-type SupportedCity = { name: string; bbox: Bbox };
-
-type SupportCheck = { supported: boolean; supportedCities: string[] };
+import { CityRepository } from "../repositories/city.repository";
 
 @Injectable()
 export class CityQueryService {
-  constructor(
-    @InjectRepository(City) private readonly cities: Repository<City>,
-  ) {}
+  constructor(private readonly cities: CityRepository) {}
 
-  async listSupported(): Promise<SupportedCity[]> {
-    const rows = await this.cities.find({ order: { name: "ASC" } });
-    return rows.map(({ name, bbox }) => ({ name, bbox }));
+  listSupported(): Promise<SupportedCity[]> {
+    return this.cities.findAllByName();
   }
 
-  async checkSupport(lat: number, lng: number): Promise<SupportCheck> {
+  async checkSupport({ lat, lng }: LatLng): Promise<SupportCheck> {
     const supported = await this.listSupported();
     return {
       supported: supported.some((city) => bboxContains(city.bbox, lat, lng)),
       supportedCities: supported.map((city) => city.name),
     };
-  }
-
-  async nameAt(lat: number, lng: number): Promise<string | null> {
-    const supported = await this.listSupported();
-    return (
-      supported.find((city) => bboxContains(city.bbox, lat, lng))?.name ?? null
-    );
   }
 
   async assertInsideSupported(points: LatLng[]): Promise<void> {

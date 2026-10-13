@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { CityQueryService } from "../../city/services/city-query.service";
-import { PathFinderService } from "../../path/services/path-finder.service";
-import type { RoutedPath } from "../../path/services/path-router";
+import type { RoutedPath } from "../../common/bus/contracts";
+import { EventBus } from "../../common/bus/event-bus";
 import {
   RoutePlanner,
   type PlannedStop,
@@ -17,15 +16,22 @@ export type BuiltRoute = {
 @Injectable()
 export class RouteBuilderService {
   constructor(
-    private readonly cities: CityQueryService,
+    private readonly bus: EventBus,
     private readonly planner: RoutePlanner,
-    private readonly pathFinder: PathFinderService,
   ) {}
 
   async build(query: RouteQuery): Promise<BuiltRoute> {
-    await this.cities.assertInsideSupported([query.start, query.end]);
+    await this.bus.request("city.ensure-inside", {
+      points: [query.start, query.end],
+    });
     const { stops, extras } = await this.planner.plan(query);
-    const path = await this.pathFinder.find([query.start, ...stops, query.end]);
+    const path = await this.bus.request("path.route", {
+      points: [
+        query.start,
+        ...stops.map(({ lat, lng }) => ({ lat, lng })),
+        query.end,
+      ],
+    });
     return { stops, extras, path };
   }
 }

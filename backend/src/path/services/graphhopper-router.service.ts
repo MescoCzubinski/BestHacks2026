@@ -7,7 +7,8 @@ import {
   GraphHopperPathMapper,
   type GraphHopperResponse,
 } from "./graphhopper-path-mapper.service";
-import { PathRouter, type RoutedPath } from "./path-router";
+import type { RoutedPath } from "../../common/bus/contracts";
+import { PathRouter } from "./path-router";
 
 const PROFILE = "safe_pedestrian";
 const REQUEST_TIMEOUT = 10000;

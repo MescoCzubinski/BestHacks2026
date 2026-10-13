@@ -1,8 +1,6 @@
 import type { ConfigService } from "@nestjs/config";
-import type { PathFinderService } from "../../path/services/path-finder.service";
-import type { PlaceCandidate } from "../../places/place-candidate";
-import type { PlaceQueryService } from "../../places/services/place-query.service";
-import { VisitDurationService } from "../../places/services/visit-duration.service";
+import type { PlaceCandidate } from "../../common/bus/contracts";
+import type { EventBus } from "../../common/bus/event-bus";
 import { NoMatchingPlacesException } from "../exceptions/no-matching-places.exception";
 import { TimeBudgetTooSmallException } from "../exceptions/time-budget-too-small.exception";
 import { CandidateSelectionService } from "./candidate-selection.service";
@@ -20,8 +18,9 @@ function place(
   lat: number,
   lng: number,
   tags: PlaceCandidate["tags"],
-  significance = 50,
-  facts: PlaceCandidate["facts"] = {},
+  visitMinutes: number,
+  enterable = false,
+  extra: Partial<PlaceCandidate> = {},
 ): PlaceCandidate {
   return {
     id,
@@ -30,24 +29,38 @@ function place(
     longitude: lng,
     description: id === "museum" ? "A museum" : null,
     mainImageUrl: `https://img/${id}.jpg`,
-    significance,
-    positionQuality: "point",
-    year: null,
-    facts,
+    significance: 50,
     tags,
+    wheelchair: null,
+    openingHours: null,
+    visitMinutes,
+    enterable,
+    ...extra,
   };
 }
 
 const PLACES: PlaceCandidate[] = [
-  place("museum", 51.112, 17.032, { museum: 90, gothic: 60 }, 90),
-  place("church", 51.113, 17.035, { church: 80, gothic: 95 }, 70),
-  place("closed", 51.111, 17.031, { gothic: 99 }, 100, {
+  place("museum", 51.112, 17.032, { museum: 90, gothic: 60 }, 65, true, {
+    significance: 90,
+  }),
+  place("church", 51.113, 17.035, { church: 80, gothic: 95 }, 20, true, {
+    significance: 70,
+  }),
+  place("closed", 51.111, 17.031, { gothic: 99 }, 12, false, {
+    significance: 100,
     openingHours: "Mo-Su 20:00-22:00",
   }),
-  place("stairs", 51.109, 17.029, { gothic: 70 }, 40, { wheelchair: "no" }),
-  place("far", 51.2, 17.2, { gothic: 99 }, 100),
-  place("mural", 51.108, 17.034, { mural: 90 }, 20),
-  place("tower", 51.114, 17.028, { tower: 85, gothic: 75 }, 60),
+  place("stairs", 51.109, 17.029, { gothic: 70 }, 10, false, {
+    significance: 40,
+    wheelchair: "no",
+  }),
+  place("far", 51.2, 17.2, { gothic: 99 }, 12, false, { significance: 100 }),
+  place("mural", 51.108, 17.034, { mural: 90 }, 3, false, {
+    significance: 20,
+  }),
+  place("tower", 51.114, 17.028, { tower: 85, gothic: 75 }, 20, true, {
+    significance: 60,
+  }),
 ];
 
 function stop(
@@ -81,34 +94,34 @@ const QUERY: RouteQuery = {
 
 function setup(walkSecondsPerLeg = 300) {
   const walking = new WalkingEstimateService();
-  const visits = new VisitDurationService();
   const findCandidates = jest.fn(async () => PLACES);
   const find = jest.fn(async (points: unknown[]) => ({
     distanceMeters: 1000,
     durationSeconds: (points.length - 1) * walkSecondsPerLeg,
     coordinates: [],
   }));
-  const planner = new OrienteeringRoutePlanner(
-    new CandidateSelectionService(
-      { findCandidates } as unknown as PlaceQueryService,
-      visits,
-      walking,
+  const bus = {
+    request: jest.fn(async (name: string, payload: { points?: unknown[] }) =>
+      name === "place.candidates" ? findCandidates() : find(payload.points!),
     ),
-    { find } as unknown as PathFinderService,
+  } as unknown as EventBus;
+  const planner = new OrienteeringRoutePlanner(
+    new CandidateSelectionService(bus, walking),
+    bus,
     new OrienteeringService(),
     new OpeningHoursService(),
     walking,
-    visits,
     { get: () => "Europe/Warsaw" } as unknown as ConfigService,
   );
-  return { planner, findCandidates, find };
+  return { planner, bus, find };
 }
 
 describe("OrienteeringRoutePlanner (characterization)", () => {
   it("plans the current stops, order, timing and extras", async () => {
-    const { planner, findCandidates } = setup();
+    const { planner, bus } = setup();
     const route = await planner.plan(QUERY);
-    expect(findCandidates).toHaveBeenCalledWith(
+    expect(bus.request).toHaveBeenCalledWith(
+      "place.candidates",
       expect.objectContaining({ tags: ["gothic"], minPercent: 50, limit: 600 }),
     );
     expect(route).toEqual({

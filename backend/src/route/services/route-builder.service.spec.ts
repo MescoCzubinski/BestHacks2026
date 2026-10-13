@@ -1,7 +1,6 @@
-import { OutsideSupportedAreaException } from "../../city/exceptions/outside-supported-area.exception";
-import type { CityQueryService } from "../../city/services/city-query.service";
-import type { PathFinderService } from "../../path/services/path-finder.service";
-import type { RoutedPath } from "../../path/services/path-router";
+import type { RoutedPath } from "../../common/bus/contracts";
+import type { EventBus } from "../../common/bus/event-bus";
+import { DomainException } from "../../common/errors/domain.exception";
 import { RouteBuilderService } from "./route-builder.service";
 import type { PlannedStop, RoutePlanner, RouteQuery } from "./route-planner";
 
@@ -51,36 +50,48 @@ const QUERY: RouteQuery = {
   tags: ["art_nouveau"],
 };
 
+class Outside extends DomainException {
+  constructor() {
+    super("invalid", "outside");
+  }
+}
+
 function setup(inside = true) {
-  const assertInsideSupported = jest.fn(async () => {
-    if (!inside) throw new OutsideSupportedAreaException();
-  });
   const plan = jest.fn().mockResolvedValue({ stops: STOPS, extras: EXTRAS });
-  const find = jest.fn().mockResolvedValue(PATH);
+  const request = jest.fn(async (name: string) => {
+    if (name === "city.ensure-inside" && !inside) throw new Outside();
+    return name === "path.route" ? PATH : undefined;
+  });
   const service = new RouteBuilderService(
-    { assertInsideSupported } as unknown as CityQueryService,
+    { request } as unknown as EventBus,
     { plan } as unknown as RoutePlanner,
-    { find } as unknown as PathFinderService,
   );
-  return { service, plan, find, assertInsideSupported };
+  return { service, plan, request };
 }
 
 describe("RouteBuilderService", () => {
   it("walks from the start through the planned stops to the end", async () => {
-    const { service, plan, find, assertInsideSupported } = setup();
+    const { service, plan, request } = setup();
     const route = await service.build(QUERY);
-    expect(assertInsideSupported).toHaveBeenCalledWith([START, END]);
+    expect(request).toHaveBeenCalledWith("city.ensure-inside", {
+      points: [START, END],
+    });
     expect(plan).toHaveBeenCalledWith(QUERY);
-    expect(find).toHaveBeenCalledWith([START, ...STOPS, END]);
+    expect(request).toHaveBeenCalledWith("path.route", {
+      points: [
+        START,
+        { lat: 51.11, lng: 17.032 },
+        { lat: 51.112, lng: 17.045 },
+        END,
+      ],
+    });
     expect(route).toEqual({ stops: STOPS, extras: EXTRAS, path: PATH });
   });
 
   it("refuses a start or end outside the supported cities before planning", async () => {
-    const { service, plan, find } = setup(false);
-    await expect(service.build(QUERY)).rejects.toThrow(
-      OutsideSupportedAreaException,
-    );
+    const { service, plan, request } = setup(false);
+    await expect(service.build(QUERY)).rejects.toThrow(Outside);
     expect(plan).not.toHaveBeenCalled();
-    expect(find).not.toHaveBeenCalled();
+    expect(request).not.toHaveBeenCalledWith("path.route", expect.anything());
   });
 });

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import type { LatLng } from "../../common/types/geo";
-import type { Plan, RouteCandidate, TimelineStop } from "../route-candidate";
+import type { Plan, RouteCandidate, TimelineStop } from "./route-candidate";
 
 const MS_PER_MINUTE = 60_000;
 const IMPROVEMENT_ROUNDS = 3;

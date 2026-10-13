@@ -1,5 +1,5 @@
-import type { PlaceCandidate } from "../../places/place-candidate";
-import type { RouteCandidate } from "../route-candidate";
+import type { PlaceCandidate } from "../../common/bus/contracts";
+import type { RouteCandidate } from "./route-candidate";
 import {
   OrienteeringService,
   type PlannerOptions,

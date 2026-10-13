@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import type { PlaceCandidate } from "../../places/place-candidate";
-import { PlaceQueryService } from "../../places/services/place-query.service";
-import { VisitDurationService } from "../../places/services/visit-duration.service";
-import type { Accessibility, RouteCandidate } from "../route-candidate";
+import type { PlaceCandidate } from "../../common/bus/contracts";
+import { EventBus } from "../../common/bus/event-bus";
+import type { Accessibility, RouteCandidate } from "./route-candidate";
 import type { RouteQuery } from "./route-planner";
 import {
   DEFAULT_WALKING_SPEED_KMH,
@@ -24,15 +23,14 @@ const ACCESSIBILITY_BOOST: Record<Accessibility, number> = {
 @Injectable()
 export class CandidateSelectionService {
   constructor(
-    private readonly places: PlaceQueryService,
-    private readonly visits: VisitDurationService,
+    private readonly bus: EventBus,
     private readonly walking: WalkingEstimateService,
   ) {}
 
   async select(query: RouteQuery): Promise<RouteCandidate[]> {
     if (query.tags.length === 0) return [];
     const box = this.reachableBox(query);
-    const found = await this.places.findCandidates({
+    const found = await this.bus.request("place.candidates", {
       ...box,
       tags: query.tags,
       minPercent: MIN_TAG_PERCENT,
@@ -58,7 +56,7 @@ export class CandidateSelectionService {
     }
     if (relevance === 0) return null;
 
-    const wheelchair = p.facts.wheelchair;
+    const wheelchair = p.wheelchair;
     if (query.wheelchair && wheelchair === "no") return null;
     const accessibility: Accessibility =
       wheelchair === "yes" || wheelchair === "limited" ? wheelchair : "unknown";
@@ -71,8 +69,8 @@ export class CandidateSelectionService {
       place: p,
       point: { lat: p.latitude, lng: p.longitude },
       value: relevance * notable * accessBoost,
-      dwellMinutes: this.visits.visitMinutes(p.tags, p.significance),
-      openingHours: p.facts.openingHours ?? null,
+      dwellMinutes: p.visitMinutes,
+      openingHours: p.openingHours,
       accessibility,
     };
   }

@@ -1,17 +1,18 @@
 import { Injectable } from "@nestjs/common";
+import type { RoutedPath } from "../../common/bus/contracts";
+import { EventBus } from "../../common/bus/event-bus";
 import type { LatLng } from "../../common/types/geo";
-import { CityQueryService } from "../../city/services/city-query.service";
-import { PathRouter, type RoutedPath } from "./path-router";
+import { PathRouter } from "./path-router";
 
 @Injectable()
 export class PathFinderService {
   constructor(
-    private readonly cities: CityQueryService,
+    private readonly bus: EventBus,
     private readonly router: PathRouter,
   ) {}
 
   async find(points: LatLng[]): Promise<RoutedPath> {
-    await this.cities.assertInsideSupported(points);
+    await this.bus.request("city.ensure-inside", { points });
     return this.router.route(points);
   }
 }

@@ -1,31 +1,33 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { CityModule } from "../city/city.module";
 import { LocationController } from "./handlers/location.controller";
 import { PlaceController } from "./handlers/place.controller";
-import { PlaceTag } from "./place-tag.entity";
-import { Place } from "./place.entity";
+import { PlacesListener } from "./handlers/places.listener";
+import { PlaceTag } from "./entities/place-tag.entity";
+import { Place } from "./entities/place.entity";
+import { PlaceRepository } from "./repositories/place.repository";
 import { Geocoder } from "./services/geocoder";
 import { LocationReverseService } from "./services/location-reverse.service";
 import { LocationSearchService } from "./services/location-search.service";
 import { PhotonGeocoder } from "./services/photon-geocoder.service";
 import { PhotonLocationMapper } from "./services/photon-location-mapper.service";
-import { PlaceQueryService } from "./services/place-query.service";
+import { PlaceCandidateService } from "./services/place-candidate.service";
 import { PlaceSearchService } from "./services/place-search.service";
 import { VisitDurationService } from "./services/visit-duration.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Place, PlaceTag]), CityModule],
+  imports: [TypeOrmModule.forFeature([Place, PlaceTag])],
   controllers: [PlaceController, LocationController],
   providers: [
+    PlaceRepository,
     PlaceSearchService,
-    PlaceQueryService,
+    PlaceCandidateService,
     VisitDurationService,
     PhotonLocationMapper,
     LocationSearchService,
     LocationReverseService,
+    PlacesListener,
     { provide: Geocoder, useClass: PhotonGeocoder },
   ],
-  exports: [PlaceQueryService, VisitDurationService],
 })
 export class PlacesModule {}

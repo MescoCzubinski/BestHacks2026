@@ -5,7 +5,7 @@
       "files": ["src/city/**"],
       "rules": {
         "no-restricted-imports": [
-          "warn",
+          "error",
           {
             "patterns": [
               {
@@ -32,7 +32,7 @@
       "files": ["src/health/**"],
       "rules": {
         "no-restricted-imports": [
-          "warn",
+          "error",
           {
             "patterns": [
               {
@@ -59,7 +59,7 @@
       "files": ["src/path/**"],
       "rules": {
         "no-restricted-imports": [
-          "warn",
+          "error",
           {
             "patterns": [
               {
@@ -86,7 +86,7 @@
       "files": ["src/places/**"],
       "rules": {
         "no-restricted-imports": [
-          "warn",
+          "error",
           {
             "patterns": [
               {
@@ -113,7 +113,7 @@
       "files": ["src/route/**"],
       "rules": {
         "no-restricted-imports": [
-          "warn",
+          "error",
           {
             "patterns": [
               {
@@ -140,7 +140,7 @@
       "files": ["src/tag/**"],
       "rules": {
         "no-restricted-imports": [
-          "warn",
+          "error",
           {
             "patterns": [
               {
@@ -167,7 +167,7 @@
       "files": ["src/common/**"],
       "rules": {
         "no-restricted-imports": [
-          "warn",
+          "error",
           {
             "patterns": [
               {

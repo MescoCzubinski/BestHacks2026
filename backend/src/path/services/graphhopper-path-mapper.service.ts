@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { RoutedPath } from "./path-router";
+import type { RoutedPath } from "../../common/bus/contracts";
 
 export type GraphHopperResponse = {
   paths?: {

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PlaceQueryService } from "./place-query.service";
+import { PlaceRepository } from "../repositories/place.repository";
 import { VisitDurationService } from "./visit-duration.service";
 
 export type PlaceView = {
@@ -18,7 +18,7 @@ const DEFAULT_PLACE_LIMIT = 8;
 @Injectable()
 export class PlaceSearchService {
   constructor(
-    private readonly places: PlaceQueryService,
+    private readonly places: PlaceRepository,
     private readonly visits: VisitDurationService,
   ) {}
 
@@ -26,7 +26,7 @@ export class PlaceSearchService {
     query: string,
     limit: number = DEFAULT_PLACE_LIMIT,
   ): Promise<PlaceView[]> {
-    const found = await this.places.searchByName(query.trim(), limit);
+    const found = await this.places.findByName(query.trim(), limit);
     return found.map((p) => ({
       id: p.id,
       name: p.name,

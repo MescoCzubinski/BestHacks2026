@@ -1,5 +1,5 @@
-import type { LatLng } from "../common/types/geo";
-import type { PlaceCandidate } from "../places/place-candidate";
+import type { LatLng } from "../../common/types/geo";
+import type { PlaceCandidate } from "../../common/bus/contracts";
 
 export type Accessibility = "yes" | "limited" | "unknown";
 

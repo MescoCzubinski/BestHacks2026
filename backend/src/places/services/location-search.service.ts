@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { CityQueryService } from "../../city/services/city-query.service";
+import { EventBus } from "../../common/bus/event-bus";
 import { Geocoder, type GeocodedLocation } from "./geocoder";
 
 export const DEFAULT_LOCATION_LIMIT = 6;
@@ -7,7 +7,7 @@ export const DEFAULT_LOCATION_LIMIT = 6;
 @Injectable()
 export class LocationSearchService {
   constructor(
-    private readonly cities: CityQueryService,
+    private readonly bus: EventBus,
     private readonly geocoder: Geocoder,
   ) {}
 
@@ -15,7 +15,7 @@ export class LocationSearchService {
     query: string,
     limit = DEFAULT_LOCATION_LIMIT,
   ): Promise<GeocodedLocation[]> {
-    const supported = await this.cities.listSupported();
+    const supported = await this.bus.request("city.supported", {});
     const batches = await Promise.all(
       supported.map(async (city) => {
         const found = await this.geocoder.search(

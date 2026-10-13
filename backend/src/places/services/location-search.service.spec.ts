@@ -1,4 +1,4 @@
-import type { CityQueryService } from "../../city/services/city-query.service";
+import type { EventBus } from "../../common/bus/event-bus";
 import type { Geocoder, GeocodedLocation } from "./geocoder";
 import { LocationSearchService } from "./location-search.service";
 
@@ -19,7 +19,7 @@ function setup(
   const search = jest.fn();
   results.forEach((r) => search.mockResolvedValueOnce(r));
   const service = new LocationSearchService(
-    { listSupported: async () => supported } as unknown as CityQueryService,
+    { request: async () => supported } as unknown as EventBus,
     { search } as unknown as Geocoder,
   );
   return { service, search };

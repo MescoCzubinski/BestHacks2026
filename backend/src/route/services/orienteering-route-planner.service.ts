@@ -1,8 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { PathFinderService } from "../../path/services/path-finder.service";
-import { VisitDurationService } from "../../places/services/visit-duration.service";
-import type { Plan, RouteCandidate } from "../route-candidate";
+import { EventBus } from "../../common/bus/event-bus";
+import type { Plan, RouteCandidate } from "./route-candidate";
 import { NoMatchingPlacesException } from "../exceptions/no-matching-places.exception";
 import { TimeBudgetTooSmallException } from "../exceptions/time-budget-too-small.exception";
 import { CandidateSelectionService } from "./candidate-selection.service";
@@ -32,11 +31,10 @@ export class OrienteeringRoutePlanner extends RoutePlanner {
 
   constructor(
     private readonly selection: CandidateSelectionService,
-    private readonly pathFinder: PathFinderService,
+    private readonly bus: EventBus,
     private readonly orienteering: OrienteeringService,
     private readonly openingHours: OpeningHoursService,
     private readonly walking: WalkingEstimateService,
-    private readonly visits: VisitDurationService,
     config: ConfigService,
   ) {
     super();
@@ -66,11 +64,9 @@ export class OrienteeringRoutePlanner extends RoutePlanner {
 
     for (let attempt = 0; attempt < MAX_REFINEMENTS; attempt++) {
       const order = plan.stops.map((s) => s.candidate);
-      const path = await this.pathFinder.find([
-        query.start,
-        ...order.map((c) => c.point),
-        query.end,
-      ]);
+      const path = await this.bus.request("path.route", {
+        points: [query.start, ...order.map((c) => c.point), query.end],
+      });
       const walk = path.durationSeconds / SECONDS_PER_MINUTE;
       const visit = order.reduce((sum, c) => sum + c.dwellMinutes, 0);
       if (walk + visit <= query.durationMinutes || order.length <= 1) break;
@@ -103,7 +99,7 @@ export class OrienteeringRoutePlanner extends RoutePlanner {
       lat: p.latitude,
       lng: p.longitude,
       visitMinutes: c.dwellMinutes,
-      enterable: this.visits.isEnterable(c.place.tags),
+      enterable: p.enterable,
       arriveAt: arriveAt?.toISOString(),
       imageUrl: p.mainImageUrl,
     };
