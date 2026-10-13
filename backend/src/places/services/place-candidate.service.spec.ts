@@ -1,4 +1,4 @@
-import type { CandidateQuery } from "../../common/bus/contracts";
+import type { CandidateQuery } from "./place-candidate";
 import type {
   PlaceRepository,
   PlaceRow,

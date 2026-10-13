@@ -2,6 +2,7 @@ import json
 import logging
 import re
 from collections.abc import Iterable, Sequence
+from pathlib import Path
 from typing import Any
 
 import psycopg
@@ -11,6 +12,7 @@ from .config import Region
 
 log = logging.getLogger("db")
 
+SCHEMA = Path(__file__).with_name("schema.sql")
 CHUNK = 500
 _REGION_ID = re.compile(r"[a-z0-9_-]{1,32}")
 
@@ -63,6 +65,12 @@ def city_params(region: Region) -> dict[str, Any]:
         "longitude": lon,
         "bbox": json.dumps([region.west, region.south, region.east, region.north]),
     }
+
+
+def ensure_schema(conn: psycopg.Connection) -> None:
+    with conn.transaction():
+        conn.execute(SCHEMA.read_text(encoding="utf-8"))  # type: ignore[arg-type]
+    log.info("schema is up to date")
 
 
 def save_city(conn: psycopg.Connection, region: Region) -> None:

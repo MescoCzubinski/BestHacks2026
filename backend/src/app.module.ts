@@ -6,10 +6,9 @@ import { DbModule } from "./common/db/db.module";
 import { RateLimitModule } from "./common/rate-limit/rate-limit.module";
 import { DomainExceptionFilter } from "./common/errors/domain-exception.filter";
 import { validateEnv } from "./common/env";
-import { CityModule } from "./city/city.module";
 import { HealthModule } from "./health/health.module";
-import { PathModule } from "./path/path.module";
-import { RouteModule } from "./route/route.module";
+import { DirectionsModule } from "./directions/directions.module";
+import { LocationModule } from "./location/location.module";
 import { TagModule } from "./tag/tag.module";
 import { PlacesModule } from "./places/places.module";
 
@@ -19,9 +18,8 @@ import { PlacesModule } from "./places/places.module";
     BusModule,
     DbModule,
     RateLimitModule,
-    CityModule,
-    PathModule,
-    RouteModule,
+    LocationModule,
+    DirectionsModule,
     TagModule,
     HealthModule,
     PlacesModule,

@@ -34,9 +34,7 @@ describe("tag slice", () => {
 
   it("warms the model up on request without waiting for it", async () => {
     expect(load).not.toHaveBeenCalled();
-    await request(app.getHttpServer())
-      .post("/api/embeddings/warmup")
-      .expect(202);
+    await request(app.getHttpServer()).post("/api/tags/warmup").expect(202);
     expect(load).toHaveBeenCalledTimes(1);
   });
 
@@ -66,7 +64,7 @@ describe("tag slice", () => {
 
   it("embeds texts in bulk for the fetcher", async () => {
     const res = await request(app.getHttpServer())
-      .post("/api/embeddings")
+      .post("/internal/embeddings")
       .send({ texts: [" gotyckie mury "] })
       .expect(200);
     expect(res.body).toEqual({ dimensions: 3, vectors: [GOTHIC] });
@@ -74,7 +72,7 @@ describe("tag slice", () => {
 
   it("rejects unknown fields in the bulk request", async () => {
     await request(app.getHttpServer())
-      .post("/api/embeddings")
+      .post("/internal/embeddings")
       .send({ texts: ["a"], extra: true })
       .expect(400);
   });
@@ -82,7 +80,7 @@ describe("tag slice", () => {
   it("maps a model failure to 502", async () => {
     embed.mockRejectedValueOnce(new Error("onnx crashed"));
     await request(app.getHttpServer())
-      .post("/api/embeddings")
+      .post("/internal/embeddings")
       .send({ texts: ["a"] })
       .expect(502);
   });

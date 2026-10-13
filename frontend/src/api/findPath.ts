@@ -11,7 +11,7 @@ export async function findPath(
   );
   let res: Response;
   try {
-    res = await apiFetch(`/paths?${query}`, { signal });
+    res = await apiFetch(`/directions?${query}`, { signal });
   } catch (error) {
     if (signal?.aborted) throw error;
     throw new RouteRequestError("unavailable", "Brak połączenia z serwerem.");

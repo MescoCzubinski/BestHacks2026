@@ -1,8 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type {
-  CandidateQuery,
-  PlaceCandidate,
-} from "../../common/bus/contracts";
+import type { CandidateQuery, PlaceCandidate } from "./place-candidate";
 import { PlaceRepository } from "../repositories/place.repository";
 import { VisitDurationService } from "./visit-duration.service";
 

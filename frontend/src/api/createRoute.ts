@@ -16,7 +16,7 @@ export async function createRoute(
 ): Promise<BuiltRoute> {
   let res: Response;
   try {
-    res = await apiFetch("/routes", {
+    res = await apiFetch("/places/plan", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(request),

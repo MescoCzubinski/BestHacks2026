@@ -46,7 +46,7 @@ frontend/src/
 
 ## Data and API
 
-- All HTTP goes through one typed client in `api/`, one function per endpoint. The base URL is the relative `/api`: frontend and backend are separate services behind one host, and the ingress (in prod) or the Vite dev proxy (in dev) routes `/` to the frontend and `/api` to the backend with an allowlist of public routes. So there is no CORS and no `VITE_API_URL`. The frontend image only serves static files (`serve`), with no proxy config.
+- All HTTP goes through one typed client in `api/`, one function per endpoint. The base URL is the relative `/api`: frontend and backend are separate services behind one host, and the ingress (in prod) or the Vite dev proxy (in dev, target `VITE_API_URL`) routes `/` to the frontend and `/api` to the backend. So there is no CORS and the built app has no backend URL baked in. The frontend image only serves static files (`serve`), with no proxy config.
 - API types mirror the backend response shapes.
 - Handle loading (skeletons), empty and error states for every fetched view. Update local state from the server response after a mutation.
 - Forms: labelled inputs, the same limits as the backend DTO, submit disabled while pending, errors shown next to the field.

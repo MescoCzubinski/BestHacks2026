@@ -18,7 +18,7 @@ MAX_TEXT_CHARS = 1000
 READY_TIMEOUT_S = 15 * 60
 READY_POLL_S = 5.0
 HEALTH_PATH = "/api/health"
-EMBEDDINGS_PATH = "/api/embeddings"
+EMBEDDINGS_PATH = "/internal/embeddings"
 
 
 def _key(text: str) -> str:

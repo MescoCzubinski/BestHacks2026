@@ -1,33 +1,34 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { LocationController } from "./handlers/location.controller";
 import { PlaceController } from "./handlers/place.controller";
-import { PlacesListener } from "./handlers/places.listener";
 import { PlaceTag } from "./entities/place-tag.entity";
 import { Place } from "./entities/place.entity";
 import { PlaceRepository } from "./repositories/place.repository";
-import { Geocoder } from "./services/geocoder";
-import { LocationReverseService } from "./services/location-reverse.service";
-import { LocationSearchService } from "./services/location-search.service";
-import { PhotonGeocoder } from "./services/photon-geocoder.service";
-import { PhotonLocationMapper } from "./services/photon-location-mapper.service";
+import { CandidateSelectionService } from "./services/candidate-selection.service";
+import { OpeningHoursService } from "./services/opening-hours.service";
+import { OrienteeringRoutePlanner } from "./services/orienteering-route-planner.service";
+import { OrienteeringService } from "./services/orienteering.service";
 import { PlaceCandidateService } from "./services/place-candidate.service";
 import { PlaceSearchService } from "./services/place-search.service";
+import { RouteBuilderService } from "./services/route-builder.service";
+import { RoutePlanner } from "./services/route-planner";
 import { VisitDurationService } from "./services/visit-duration.service";
+import { WalkingEstimateService } from "./services/walking-estimate.service";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Place, PlaceTag])],
-  controllers: [PlaceController, LocationController],
+  controllers: [PlaceController],
   providers: [
     PlaceRepository,
     PlaceSearchService,
     PlaceCandidateService,
     VisitDurationService,
-    PhotonLocationMapper,
-    LocationSearchService,
-    LocationReverseService,
-    PlacesListener,
-    { provide: Geocoder, useClass: PhotonGeocoder },
+    RouteBuilderService,
+    CandidateSelectionService,
+    OrienteeringService,
+    OpeningHoursService,
+    WalkingEstimateService,
+    { provide: RoutePlanner, useClass: OrienteeringRoutePlanner },
   ],
 })
 export class PlacesModule {}

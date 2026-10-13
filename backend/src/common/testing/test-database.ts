@@ -6,14 +6,19 @@ import { Client } from "pg";
 /** Superuser URL of a throwaway Postgres server; integration tests skip without it. */
 export const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL;
 
-const INIT_DIR = resolve(process.cwd(), "..", "db", "init");
-const SQL_FILES = ["01-schema.sql", "03-grants.sql"];
-const SERVICE_ROLES = ["backend_ro", "fetcher_rw"];
+/** The schema is owned by the fetcher, which applies it on every run. */
+const SCHEMA_FILE = resolve(
+  process.cwd(),
+  "..",
+  "fetcher",
+  "app",
+  "schema.sql",
+);
 
 export type TestDatabase = {
-  /** Connects as backend_ro, like the backend in production. */
+  /** The URL the backend under test connects with. */
   backendUrl: string;
-  /** Connects as the owner, to write fixtures the way the fetcher would. */
+  /** Writes fixtures the way the fetcher would. */
   query: (sql: string, params?: unknown[]) => Promise<unknown[]>;
   drop: () => Promise<void>;
 };
@@ -35,36 +40,25 @@ async function withClient<T>(
   }
 }
 
-/** A fresh database with the real schema and grants from db/init. */
+/** A fresh database with the real schema from the fetcher. */
 export async function createTestDatabase(): Promise<TestDatabase> {
   const adminUrl = TEST_DATABASE_URL;
   if (!adminUrl) throw new Error("TEST_DATABASE_URL is not set");
   const name = `atlas_test_${randomBytes(6).toString("hex")}`;
 
-  await withClient(adminUrl, async (admin) => {
-    for (const role of SERVICE_ROLES) {
-      await admin.query(
-        `DO $$ BEGIN CREATE ROLE ${role} NOLOGIN; EXCEPTION WHEN duplicate_object THEN NULL; END $$`,
-      );
-    }
-    await admin.query(`CREATE DATABASE ${name}`);
-  });
+  await withClient(adminUrl, (admin) => admin.query(`CREATE DATABASE ${name}`));
 
   const ownerUrl = new URL(adminUrl);
   ownerUrl.pathname = `/${name}`;
   await withClient(ownerUrl.toString(), async (owner) => {
-    for (const file of SQL_FILES) {
-      await owner.query(readFileSync(resolve(INIT_DIR, file), "utf-8"));
-    }
+    await owner.query(readFileSync(SCHEMA_FILE, "utf-8"));
   });
 
-  const backendUrl = new URL(ownerUrl);
-  backendUrl.searchParams.set("options", "-c role=backend_ro");
   const owner = new Client({ connectionString: ownerUrl.toString() });
   await owner.connect();
 
   return {
-    backendUrl: backendUrl.toString(),
+    backendUrl: ownerUrl.toString(),
     query: async (sql, params) => (await owner.query(sql, params)).rows,
     drop: async () => {
       await owner.end();

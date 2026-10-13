@@ -16,8 +16,6 @@ jobs:
             target: prod
           - image: frontend
             target: prod
-          - image: db
-            target: ""
           - image: fetcher
             target: ""
     steps:

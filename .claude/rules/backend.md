@@ -5,7 +5,7 @@ paths:
 
 # Backend rules (NestJS, vertical slices)
 
-The backend is the **single source of truth and control point for reads**: all business logic and all validation live here. It is a **read-only consumer of the database**: it never writes, creates or alters anything. Data is written only by the fetcher; the schema lives in `db/` (see `database.md`). The backend has no auth and is not published: it is reachable only inside the cluster network, through the ingress (public routes only) and by the fetcher directly.
+The backend is the **single source of truth and control point for reads**: all business logic and all validation live here. It is a **read-only consumer of the database**: it never writes, creates or alters anything. Data is written only by the fetcher, which also owns the schema (see `database.md`). The backend has no auth and is not published: it is reachable only inside the cluster network, through the ingress (`/api` only) and by the fetcher directly.
 
 ## Structure: vertical slice
 
@@ -16,7 +16,7 @@ src/
   main.ts                 bootstrap only
   app.module.ts           imports every slice module
   common/                 cross-cutting code only (auth, db setup, env, shared filters, the bus)
-  <slice>/                e.g. route/
+  <slice>/                location/, tag/, places/, directions/, health/
     <slice>.module.ts     slice root: module + integration test only
     <slice>.integration.spec.ts
     handlers/             application layer (see below)
@@ -27,7 +27,7 @@ src/
       <name>.service.spec.ts      unit test next to the service
     repositories/         ALL database reads
       <name>.repository.spec.ts   test next to the repository
-    entities/             TypeORM entities = read mappings of tables defined in db/
+    entities/             TypeORM entities = read mappings of tables in fetcher/app/schema.sql
     exceptions/           domain exceptions
 ```
 
@@ -35,15 +35,15 @@ src/
 
 1. **Handlers = application layer, nothing else.** A controller, its DTOs, guards and exception filters. Zero logic: no business `if`, no calculations, no mapping beyond HTTP ↔ one service call. A controller method is: validate (pipe/DTO) → call one service → return.
 2. **Services = 100% of the logic.** Every rule, calculation, decision, orchestration and mapping lives here. Single responsibility, SOLID (below). Services never touch `Request`/`Response`, `Repository<T>` or `EntityManager`; they use repositories.
-3. **Repositories = database reads only.** Query the database and return plain typed data, nothing more: no business rules, no calls to services, no writes (the DB role cannot write anyway). Only repositories inject `Repository<T>`/`DataSource`.
+3. **Repositories = database reads only.** Query the database and return plain typed data, nothing more: no business rules, no calls to services, no writes. Only repositories inject `Repository<T>`/`DataSource`.
 
 ## Slices are isolated
 
 - **A slice never calls another slice.** No importing another slice's service, repository, entity or module, and no calling its methods. A slice may import only from itself, `common/` and npm packages.
 - Slices talk only through the **bus** (`common/bus/`), one injectable `EventBus` with two typed mechanisms. The contracts (`Events`, `Requests`) are declared once in `common/bus/` and are the only thing slices share:
-  - **Request/reply** when A needs data to build its answer. `const bbox = await bus.request("city.bbox", { cityId })`. Exactly one slice registers a responder with `bus.respond("city.bbox", handler)`; a request with no responder or a failing responder rejects (domain exception).
+  - **Request/reply** when A needs data to build its answer. `await bus.request("location.ensure-inside", { points })`. Exactly one slice registers a responder with `bus.respond("location.ensure-inside", handler)`; a request with no responder or a failing responder rejects (domain exception).
   - **Event** when A announces a fact and does not care who reacts. Fire-and-forget: `bus.emit("session.created", code)`.
-- Request/event names are `<aggregate>.<what>` (`city.bbox`) or `<aggregate>.<past-tense-fact>` (`session.created`). Payloads and replies are plain data (ids, primitives, plain objects), never entities.
+- Request/event names are `<aggregate>.<what>` (`directions.route`) or `<aggregate>.<past-tense-fact>` (`session.created`). Payloads and replies are plain data (ids, primitives, plain objects), never entities.
 - The emitting/requesting slice calls the bus from a **service**. The receiving slice registers responders and subscribes in `handlers/<name>.listener.ts`, which only delegates to one service (zero logic, like a controller).
 - Types used by two slices (e.g. `LatLng`, `StyleTag`) live in `common/`, never imported from a slice.
 - DTOs live in `handlers/dto/` and never leave the HTTP layer: services take plain typed inputs.
@@ -60,17 +60,17 @@ src/
 ## Control over everything
 
 - Every environment variable is read and validated in one place (`common/env.ts` + `ConfigService`). Missing config fails at boot.
-- There are no users, no JWT and no service tokens. The backend publishes no port; the ingress (Vite dev proxy locally) routes `/api` to it and forwards **only an allowlist of public routes** (`/api/places`, `/api/routes`, `/api/tags`, `/api/embeddings/warmup`, ...). Internal routes (bulk `POST /api/embeddings` for the fetcher) are not in the allowlist, so they are reachable only inside the cluster. The global throttler (rate limit) covers every endpoint, expensive ones (route planning, embeddings) get a stricter limit, and `trust proxy` is on so limits use the real client IP from `X-Forwarded-For`.
-- Heavy resources (the embedding model) load **lazily** on first use or on an explicit `POST /api/embeddings/warmup` that the frontend calls when a session starts, and unload after an idle TTL (a named constant with a unit comment). Loading and unloading live in one lifecycle service, separate from the embedding logic.
+- There are no users, no JWT and no service tokens. The backend publishes no port; the ingress (Vite dev proxy locally) routes `/api` to it. **One URL prefix per slice:** `/api/locations`, `/api/tags`, `/api/places` (search and `POST /api/places/plan`), `/api/directions`, `/api/health`. The only internal route is the fetcher's bulk `POST /internal/embeddings`, excluded from the `/api` prefix, so the ingress never routes it and it is reachable only inside the cluster. The global throttler (rate limit) covers every endpoint, expensive ones (route planning, embeddings) get a stricter limit, and `trust proxy` is on so limits use the real client IP from `X-Forwarded-For`.
+- Heavy resources (the embedding model) load **lazily** on first use or on an explicit `POST /api/tags/warmup` that the frontend calls when a session starts, and unload after an idle TTL (a named constant with a unit comment). Loading and unloading live in one lifecycle service, separate from the embedding logic.
 - Every request body and query has a DTO (in `handlers/dto/`) with a whitelist. Unknown fields are stripped or rejected. Never trust input from the frontend or the fetcher.
 - Return plain response shapes (not raw entities when they contain internal fields).
 - External calls (APIs, AI providers) go through one service per integration so they can be mocked, rate limited and logged.
 
-## Database: read-only, schema lives in db/
+## Database: read-only, schema owned by the fetcher
 
-- The backend connects as the `backend_ro` role (`SELECT` only). Writes are impossible by permission, not just by convention: no `save`, `insert`, `update`, `delete` in the backend.
-- **The schema and the roles are defined in `db/init/*.sql`**, applied by Postgres on the first start of the volume. Entities only **map** existing tables; `synchronize` is off. Entity and SQL must agree: the integration tests run against the real schema from `db/`.
-- **No migrations.** MVP with no production data. A schema change means editing `db/init/` and the entity, then resetting the `pgdata` volume.
+- The backend only reads: no `save`, `insert`, `update`, `delete`. In the cluster its database user (from Kubernetes) has `SELECT` only.
+- **The schema is `fetcher/app/schema.sql`**, applied by the fetcher on every run. Entities only **map** existing tables; `synchronize` is off. Entity and SQL must agree: the integration tests run against that real schema.
+- **No migrations.** MVP. A schema change means editing `fetcher/app/schema.sql` and the entity together.
 - Each slice registers its entities with `TypeOrmModule.forFeature([...])`. `autoLoadEntities` is on.
 - The backend has no seed. Demo and real data come only from the fetcher.
 - Details of the data model (document style on Postgres) are in `database.md`.

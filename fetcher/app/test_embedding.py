@@ -21,7 +21,7 @@ class FakeHttp:
         return {"status": "ok"}
 
     def post_json(self, url, payload, headers=None):
-        assert url.endswith("/api/embeddings")
+        assert url.endswith("/internal/embeddings")
         self.headers = dict(headers or {})
         self.posts.append(payload["texts"])
         return {"dimensions": 2, "vectors": [[float(len(t)), 1.0] for t in payload["texts"]]}
