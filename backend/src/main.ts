@@ -1,11 +1,15 @@
 import { Logger, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
 
+const TRUSTED_PROXY_HOPS = 1; // the ingress (or the Vite dev proxy) in front of the API
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.set("trust proxy", TRUSTED_PROXY_HOPS);
 
   const http = new Logger("HTTP");
   app.use((req: Request, res: Response, next: NextFunction) => {

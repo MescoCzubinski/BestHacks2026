@@ -1,11 +1,9 @@
-import { Body, Controller, HttpCode, Post, UseGuards } from "@nestjs/common";
-import { Public } from "../../common/auth/decorators";
-import { ServiceTokenGuard } from "../../common/auth/service-token.guard";
+import { Body, Controller, HttpCode, Post } from "@nestjs/common";
+import { InternalRateLimit } from "../../common/rate-limit/rate-limit";
 import { EmbeddingService } from "../services/embedding.service";
 import { EmbedTextsDto } from "./dto/embed-texts.dto";
 
-@Public()
-@UseGuards(ServiceTokenGuard)
+@InternalRateLimit()
 @Controller("embeddings")
 export class EmbeddingController {
   constructor(private readonly embeddings: EmbeddingService) {}

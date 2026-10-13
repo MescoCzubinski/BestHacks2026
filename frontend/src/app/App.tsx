@@ -1,13 +1,10 @@
 import { useEffect, useRef } from "react";
 import Landing from "@/pages/landing";
-import Login from "@/pages/login";
 import Plan from "@/pages/plan";
-import { useSession } from "@/shared/auth";
-import { href, useRoute, type Route } from "@/shared/lib/route";
+import { useRoute, type Route } from "@/shared/lib/route";
 
 const TITLES: Record<Route, string> = {
   landing: "Atlas | Trasy spacerowe po Twoich zainteresowaniach",
-  login: "Atlas | Logowanie",
   plan: "Atlas | Zaplanuj podróż",
 };
 
@@ -16,14 +13,8 @@ function focusMain() {
 }
 
 export default function App() {
-  const requested = useRoute();
-  const session = useSession();
-  const route: Route = requested === "plan" && !session ? "login" : requested;
+  const route = useRoute();
   const prevRoute = useRef(route);
-
-  useEffect(() => {
-    if (route !== requested) window.location.hash = href(route);
-  }, [route, requested]);
 
   useEffect(() => {
     document.title = TITLES[route];
@@ -43,13 +34,7 @@ export default function App() {
       >
         Przejdź do treści
       </a>
-      {route === "login" ? (
-        <Login />
-      ) : route === "plan" ? (
-        <Plan />
-      ) : (
-        <Landing />
-      )}
+      {route === "plan" ? <Plan /> : <Landing />}
     </>
   );
 }

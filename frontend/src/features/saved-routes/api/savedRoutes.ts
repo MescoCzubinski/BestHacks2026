@@ -1,5 +1,4 @@
 import type { RoutePoint, RouteStop } from "@/entities/route";
-import { apiFetch } from "@/shared/api";
 
 export type SavedStop = {
   id: string;
@@ -22,6 +21,7 @@ export type SavedRoute = {
 };
 
 export type NewSavedRoute = {
+  title: string;
   tags: string[];
   durationMinutes: number;
   start: RoutePoint;
@@ -29,29 +29,40 @@ export type NewSavedRoute = {
   stops: RouteStop[];
 };
 
-export async function listSavedRoutes(
-  signal?: AbortSignal,
-): Promise<SavedRoute[]> {
-  const res = await apiFetch("/saved-routes", { signal });
-  if (!res.ok) throw new Error(`Saved routes request failed: ${res.status}`);
-  return res.json();
+const STORAGE_KEY = "atlas.recent-routes";
+const MAX_ROUTES = 50;
+
+export function listSavedRoutes(): SavedRoute[] {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? (parsed as SavedRoute[]) : [];
+  } catch {
+    return [];
+  }
 }
 
-export async function saveRoute(route: NewSavedRoute): Promise<SavedRoute> {
-  const res = await apiFetch("/saved-routes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ...route,
-      stops: route.stops.map(({ id, name, lat, lng, visitMinutes }) => ({
-        id,
-        name,
-        lat,
-        lng,
-        visitMinutes,
-      })),
-    }),
-  });
-  if (!res.ok) throw new Error(`Saving the route failed: ${res.status}`);
-  return res.json();
+export function saveRoute(route: NewSavedRoute): SavedRoute {
+  const saved: SavedRoute = {
+    id: crypto.randomUUID(),
+    title: route.title,
+    city: null,
+    date: new Date().toISOString(),
+    tags: route.tags,
+    durationMinutes: route.durationMinutes,
+    start: route.start,
+    end: route.end,
+    stops: route.stops.map(({ id, name, lat, lng, visitMinutes }) => ({
+      id,
+      name,
+      lat,
+      lng,
+      visitMinutes,
+    })),
+  };
+  try {
+    const routes = [saved, ...listSavedRoutes()].slice(0, MAX_ROUTES);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(routes));
+  } catch {}
+  return saved;
 }

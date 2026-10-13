@@ -40,7 +40,6 @@ class Settings:
     run_once: bool
     export_path: Path | None
     backend_url: str
-    embedding_token: str
     health_port: int = 8000
 
 
@@ -73,5 +72,4 @@ def load_settings(env: dict[str, str] | None = None) -> Settings:
         run_once=env.get("RUN_ONCE", "") in ("1", "true", "yes"),
         export_path=Path(export) if export else None,
         backend_url=env.get("BACKEND_URL", "http://backend:8000").rstrip("/"),
-        embedding_token=env["EMBEDDING_API_TOKEN"],
     )

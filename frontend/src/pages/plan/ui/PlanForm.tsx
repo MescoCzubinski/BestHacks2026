@@ -1,4 +1,3 @@
-import { LogOut } from "lucide-react";
 import { Logo } from "@/shared/logo";
 import { InterestTags } from "@/features/pick-interests";
 import { LocationField } from "@/features/pick-location";
@@ -18,7 +17,6 @@ type Props = {
   error: string;
   submitLabel: string;
   onShowHistory: () => void;
-  onLogout: () => void;
 };
 
 export function PlanForm({
@@ -29,7 +27,6 @@ export function PlanForm({
   error,
   submitLabel,
   onShowHistory,
-  onLogout,
 }: Props) {
   const problem = formProblem(value);
   const patch = (changes: Partial<PlanFormState>) =>
@@ -49,16 +46,6 @@ export function PlanForm({
           >
             <span className="sm:hidden">Historia</span>
             <span className="max-sm:hidden">Poprzednie trasy</span>
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            aria-label="Wyloguj"
-            onClick={onLogout}
-          >
-            <LogOut aria-hidden="true" />
-            <span className="max-sm:hidden">Wyloguj</span>
           </Button>
         </div>
       </div>

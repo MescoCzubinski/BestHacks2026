@@ -56,7 +56,7 @@ export default function Landing() {
 
           <div>
             <Button asChild size="xl" className="w-full shadow-brand sm:w-auto">
-              <a href={href("login")}>
+              <a href={href("plan")}>
                 Użyj w przeglądarce <ArrowRight />
               </a>
             </Button>

@@ -14,8 +14,8 @@ def test_region_id_is_safe_for_sql_like_patterns_and_paths():
     assert all(c.isalnum() or c in "_-" for c in REGION.id)
 
 
-def test_settings_use_the_built_in_region_and_need_the_database_and_embedding_token():
-    s = load_settings({"DB_URL": "postgresql://x", "EMBEDDING_API_TOKEN": "t"})
+def test_settings_use_the_built_in_region_and_need_the_database():
+    s = load_settings({"DB_URL": "postgresql://x"})
     assert s.region is REGION
     assert "osm" in s.sources
     assert s.backend_url == "http://backend:8000"
@@ -23,18 +23,10 @@ def test_settings_use_the_built_in_region_and_need_the_database_and_embedding_to
         load_settings({})
 
 
-def test_each_required_variable_is_enforced_on_its_own():
-    with pytest.raises(KeyError):
-        load_settings({"DB_URL": "postgresql://x"})
-    with pytest.raises(KeyError):
-        load_settings({"EMBEDDING_API_TOKEN": "t"})
-
-
 def test_optional_variables_override_the_defaults():
     s = load_settings(
         {
             "DB_URL": "postgresql://x",
-            "EMBEDDING_API_TOKEN": "t",
             "SOURCES": "osm, wroclaw_gis,",
             "BACKEND_URL": "http://localhost:8000/",
             "RUN_ONCE": "1",
@@ -50,7 +42,7 @@ def test_optional_variables_override_the_defaults():
 
 
 def test_defaults_do_not_run_once_or_export():
-    s = load_settings({"DB_URL": "postgresql://x", "EMBEDDING_API_TOKEN": "t"})
+    s = load_settings({"DB_URL": "postgresql://x"})
     assert s.run_once is False
     assert s.export_path is None
     assert s.interval_s == 7 * 24 * 3600

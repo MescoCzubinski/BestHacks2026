@@ -1,10 +1,4 @@
-export type DomainErrorKind =
-  | "invalid"
-  | "unauthorized"
-  | "forbidden"
-  | "not_found"
-  | "conflict"
-  | "unavailable";
+export type DomainErrorKind = "invalid" | "not_found" | "unavailable";
 
 export abstract class DomainException extends Error {
   constructor(

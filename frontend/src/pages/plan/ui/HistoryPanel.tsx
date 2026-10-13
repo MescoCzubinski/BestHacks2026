@@ -22,7 +22,7 @@ type Props = {
 export function HistoryPanel({ onBack }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const { tags } = useTags();
-  const { routes, status } = useSavedRoutes();
+  const { routes } = useSavedRoutes();
   const tagLabel = (id: string) => tags.find((t) => t.id === id)?.label ?? id;
 
   return (
@@ -40,17 +40,7 @@ export function HistoryPanel({ onBack }: Props) {
           </Button>
         )}
       </div>
-      {status === "loading" && (
-        <p role="status" className="text-sm text-muted-foreground">
-          Wczytujemy Twoje trasy…
-        </p>
-      )}
-      {status === "error" && (
-        <p role="alert" className="text-sm text-destructive">
-          Nie udało się wczytać poprzednich tras.
-        </p>
-      )}
-      {status === "ready" && routes.length === 0 && (
+      {routes.length === 0 && (
         <p className="text-sm text-muted-foreground">
           Nie masz jeszcze zapisanych tras. Zaakceptowane trasy pojawią się
           tutaj.

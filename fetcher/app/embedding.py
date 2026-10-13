@@ -26,10 +26,9 @@ def _key(text: str) -> str:
 
 
 class BackendEmbedder:
-    def __init__(self, http: Http, base_url: str, token: str, stop: threading.Event, cache_path: Path | None = None) -> None:
+    def __init__(self, http: Http, base_url: str, stop: threading.Event, cache_path: Path | None = None) -> None:
         self._http = http
         self._base = base_url.rstrip("/")
-        self._headers = {"Authorization": f"Bearer {token}"}
         self._stop = stop
         self._cache_path = cache_path
 
@@ -58,7 +57,7 @@ class BackendEmbedder:
             if i and self._stop.wait(BATCH_PAUSE_S):
                 raise InterruptedError("shutdown requested")
             batch = items[i : i + BATCH_SIZE]
-            body: Any = self._http.post_json(self._base + EMBEDDINGS_PATH, {"texts": [t for _, t in batch]}, headers=self._headers)
+            body: Any = self._http.post_json(self._base + EMBEDDINGS_PATH, {"texts": [t for _, t in batch]})
             got = body["vectors"]
             if len(got) != len(batch):
                 raise ValueError(f"backend returned {len(got)} vectors for {len(batch)} texts")

@@ -25,7 +25,7 @@ docker compose run --rm -e RUN_ONCE=1 fetcher
 
 Downloads and geocoding results live in the `fetchercache` volume, so a restart or a
 rate-limited source resumes instead of starting over. Embeddings for the style classifier come from the backend
-(`POST /api/embeddings`, service token `EMBEDDING_API_TOKEN`); the fetcher waits for `/api/health` first. Delete a file under `/cache/<region>/` to refetch it.
+(`POST /api/embeddings`, internal, reachable only inside the Docker network); the fetcher waits for `/api/health` first. Delete a file under `/cache/<region>/` to refetch it.
 
 ## Pipeline
 
