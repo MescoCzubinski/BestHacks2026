@@ -1,8 +1,7 @@
 import type { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { createTestApp } from "../common/testing/test-app";
-import { EmbeddingUnavailableException } from "./exceptions/embedding-unavailable.exception";
-import { Embedder } from "./services/embedder";
+import { EmbeddingModelLoader } from "./services/embedding-model";
 import { TagModule } from "./tag.module";
 
 const GOTHIC = [1, 0, 0];
@@ -15,16 +14,30 @@ describe("tag slice", () => {
     ),
   );
 
+  const load = jest.fn(async () => ({
+    embed,
+    dispose: async () => undefined,
+  }));
+
   beforeAll(async () => {
     app = await createTestApp({
       imports: [TagModule],
       env: { EMBEDDING_MODEL: "test-model" },
-      override: (b) => b.overrideProvider(Embedder).useValue({ embed }),
+      override: (b) =>
+        b.overrideProvider(EmbeddingModelLoader).useValue({ load }),
     });
   });
 
   afterAll(async () => {
     await app?.close();
+  });
+
+  it("warms the model up on request without waiting for it", async () => {
+    expect(load).not.toHaveBeenCalled();
+    await request(app.getHttpServer())
+      .post("/api/embeddings/warmup")
+      .expect(202);
+    expect(load).toHaveBeenCalledTimes(1);
   });
 
   it("lists the tags with groups and Polish labels", async () => {
@@ -67,7 +80,7 @@ describe("tag slice", () => {
   });
 
   it("maps a model failure to 502", async () => {
-    embed.mockRejectedValueOnce(new EmbeddingUnavailableException());
+    embed.mockRejectedValueOnce(new Error("onnx crashed"));
     await request(app.getHttpServer())
       .post("/api/embeddings")
       .send({ texts: ["a"] })
