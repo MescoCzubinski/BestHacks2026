@@ -9,10 +9,7 @@ export default defineConfig({
   server: {
     host: true,
     proxy: {
-      "/api": {
-        target: process.env.VITE_API_URL ?? "http://localhost:8000",
-        xfwd: true,
-      },
+      "/api": process.env.VITE_API_URL ?? "http://localhost:8000",
     },
   },
 });

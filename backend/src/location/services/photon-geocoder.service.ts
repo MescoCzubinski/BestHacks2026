@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import type { Bbox } from "../../common/types/geo";
+import type { Bbox } from "./geo";
 import { GeocoderUnavailableException } from "../exceptions/geocoder-unavailable.exception";
 import { Geocoder, type GeocodedLocation } from "./geocoder";
 import {

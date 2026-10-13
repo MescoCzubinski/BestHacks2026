@@ -2,7 +2,7 @@ import type { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { EventBus } from "../common/bus/event-bus";
 import { DomainException } from "../common/errors/domain.exception";
-import type { LatLng } from "../common/types/geo";
+import type { LatLng } from "./services/geo";
 import { createTestApp } from "../common/testing/test-app";
 import {
   createTestDatabase,

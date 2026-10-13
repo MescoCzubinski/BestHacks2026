@@ -6,12 +6,10 @@ const INTERNAL_EMBEDDINGS = {
   path: "internal/embeddings",
   method: RequestMethod.POST,
 };
-const TRUSTED_PROXY_HOPS = 1; // the ingress (or the Vite dev proxy) in front of the API
 
 export function configureApp(app: NestExpressApplication): void {
-  app.set("trust proxy", TRUSTED_PROXY_HOPS);
   app.use(helmet());
-  app.setGlobalPrefix("api", { exclude: [INTERNAL_EMBEDDINGS] }); // /internal is never routed by the ingress
+  app.setGlobalPrefix("api", { exclude: [INTERNAL_EMBEDDINGS] });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

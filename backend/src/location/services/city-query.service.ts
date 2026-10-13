@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { LatLng } from "../../common/types/geo";
+import type { LatLng } from "./geo";
 import { bboxContains } from "./bbox";
 import { OutsideSupportedAreaException } from "../exceptions/outside-supported-area.exception";
 import {

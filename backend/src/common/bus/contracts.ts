@@ -1,4 +1,4 @@
-import type { LatLng } from "../types/geo";
+type LatLng = { lat: number; lng: number };
 
 export type RequestContract = { payload: unknown; reply: unknown };
 
@@ -9,9 +9,7 @@ export type RoutedPath = {
 };
 
 export type Requests = {
-  /** Rejects (invalid) when any point lies outside every supported city. */
   "location.ensure-inside": { payload: { points: LatLng[] }; reply: void };
-  /** A walking path through the points, in order. */
   "directions.route": { payload: { points: LatLng[] }; reply: RoutedPath };
 };
 

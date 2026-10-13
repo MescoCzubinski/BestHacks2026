@@ -1,5 +1,4 @@
 import { Controller, Get, HttpCode, Post, Query } from "@nestjs/common";
-import { ExpensiveRateLimit } from "../../common/rate-limit/rate-limit";
 import { EmbeddingModelLifecycle } from "../services/embedding-model-lifecycle.service";
 import { TagMatcherService } from "../services/tag-matcher.service";
 import { TagQueryService } from "../services/tag-query.service";
@@ -19,7 +18,6 @@ export class TagController {
   }
 
   @Get("match")
-  @ExpensiveRateLimit()
   match(@Query() dto: MatchTagsDto) {
     return this.matcher.match(dto.text);
   }
@@ -27,7 +25,6 @@ export class TagController {
   /** The frontend calls it when a session starts so matching is fast later. */
   @Post("warmup")
   @HttpCode(202)
-  @ExpensiveRateLimit()
   warmup(): void {
     this.model.warmup();
   }

@@ -1,4 +1,4 @@
-import type { Bbox } from "../../common/types/geo";
+import type { Bbox } from "./geo";
 
 export function bboxContains(bbox: Bbox, lat: number, lng: number): boolean {
   const [minLng, minLat, maxLng, maxLat] = bbox;

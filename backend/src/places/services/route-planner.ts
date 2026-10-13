@@ -1,4 +1,4 @@
-import type { LatLng } from "../../common/types/geo";
+import type { LatLng } from "./geo";
 import type { StyleTag } from "../../common/types/style-tag";
 
 export type RouteQuery = {

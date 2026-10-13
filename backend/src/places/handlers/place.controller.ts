@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import { ExpensiveRateLimit } from "../../common/rate-limit/rate-limit";
 import { PlaceSearchService } from "../services/place-search.service";
 import { RouteBuilderService } from "../services/route-builder.service";
 import { CreateRouteDto } from "./dto/create-route.dto";
@@ -18,7 +17,6 @@ export class PlaceController {
   }
 
   @Post("plan")
-  @ExpensiveRateLimit()
   plan(@Body() dto: CreateRouteDto) {
     return this.builder.build(dto.toQuery());
   }

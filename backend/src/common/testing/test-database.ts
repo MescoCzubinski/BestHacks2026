@@ -3,10 +3,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { Client } from "pg";
 
-/** Superuser URL of a throwaway Postgres server; integration tests skip without it. */
 export const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL;
 
-/** The schema is owned by the fetcher, which applies it on every run. */
 const SCHEMA_FILE = resolve(
   process.cwd(),
   "..",
@@ -16,9 +14,7 @@ const SCHEMA_FILE = resolve(
 );
 
 export type TestDatabase = {
-  /** The URL the backend under test connects with. */
   backendUrl: string;
-  /** Writes fixtures the way the fetcher would. */
   query: (sql: string, params?: unknown[]) => Promise<unknown[]>;
   drop: () => Promise<void>;
 };
@@ -40,7 +36,6 @@ async function withClient<T>(
   }
 }
 
-/** A fresh database with the real schema from the fetcher. */
 export async function createTestDatabase(): Promise<TestDatabase> {
   const adminUrl = TEST_DATABASE_URL;
   if (!adminUrl) throw new Error("TEST_DATABASE_URL is not set");

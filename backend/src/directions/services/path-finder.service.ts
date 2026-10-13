@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import type { RoutedPath } from "../../common/bus/contracts";
 import { EventBus } from "../../common/bus/event-bus";
-import type { LatLng } from "../../common/types/geo";
+import type { LatLng } from "./geo";
 import { PathRouter } from "./path-router";
 
 @Injectable()

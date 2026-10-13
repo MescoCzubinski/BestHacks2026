@@ -1,4 +1,4 @@
-import type { LatLng } from "../../common/types/geo";
+import type { LatLng } from "./geo";
 import type { PlaceCandidate } from "./place-candidate";
 
 export type Accessibility = "yes" | "limited" | "unknown";

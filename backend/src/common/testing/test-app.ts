@@ -15,7 +15,6 @@ type Options = {
   override?: (builder: TestingModuleBuilder) => TestingModuleBuilder;
 };
 
-/** The slice under test with the real global wiring (bus, filter, pipes), optionally on a real database. */
 export async function createTestApp({
   imports = [],
   databaseUrl,

@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
-import type { Bbox } from "../../common/types/geo";
+import type { Bbox } from "../services/geo";
 
 @Entity("supported_cities")
 export class City {

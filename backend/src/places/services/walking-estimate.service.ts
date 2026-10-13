@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import type { LatLng } from "../../common/types/geo";
+import type { LatLng } from "./geo";
 
 const EARTH_RADIUS_M = 6_371_000;
 export const DETOUR_FACTOR = 1.3;

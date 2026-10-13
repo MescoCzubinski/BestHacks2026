@@ -45,7 +45,7 @@ src/
   - **Event** when A announces a fact and does not care who reacts. Fire-and-forget: `bus.emit("session.created", code)`.
 - Request/event names are `<aggregate>.<what>` (`directions.route`) or `<aggregate>.<past-tense-fact>` (`session.created`). Payloads and replies are plain data (ids, primitives, plain objects), never entities.
 - The emitting/requesting slice calls the bus from a **service**. The receiving slice registers responders and subscribes in `handlers/<name>.listener.ts`, which only delegates to one service (zero logic, like a controller).
-- Types used by two slices (e.g. `LatLng`, `StyleTag`) live in `common/`, never imported from a slice.
+- Small shapes and DTOs (`LatLng`, `Bbox`, `PointDto`) are **duplicated in each slice** that needs them, never shared through `common/`. Only `StyleTag` (mirrors the schema enum) and the bus contracts live there. `common/` has no tests.
 - DTOs live in `handlers/dto/` and never leave the HTTP layer: services take plain typed inputs.
 
 ## Services: SOLID, above all single responsibility
@@ -60,11 +60,11 @@ src/
 ## Control over everything
 
 - Every environment variable is read and validated in one place (`common/env.ts` + `ConfigService`). Missing config fails at boot.
-- There are no users, no JWT and no service tokens. The backend publishes no port; the ingress (Vite dev proxy locally) routes `/api` to it. **One URL prefix per slice:** `/api/locations`, `/api/tags`, `/api/places` (search and `POST /api/places/plan`), `/api/directions`, `/api/health`. The only internal route is the fetcher's bulk `POST /internal/embeddings`, excluded from the `/api` prefix, so the ingress never routes it and it is reachable only inside the cluster. The global throttler (rate limit) covers every endpoint, expensive ones (route planning, embeddings) get a stricter limit, and `trust proxy` is on so limits use the real client IP from `X-Forwarded-For`.
+- There are no users, no JWT and no service tokens. The backend publishes no port; the ingress (Vite dev proxy locally) routes `/api` to it. **One URL prefix per slice:** `/api/locations`, `/api/tags`, `/api/places` (search and `POST /api/places/plan`), `/api/directions`, `/api/health`. The only internal route is the fetcher's bulk `POST /internal/embeddings`, excluded from the `/api` prefix, so the ingress never routes it and it is reachable only inside the cluster. There is no rate limiting in the backend; if needed it is configured on the ingress.
 - Heavy resources (the embedding model) load **lazily** on first use or on an explicit `POST /api/tags/warmup` that the frontend calls when a session starts, and unload after an idle TTL (a named constant with a unit comment). Loading and unloading live in one lifecycle service, separate from the embedding logic.
 - Every request body and query has a DTO (in `handlers/dto/`) with a whitelist. Unknown fields are stripped or rejected. Never trust input from the frontend or the fetcher.
 - Return plain response shapes (not raw entities when they contain internal fields).
-- External calls (APIs, AI providers) go through one service per integration so they can be mocked, rate limited and logged.
+- External calls (APIs, AI providers) go through one service per integration so they can be mocked and logged.
 
 ## Database: read-only, schema owned by the fetcher
 
@@ -80,7 +80,7 @@ src/
 - DTOs (`handlers/dto/`) use `class-validator` with `!` on each field; `Update…Dto` is `PartialType(Create…Dto)`. Global `ValidationPipe({ whitelist: true, transform: true })`. Every string gets a `MaxLength`.
 - **Use exception filters.** Services throw framework-free domain exceptions (`extends DomainException` from `common/errors/`, with a `kind`: `invalid`, `not_found`, `unavailable`), one per file in the slice's `exceptions/`. A global `DomainExceptionFilter` (registered with `APP_FILTER`) maps them to HTTP status and a uniform `{ statusCode, error, message }` body. Services and controllers never build HTTP responses or throw `HttpException` for business cases.
 - Add a further `@Catch()` filter in `common/errors/` when a new class of error needs its own mapping (e.g. external API failures to 502), instead of try/catch in controllers.
-- Status codes: 400 invalid, 404 missing, 429 rate limited, 502/503 upstream unavailable (the filter's mapping is the single source).
+- Status codes: 400 invalid, 404 missing, 502/503 upstream unavailable (the filter's mapping is the single source).
 
 ## REST conventions
 
