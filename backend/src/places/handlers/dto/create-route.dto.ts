@@ -13,7 +13,7 @@ import {
 } from "class-validator";
 import { PointDto } from "./point.dto";
 import { STYLE_TAGS, type StyleTag } from "../../../common/types/style-tag";
-import type { RouteQuery } from "../../services/route-planner";
+import type { RouteQuery } from "../../services/types";
 
 const MIN_DURATION = 15;
 const MAX_DURATION = 720;

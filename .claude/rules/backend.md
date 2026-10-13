@@ -23,8 +23,9 @@ src/
       <slice>.controller.ts
       dto/                create-/update-/query- DTOs (class-validator)
       guards/, filters/   slice-specific only; global ones live in common/
-    services/             ALL business logic, one class per responsibility
+    services/             ALL business logic: usually one <slice>.service.ts, plus a <name>.client.ts per external API
       <name>.service.spec.ts      unit test next to the service
+      types.ts, <pure>.ts         shared slice types; pure logic as plain functions (no class, no DI)
     repositories/         ALL database reads
       <name>.repository.spec.ts   test next to the repository
     entities/             TypeORM entities = read mappings of tables in fetcher/app/schema.sql
@@ -34,7 +35,7 @@ src/
 ## Layers (one-directional: handler → service → repository)
 
 1. **Handlers = application layer, nothing else.** A controller, its DTOs, guards and exception filters. Zero logic: no business `if`, no calculations, no mapping beyond HTTP ↔ one service call. A controller method is: validate (pipe/DTO) → call one service → return.
-2. **Services = 100% of the logic.** Every rule, calculation, decision, orchestration and mapping lives here. Single responsibility, SOLID (below). Services never touch `Request`/`Response`, `Repository<T>` or `EntityManager`; they use repositories.
+2. **Services = 100% of the logic.** Every rule, calculation, decision, orchestration and mapping lives here (see below). Services never touch `Request`/`Response`, `Repository<T>` or `EntityManager`; they use repositories.
 3. **Repositories = database reads only.** Query the database and return plain typed data, nothing more: no business rules, no calls to services, no writes. Only repositories inject `Repository<T>`/`DataSource`.
 
 ## Slices are isolated
@@ -48,14 +49,13 @@ src/
 - Small shapes and DTOs (`LatLng`, `Bbox`, `PointDto`) are **duplicated in each slice** that needs them, never shared through `common/`. Only `StyleTag` (mirrors the schema enum) and the bus contracts live there. `common/` has no tests.
 - DTOs live in `handlers/dto/` and never leave the HTTP layer: services take plain typed inputs.
 
-## Services: SOLID, above all single responsibility
+## Services: few and cohesive
 
-- **One service = one reason to change.** Do not build a god `XService`. Split by responsibility, e.g. `PlaceQueryService` (reads), `RoutePlannerService` (the algorithm), `RouteDistanceService` (geometry), `PlaceImportService` (loading external data).
-- A service may inject other services of the same slice (never from another slice). Dependencies form an acyclic graph: higher-level services call lower-level ones, never back up. The controller calls the one service that implements the use case.
-- Depend on abstractions you can swap or mock (inject providers, use `InjectionToken`/interfaces for external APIs, AI and geocoding); never `new` a collaborator inside a service.
-- Open/closed: extend behaviour with a new provider/strategy (e.g. a new interest or scoring strategy) instead of growing `if/else` chains.
+- **One service per slice by default** (`LocationService`, `TagService`, `DirectionsService`). Split only when a service would grow past ~500 lines, along a clear seam (`places` has `PlaceService` for reading places and `PlanService` for planning). Do not split into one class per small responsibility.
+- **One client class per external API or heavy resource** (`PhotonClient`, `GraphHopperClient`, `EmbeddingModel`): it owns the HTTP/model calls and maps their responses, so tests can swap it. No abstract class or token in front of it while there is only one implementation.
+- **Pure logic is plain exported functions** (`orienteering.ts`, `opening-hours.ts`, `walkMinutes`, `rankTags`), not injectable classes.
+- A service may inject other services and clients of the same slice (never from another slice); dependencies form an acyclic graph. The controller calls the service that implements the use case. Never `new` a collaborator inside a service.
 - Keep services free of HTTP concerns (`Request`, status codes); they throw domain exceptions (handled by the exception filter).
-- Keep pure logic (scoring, route fitting, distance) in pure functions or small classes so it is trivially unit-testable.
 
 ## Control over everything
 
@@ -64,7 +64,7 @@ src/
 - Heavy resources (the embedding model) load **lazily** on first use or on an explicit `POST /api/tags/warmup` that the frontend calls when a session starts, and unload after an idle TTL (a named constant with a unit comment). Loading and unloading live in one lifecycle service, separate from the embedding logic.
 - Every request body and query has a DTO (in `handlers/dto/`) with a whitelist. Unknown fields are stripped or rejected. Never trust input from the frontend or the fetcher.
 - Return plain response shapes (not raw entities when they contain internal fields).
-- External calls (APIs, AI providers) go through one service per integration so they can be mocked and logged.
+- External calls (APIs, AI providers) go through one client per integration so they can be mocked and logged.
 
 ## Database: read-only, schema owned by the fetcher
 
@@ -96,7 +96,7 @@ The backend only reads: `GET /places` (200, list), `GET /places/:id` (200). `POS
 
 Hackathon pace, but the backend is where correctness matters. Tests are **colocated with the code they test**. No coverage percentage targets: test what has logic.
 
-- **Services: unit tests**, one `<name>.service.spec.ts` per service next to it. Collaborators (repositories, bus, external clients) are mocked. Cover business rules, branches and every domain exception.
+- **Services, clients and pure logic: unit tests**, one spec next to each file (`location.service.spec.ts`, `photon.client.spec.ts`, `orienteering.spec.ts`). Collaborators (repositories, bus, external clients) are mocked. Cover business rules, branches and every domain exception.
 - **Repositories: tests** for each repository next to it (`<name>.repository.spec.ts`). Mocking the TypeORM layer is allowed.
 - **Handlers are not tested.** They contain no logic (controllers, DTOs, guards, filters, listeners); the integration test below covers them.
 - **One integration test per module (not e2e)**: `<slice>.integration.spec.ts` next to `<slice>.module.ts`, using `supertest` against the Nest app with the real module wiring. It exercises the slice's main paths end to end (HTTP → service → repository) and the error mapping (validation failure, not found, upstream unavailable).

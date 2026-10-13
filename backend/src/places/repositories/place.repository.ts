@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import type { CandidateQuery, TagPercents } from "../services/place-candidate";
+import type { CandidateQuery, TagPercents } from "../services/types";
 import type { PlaceFacts } from "../entities/place-facts";
 import { Place } from "../entities/place.entity";
 

@@ -7,7 +7,7 @@ import type { LatLng } from "./services/geo";
 import { createTestApp } from "../common/testing/test-app";
 import { PathRouterUnavailableException } from "./exceptions/path-router-unavailable.exception";
 import { DirectionsModule } from "./directions.module";
-import { PathRouter } from "./services/path-router";
+import { GraphHopperClient } from "./services/graphhopper.client";
 
 class OutsideForTest extends DomainException {
   constructor() {
@@ -29,7 +29,8 @@ describe("directions slice", () => {
     app = await createTestApp({
       imports: [DirectionsModule],
       env: { GRAPHHOPPER_URL: "https://gh.test", GRAPHHOPPER_TOKEN: "t" },
-      override: (b) => b.overrideProvider(PathRouter).useValue({ route }),
+      override: (b) =>
+        b.overrideProvider(GraphHopperClient).useValue({ route }),
     });
     app.get(EventBus).respond("location.ensure-inside", ({ points }) => {
       if (!points.every(inWroclaw)) throw new OutsideForTest();

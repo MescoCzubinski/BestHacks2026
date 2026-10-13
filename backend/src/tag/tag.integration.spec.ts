@@ -1,7 +1,8 @@
 import type { INestApplication } from "@nestjs/common";
 import request from "supertest";
 import { createTestApp } from "../common/testing/test-app";
-import { EmbeddingModelLoader } from "./services/embedding-model";
+import { ConfigService } from "@nestjs/config";
+import { EmbeddingModel } from "./services/embedding.model";
 import { TagModule } from "./tag.module";
 
 const GOTHIC = [1, 0, 0];
@@ -19,12 +20,21 @@ describe("tag slice", () => {
     dispose: async () => undefined,
   }));
 
+  class TestModel extends EmbeddingModel {
+    protected override loadModel() {
+      return load();
+    }
+  }
+
   beforeAll(async () => {
     app = await createTestApp({
       imports: [TagModule],
       env: { EMBEDDING_MODEL: "test-model" },
       override: (b) =>
-        b.overrideProvider(EmbeddingModelLoader).useValue({ load }),
+        b.overrideProvider(EmbeddingModel).useFactory({
+          factory: (config: ConfigService) => new TestModel(config),
+          inject: [ConfigService],
+        }),
     });
   });
 

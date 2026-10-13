@@ -1,13 +1,13 @@
 import { Controller, Get, Query } from "@nestjs/common";
-import { PathFinderService } from "../services/path-finder.service";
+import { DirectionsService } from "../services/directions.service";
 import { FindPathDto } from "./dto/find-path.dto";
 
 @Controller("directions")
 export class DirectionsController {
-  constructor(private readonly pathFinder: PathFinderService) {}
+  constructor(private readonly directions: DirectionsService) {}
 
   @Get()
   find(@Query() dto: FindPathDto) {
-    return this.pathFinder.find(dto.toPoints());
+    return this.directions.find(dto.toPoints());
   }
 }

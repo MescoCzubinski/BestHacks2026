@@ -1,0 +1,82 @@
+import type { StyleTag } from "../../common/types/style-tag";
+import type { LatLng } from "./geo";
+
+export type TagPercents = Partial<Record<StyleTag, number>>;
+
+export type CandidateQuery = {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+  tags: StyleTag[];
+  minPercent: number;
+  limit: number;
+};
+
+export type PlaceCandidate = {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  description: string | null;
+  mainImageUrl: string | null;
+  significance: number;
+  tags: TagPercents;
+  wheelchair: "yes" | "limited" | "no" | null;
+  openingHours: string | null;
+  visitMinutes: number;
+  enterable: boolean;
+};
+
+export type RouteQuery = {
+  start: LatLng;
+  end: LatLng;
+  durationMinutes: number;
+  wheelchair: boolean;
+  tags: StyleTag[];
+  startTime?: Date;
+};
+
+export type PlannedStop = {
+  id: string;
+  name: string;
+  description: string;
+  lat: number;
+  lng: number;
+  visitMinutes: number;
+  enterable: boolean;
+  arriveAt?: string;
+  imageUrl?: string | null;
+};
+
+export type PlannedRoute = {
+  stops: PlannedStop[];
+  extras: PlannedStop[];
+};
+
+export type Accessibility = "yes" | "limited" | "unknown";
+
+export type RouteCandidate = {
+  place: PlaceCandidate;
+  point: LatLng;
+  value: number;
+  dwellMinutes: number;
+  openingHours: string | null;
+  accessibility: Accessibility;
+};
+
+export type TimelineStop = {
+  candidate: RouteCandidate;
+  arriveAt: Date;
+  departAt: Date;
+  walkMinutes: number;
+};
+
+export type Plan = {
+  stops: TimelineStop[];
+  endAt: Date;
+  totalMinutes: number;
+  walkMinutes: number;
+  visitMinutes: number;
+  value: number;
+};

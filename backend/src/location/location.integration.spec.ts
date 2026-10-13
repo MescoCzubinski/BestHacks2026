@@ -10,7 +10,7 @@ import {
 import { GeocoderUnavailableException } from "./exceptions/geocoder-unavailable.exception";
 import { OutsideSupportedAreaException } from "./exceptions/outside-supported-area.exception";
 import { LocationModule } from "./location.module";
-import { Geocoder, type GeocodedLocation } from "./services/geocoder";
+import { PhotonClient, type GeocodedLocation } from "./services/photon.client";
 
 const WROCLAW_BBOX: [number, number, number, number] = [
   16.8, 51.04, 17.18, 51.21,
@@ -41,7 +41,7 @@ describeWithDatabase("location slice", () => {
     app = await createTestApp({
       imports: [LocationModule],
       databaseUrl: db.backendUrl,
-      override: (b) => b.overrideProvider(Geocoder).useValue(geocoder),
+      override: (b) => b.overrideProvider(PhotonClient).useValue(geocoder),
     });
   });
 

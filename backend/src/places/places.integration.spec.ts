@@ -10,7 +10,7 @@ import {
   type TestDatabase,
 } from "../common/testing/test-database";
 import { PlacesModule } from "./places.module";
-import { PlaceCandidateService } from "./services/place-candidate.service";
+import { PlaceService } from "./services/place.service";
 
 class OutsideForTest extends DomainException {
   constructor() {
@@ -91,7 +91,7 @@ describeWithDatabase("places slice", () => {
   });
 
   it("finds candidates inside the box only", async () => {
-    const candidates = await app.get(PlaceCandidateService).find({
+    const candidates = await app.get(PlaceService).findCandidates({
       south: 51,
       west: 16.9,
       north: 51.2,
