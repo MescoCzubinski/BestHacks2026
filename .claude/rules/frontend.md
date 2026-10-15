@@ -28,11 +28,10 @@ frontend/src/
 - **State between screens lives in the URL**, not in a store: `/route?tags=secesja&lat=..&lng=..&min=120`. The route screen reads it and builds the route itself, so reload works and a link can be shared. Recent routes (shown on the start screen) are kept in `localStorage`, behind one small module in `lib/`.
 - A screen that grows past a few files may use its own subfolders (`ui/`, `model/`), but keep it flat until it hurts.
 - Alias `@/` points to `src/`. Components use PascalCase file names; hooks, lib and api files use camelCase named exports.
-- **Tests are colocated** (`moveItem.test.ts` next to `moveItem.ts`), only for pure logic (route editing, totals, form parsing) and the API client. No tests for components that only render.
 
 ## shadcn/ui, heavily customized
 
-- Base every control on shadcn/ui (`npx shadcn@latest add <component>`), generated into `ui/`.
+- Base every control on shadcn/ui (`bunx shadcn@latest add <component>`), generated into `ui/`.
 - Do **not** ship the default look. Customize the components in `ui/` themselves: tokens, radius, shadows, typography, variants, motion. The app should look like our product, not a template.
 - Customize through the design tokens in `index.css` (CSS variables, Tailwind 4 `@theme`) first, then through new `cva` variants, and edit component internals last.
 - Compose domain components (`StopCard`) from `ui/` pieces in the screen that needs them. Do not fork a second copy of a primitive.
@@ -47,7 +46,7 @@ frontend/src/
 
 ## Data and API
 
-- All HTTP goes through one typed client in `api/`, one function per endpoint. The base URL is the relative `/api`: frontend and backend are separate services behind one host, and the ingress (in prod) or the Vite dev proxy (in dev) routes `/` to the frontend and `/api` to the backend with an allowlist of public routes. So there is no CORS and no `VITE_API_URL`. The frontend image only serves static files (`serve`), with no proxy config.
+- All HTTP goes through one typed client in `api/`, one function per endpoint. The base URL is the relative `/api`: frontend and backend are separate services behind one host, and the ingress (in prod) or the Vite dev proxy (in dev, target `VITE_API_URL`) routes `/` to the frontend and `/api` to the backend. So there is no CORS and the built app has no backend URL baked in. The frontend image only serves static files (`serve`), with no proxy config.
 - API types mirror the backend response shapes.
 - Handle loading (skeletons), empty and error states for every fetched view. Update local state from the server response after a mutation.
 - Forms: labelled inputs, the same limits as the backend DTO, submit disabled while pending, errors shown next to the field.
@@ -60,4 +59,4 @@ frontend/src/
 
 ## Checks
 
-From `frontend/`: `npm run lint && npm run build`. From the root: `npx prettier --check .` (run from `frontend/node_modules/.bin` if not installed at root).
+From `frontend/`: `bun run lint && bun --bun run build`. From the root: `bun --bun frontend/node_modules/.bin/prettier --check .`. The package manager is Bun (`oven/bun` images, `bun.lock`); oxlint also enforces that screens never import each other (`.oxlintrc.json`).

@@ -19,13 +19,13 @@ area, German-until year). Everything else is configured in `fetcher/.env` (copy 
 To cover another city, change `REGION` (and use sources that exist there; `wroclaw_gis` is Wrocław only).
 
 ```
-docker compose up -d db backend      # schema is created by the backend
+docker compose up -d db backend      # the fetcher creates the schema (app/schema.sql) on its first run
 docker compose run --rm -e RUN_ONCE=1 fetcher
 ```
 
 Downloads and geocoding results live in the `fetchercache` volume, so a restart or a
 rate-limited source resumes instead of starting over. Embeddings for the style classifier come from the backend
-(`POST /api/embeddings`, service token `EMBEDDING_API_TOKEN`); the fetcher waits for `/api/health` first. Delete a file under `/cache/<region>/` to refetch it.
+(`POST /internal/embeddings`, outside `/api`, so the ingress never exposes it); the fetcher waits for `/api/health` first. Delete a file under `/cache/<region>/` to refetch it.
 
 ## Pipeline
 
@@ -44,7 +44,8 @@ most 70, an era prior at most 35, and neighbouring styles (neogothic → gothic)
 
 - A run that produces less than half of the existing places for the region saves but **does not prune**.
 - An empty result never overwrites the database.
-- Only the tables defined by the backend are written; no DDL.
+- The schema (`app/schema.sql`) is applied idempotently at the start of every run; only its tables are written.
+- The city row (`supported_cities`) comes from `REGION` and is upserted on every run.
 
 ## Tests
 

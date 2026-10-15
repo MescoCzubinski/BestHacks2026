@@ -10,11 +10,8 @@ import { DomainErrorKind, DomainException } from "./domain.exception";
 
 const STATUS: Record<DomainErrorKind, HttpStatus> = {
   invalid: HttpStatus.BAD_REQUEST,
-  unauthorized: HttpStatus.UNAUTHORIZED,
-  forbidden: HttpStatus.FORBIDDEN,
   not_found: HttpStatus.NOT_FOUND,
-  conflict: HttpStatus.CONFLICT,
-  upstream: HttpStatus.BAD_GATEWAY,
+  unavailable: HttpStatus.BAD_GATEWAY,
 };
 
 @Catch(DomainException)

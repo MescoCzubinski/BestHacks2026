@@ -1,32 +1,24 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER } from "@nestjs/core";
-import { AccountModule } from "./account/account.module";
-import { AuthModule } from "./common/auth/auth.module";
+import { BusModule } from "./common/bus/bus.module";
 import { DbModule } from "./common/db/db.module";
-import { SeedModule } from "./common/db/seed/seed.module";
 import { DomainExceptionFilter } from "./common/errors/domain-exception.filter";
 import { validateEnv } from "./common/env";
-import { CityModule } from "./city/city.module";
 import { HealthModule } from "./health/health.module";
-import { PathModule } from "./path/path.module";
-import { RouteModule } from "./route/route.module";
-import { SavedRouteModule } from "./saved-route/saved-route.module";
+import { DirectionsModule } from "./directions/directions.module";
+import { LocationModule } from "./location/location.module";
 import { TagModule } from "./tag/tag.module";
 import { PlacesModule } from "./places/places.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    BusModule,
     DbModule,
-    AuthModule,
-    AccountModule,
-    CityModule,
-    PathModule,
-    RouteModule,
-    SavedRouteModule,
+    LocationModule,
+    DirectionsModule,
     TagModule,
-    SeedModule,
     HealthModule,
     PlacesModule,
   ],

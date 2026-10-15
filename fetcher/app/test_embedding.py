@@ -21,24 +21,24 @@ class FakeHttp:
         return {"status": "ok"}
 
     def post_json(self, url, payload, headers=None):
-        assert url.endswith("/api/embeddings")
+        assert url.endswith("/internal/embeddings")
         self.headers = dict(headers or {})
         self.posts.append(payload["texts"])
         return {"dimensions": 2, "vectors": [[float(len(t)), 1.0] for t in payload["texts"]]}
 
 
 def embedder(http, stop=None, cache_path=None):
-    return BackendEmbedder(http, "http://backend:8000/", "secret", stop or threading.Event(), cache_path)
+    return BackendEmbedder(http, "http://backend:8000/", stop or threading.Event(), cache_path)
 
 
-def test_embeds_in_batches_keeping_order_and_sends_the_service_token():
+def test_embeds_in_batches_keeping_order_without_credentials():
     http = FakeHttp()
     texts = ["a" * (i + 1) for i in range(BATCH_SIZE + 5)]
     out = embedder(http).embed(texts)
     assert out.shape == (len(texts), 2)
     assert [row[0] for row in out] == [float(i + 1) for i in range(len(texts))]
     assert [len(p) for p in http.posts] == [BATCH_SIZE, 5]
-    assert http.headers == {"Authorization": "Bearer secret"}
+    assert http.headers == {}
 
 
 def test_empty_text_is_replaced_so_the_backend_does_not_reject_the_batch():

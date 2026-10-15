@@ -3,13 +3,12 @@
   "version": "0.1.0",
   "description": "NestJS API",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/main.js",
-    "start:dev": "tsc -p tsconfig.build.json && (tsc -p tsconfig.build.json --watch --preserveWatchOutput & node --watch dist/main.js)",
+    "start": "bun src/main.ts",
+    "start:dev": "bun --watch src/main.ts",
     "lint": "oxlint",
     "typecheck": "tsc --noEmit",
-    "test": "rm -rf .test-dist && tsc --outDir .test-dist && (NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest; r=$?; rm -rf .test-dist; exit $r)",
-    "test:e2e": "rm -rf .test-dist && tsc --outDir .test-dist && (NODE_OPTIONS='--experimental-vm-modules --disable-warning=ExperimentalWarning' jest --testRegex '.*\\.e2e-spec\\.js$' --passWithNoTests; r=$?; rm -rf .test-dist; exit $r)"
+    "test": "bun test src",
+    "test:integration": "bun test integration.spec"
   },
   "type": "commonjs",
   "dependencies": {
@@ -17,7 +16,6 @@
     "@nestjs/common": "^12.1.2",
     "@nestjs/config": "^12.0.1",
     "@nestjs/core": "^12.1.2",
-    "@nestjs/jwt": "^12.0.2",
     "@nestjs/platform-express": "^12.1.2",
     "@nestjs/terminus": "^12.1.0",
     "@nestjs/typeorm": "^12.0.2",
@@ -30,20 +28,19 @@
     "typeorm": "^1.1.2"
   },
   "devDependencies": {
+    "@nestjs/testing": "^12.1.3",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
     "@types/supertest": "^7.2.1",
-    "jest": "^30.5.2",
     "oxlint": "^1.87.0",
     "supertest": "^7.3.1",
     "typescript": "^7.0.2"
   },
   "private": true,
-  "engines": {
-    "node": ">=24"
-  },
   "overrides": {
     "js-yaml": "^4.1.1"
-  }
+  },
+  "packageManager": "bun@1.3.14"
 }

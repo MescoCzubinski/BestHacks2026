@@ -3,5 +3,4 @@ node_modules
 dist
 __pycache__/
 .venv/
-.test-dist
 .model-cache

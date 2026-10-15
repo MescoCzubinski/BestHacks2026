@@ -2,13 +2,17 @@ import json
 import logging
 import re
 from collections.abc import Iterable, Sequence
+from pathlib import Path
 from typing import Any
 
 import psycopg
 from psycopg import sql
 
+from .config import Region
+
 log = logging.getLogger("db")
 
+SCHEMA = Path(__file__).with_name("schema.sql")
 CHUNK = 500
 _REGION_ID = re.compile(r"[a-z0-9_-]{1,32}")
 
@@ -31,6 +35,13 @@ INSERT_TAG = (
     "INSERT INTO place_tags (place_id, tag, percent) "
     "SELECT id, %s::style_tag, %s FROM places WHERE external_id = %s"
 )
+UPSERT_CITY = """
+    INSERT INTO supported_cities (name, region, latitude, longitude, bbox)
+    VALUES (%(name)s, %(region)s, %(latitude)s, %(longitude)s, %(bbox)s)
+    ON CONFLICT (name) DO UPDATE SET
+        region = EXCLUDED.region, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude,
+        bbox = EXCLUDED.bbox, updated_at = now()
+"""
 MIN_KEEP_RATIO = 0.5
 COUNT = "SELECT count(*) FROM places WHERE external_id LIKE %s"
 PRUNE = "DELETE FROM places WHERE external_id LIKE %s AND NOT (external_id = ANY(%s))"
@@ -43,6 +54,29 @@ def _params(doc: dict[str, Any]) -> dict[str, Any]:
         "facts": json.dumps(doc["facts"], ensure_ascii=False),
         "links": json.dumps(doc["links"], ensure_ascii=False),
     }
+
+
+def city_params(region: Region) -> dict[str, Any]:
+    lat, lon = region.centre
+    return {
+        "name": region.name,
+        "region": region.admin_area,
+        "latitude": lat,
+        "longitude": lon,
+        "bbox": json.dumps([region.west, region.south, region.east, region.north]),
+    }
+
+
+def ensure_schema(conn: psycopg.Connection) -> None:
+    with conn.transaction():
+        conn.execute(SCHEMA.read_text(encoding="utf-8"))  # type: ignore[arg-type]
+    log.info("schema is up to date")
+
+
+def save_city(conn: psycopg.Connection, region: Region) -> None:
+    with conn.transaction(), conn.cursor() as cur:
+        cur.execute(UPSERT_CITY, city_params(region))
+    log.info("saved supported city %s", region.name)
 
 
 def _chunks(items: Sequence[Any], size: int) -> Iterable[Sequence[Any]]:

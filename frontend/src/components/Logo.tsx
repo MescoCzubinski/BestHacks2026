@@ -1,0 +1,42 @@
+import { Link } from "./Link";
+import { cn } from "@/lib/utils";
+
+function Mark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
+      <path
+        d="M16 1.5c-6.4 0-11.5 5-11.5 11.3 0 8 9.1 16.2 10.4 17.3a1.6 1.6 0 0 0 2.2 0c1.3-1.1 10.4-9.3 10.4-17.3C27.5 6.5 22.4 1.5 16 1.5Z"
+        className="fill-primary"
+      />
+    </svg>
+  );
+}
+
+export function Logo({
+  className,
+  size = "md",
+}: {
+  className?: string;
+  size?: "sm" | "md";
+}) {
+  return (
+    <Link
+      to="/"
+      aria-label="Atlas, strona główna"
+      className={cn(
+        "-mx-2 flex w-fit items-center gap-2 rounded-lg px-2 py-1 transition-colors outline-none hover:bg-secondary focus-visible:ring-[3px] focus-visible:ring-ring",
+        className,
+      )}
+    >
+      <Mark className={size === "md" ? "size-11" : "size-9"} />
+      <span
+        className={cn(
+          "font-heading font-extrabold",
+          size === "md" ? "text-[34px]" : "text-[28px]",
+        )}
+      >
+        Atlas
+      </span>
+    </Link>
+  );
+}

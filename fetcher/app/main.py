@@ -87,7 +87,7 @@ def _run_in_child(settings: Settings, conn: Connection) -> None:
     http = Http(child_stop)
     try:
         cache_path = settings.cache_dir / settings.region.id / "embeddings.npz"
-        embedder = BackendEmbedder(http, settings.backend_url, settings.embedding_token, child_stop, cache_path)
+        embedder = BackendEmbedder(http, settings.backend_url, child_stop, cache_path)
         report = run(settings, http, embedder)
         report["peak_memory_mb"] = _peak_memory_mb()
         conn.send(("ok", report))

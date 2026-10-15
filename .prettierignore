@@ -1,6 +1,5 @@
 node_modules
 dist
 package-lock.json
-.env*
-!.env.example
-backend/src/common/db/seed/*.json
+.env
+.env.example

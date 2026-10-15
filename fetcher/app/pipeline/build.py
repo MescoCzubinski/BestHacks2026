@@ -145,7 +145,7 @@ def build_documents(region: Region, data: SourceData, embedder: Embedder) -> tup
             scores[t] = max(scores.get(t, 0), v)
         for t, v in theme_scores(p, scores, sig, region).items():
             scores[t] = max(scores.get(t, 0), v)
-        wheelchair = apply_signals(scores, p.get("flags") or {}, claims)
+        apply_signals(scores, p.get("flags") or {}, claims)
         tags = finalise(scores, p.get("year"))
         tag_counter.update(t["tag"] for t in tags)
         street, number = split_address(p.get("address") or "")
@@ -156,7 +156,6 @@ def build_documents(region: Region, data: SourceData, embedder: Embedder) -> tup
             "material": p.get("material"),
             "protection": p.get("protection"),
             "inscription": clip(p.get("inscription") or "", 200),
-            "wheelchair": wheelchair,
             "openingHours": (p.get("flags") or {}).get("opening_hours"),
             "kinds": clean_kinds(p)[:3],
         }
