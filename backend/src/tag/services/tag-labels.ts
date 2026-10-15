@@ -64,7 +64,6 @@ export const TAG_LABELS: Record<StyleTag, string> = {
   medieval: "Średniowiecze",
   street_art: "Street art",
   free_entry: "Wstęp wolny",
-  accessible: "Dostępne dla wózków",
   bunker: "Schrony i bunkry",
   ruins: "Ruiny",
   sculpture: "Rzeźby i pomniki",

@@ -6,7 +6,6 @@ export type PlanFormState = {
   sameEnd: boolean;
   end: Point;
   hours: string;
-  wheelchair: boolean;
   tags: string[];
 };
 
@@ -52,7 +51,6 @@ export function toRoutePlan(form: PlanFormState): RoutePlan | null {
     start: form.start,
     end: !form.sameEnd && hasCoordinates(form.end) ? form.end : undefined,
     durationMinutes: hoursToMinutes(form.hours),
-    wheelchair: form.wheelchair,
   };
 }
 
@@ -62,7 +60,6 @@ export function formFromPlan(plan: RoutePlan): PlanFormState {
     sameEnd: !plan.end,
     end: plan.end ?? { label: "" },
     hours: formatHours(plan.durationMinutes),
-    wheelchair: plan.wheelchair,
     tags: plan.tags,
   };
 }

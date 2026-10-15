@@ -9,7 +9,6 @@ import { isOpenAt } from "./opening-hours";
 import { planOrienteering, type PlannerOptions } from "./orienteering";
 import { PlaceService } from "./place.service";
 import type {
-  Accessibility,
   Plan,
   PlaceCandidate,
   PlannedRoute,
@@ -31,11 +30,6 @@ const MAX_CANDIDATES = 120;
 const QUERY_LIMIT = 600;
 const KM_PER_DEGREE = 111.2;
 const BASE_SIGNIFICANCE = 0.5;
-const ACCESSIBILITY_BOOST: Record<Accessibility, number> = {
-  yes: 1.3,
-  limited: 1.1,
-  unknown: 0.9,
-};
 
 const EARTH_RADIUS_M = 6_371_000;
 export const DETOUR_FACTOR = 1.3;
@@ -161,22 +155,14 @@ export class PlanService {
     }
     if (relevance === 0) return null;
 
-    const wheelchair = p.wheelchair;
-    if (query.wheelchair && wheelchair === "no") return null;
-    const accessibility: Accessibility =
-      wheelchair === "yes" || wheelchair === "limited" ? wheelchair : "unknown";
-    const accessBoost = query.wheelchair
-      ? ACCESSIBILITY_BOOST[accessibility]
-      : 1;
 
     const notable = BASE_SIGNIFICANCE + p.significance / 200;
     return {
       place: p,
       point: { lat: p.latitude, lng: p.longitude },
-      value: relevance * notable * accessBoost,
+      value: relevance * notable,
       dwellMinutes: p.visitMinutes,
       openingHours: p.openingHours,
-      accessibility,
     };
   }
 

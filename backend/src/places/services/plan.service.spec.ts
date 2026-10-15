@@ -29,7 +29,6 @@ function place(
     mainImageUrl: `https://img/${id}.jpg`,
     significance: 50,
     tags,
-    wheelchair: null,
     openingHours: null,
     visitMinutes,
     enterable,
@@ -47,10 +46,6 @@ const PLACES: PlaceCandidate[] = [
   place("closed", 51.111, 17.031, { gothic: 99 }, 12, false, {
     significance: 100,
     openingHours: "Mo-Su 20:00-22:00",
-  }),
-  place("stairs", 51.109, 17.029, { gothic: 70 }, 10, false, {
-    significance: 40,
-    wheelchair: "no",
   }),
   place("far", 51.2, 17.2, { gothic: 99 }, 12, false, { significance: 100 }),
   place("mural", 51.108, 17.034, { mural: 90 }, 3, false, {
@@ -85,7 +80,6 @@ const QUERY: RouteQuery = {
   start: START,
   end: START,
   durationMinutes: 120,
-  wheelchair: true,
   tags: ["gothic"],
   startTime: START_TIME,
 };
@@ -233,7 +227,6 @@ describe("PlanService.selectCandidates", () => {
     start: START,
     end: START,
     durationMinutes: 60,
-    wheelchair: false,
     tags: ["gothic", "museum"],
   };
   const near = (
@@ -248,7 +241,6 @@ describe("PlanService.selectCandidates", () => {
     mainImageUrl: null,
     significance: 0,
     tags: { gothic: 80 },
-    wheelchair: null,
     openingHours: null,
     visitMinutes: 10,
     enterable: false,
@@ -283,10 +275,7 @@ describe("PlanService.selectCandidates", () => {
     ]);
     const picked = await service.selectCandidates(SHORT);
     expect(picked.map((c) => c.place.id)).toEqual(["strong", "weak"]);
-    expect(picked[0]).toMatchObject({
-      dwellMinutes: 10,
-      accessibility: "unknown",
-    });
+    expect(picked[0]).toMatchObject({ dwellMinutes: 10 });
   });
 
   it("drops places whose detour does not fit the budget", async () => {
@@ -296,20 +285,6 @@ describe("PlanService.selectCandidates", () => {
     ]);
     const picked = await service.selectCandidates(SHORT);
     expect(picked.map((c) => c.place.id)).toEqual(["near"]);
-  });
-
-  it("drops inaccessible places and boosts accessible ones for wheelchair users", async () => {
-    const { service } = setup(300, [
-      near("stairs", { wheelchair: "no" }),
-      near("unknown"),
-      near("ramp", { wheelchair: "yes" }),
-    ]);
-    const picked = await service.selectCandidates({
-      ...SHORT,
-      wheelchair: true,
-    });
-    expect(picked.map((c) => c.place.id)).toEqual(["ramp", "unknown"]);
-    expect(picked[0]?.accessibility).toBe("yes");
   });
 });
 

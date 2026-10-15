@@ -22,7 +22,7 @@ PARTS = {
     "misc": 'nwr["amenity"~"fountain|clock"]; nwr["building"~"synagogue|bunker|chapel"]; nwr["natural"~"spring|cave_entrance"]["name"]',
 }
 CACHE_TTL_S = 14 * 24 * 3600
-FLAG_KEYS = ("wheelchair", "fee", "religion", "opening_hours")
+FLAG_KEYS = ("fee", "religion", "opening_hours")
 
 
 def _query(http: Http, region: Region, name: str, body: str) -> list[dict[str, Any]]:

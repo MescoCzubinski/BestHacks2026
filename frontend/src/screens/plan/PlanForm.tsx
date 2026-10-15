@@ -90,21 +90,6 @@ export function PlanForm({ value, onChange, onSubmit }: Props) {
             />
           </div>
 
-          <div className="flex items-start gap-2">
-            <Checkbox
-              id="wheelchair"
-              className="mt-0.5"
-              checked={value.wheelchair}
-              onChange={(e) => patch({ wheelchair: e.target.checked })}
-            />
-            <Label htmlFor="wheelchair" className="grid gap-0.5 leading-snug">
-              Trasa dostępna dla osób na wózku
-              <span className="text-xs font-normal text-muted-foreground max-lg:hidden">
-                Wybierzemy miejsca bez barier.
-              </span>
-            </Label>
-          </div>
-
           <TagPicker value={value.tags} onChange={(tags) => patch({ tags })} />
 
           <div className="grid gap-2">

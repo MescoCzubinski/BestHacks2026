@@ -23,7 +23,7 @@ const MUSEUM: PlaceRow = {
   description: "Sztuka",
   mainImageUrl: "https://img/p1.jpg",
   significance: 0,
-  facts: { wheelchair: "limited", openingHours: "Tu-Su 10:00-17:00" },
+  facts: { openingHours: "Tu-Su 10:00-17:00" },
   tags: { museum: 90 },
 };
 
@@ -78,7 +78,6 @@ describe("PlaceService.findCandidates", () => {
         mainImageUrl: "https://img/p1.jpg",
         significance: 0,
         tags: { museum: 90 },
-        wheelchair: "limited",
         openingHours: "Tu-Su 10:00-17:00",
         visitMinutes: 45,
         enterable: true,
@@ -87,10 +86,10 @@ describe("PlaceService.findCandidates", () => {
     expect(findInBoxWithTags).toHaveBeenCalledWith(QUERY);
   });
 
-  it("leaves unknown access and opening hours empty", async () => {
+  it("leaves unknown opening hours empty", async () => {
     const { service } = setup([{ ...MUSEUM, facts: {} }]);
     const [candidate] = await service.findCandidates(QUERY);
-    expect(candidate).toMatchObject({ wheelchair: null, openingHours: null });
+    expect(candidate).toMatchObject({ openingHours: null });
   });
 });
 

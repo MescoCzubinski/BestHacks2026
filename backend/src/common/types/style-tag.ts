@@ -72,7 +72,7 @@ export const TAG_GROUPS = {
     "street_art",
     "mural",
   ],
-  special: ["unesco", "free_entry", "accessible"],
+  special: ["unesco", "free_entry"],
 } as const;
 
 export const STYLE_TAGS = [

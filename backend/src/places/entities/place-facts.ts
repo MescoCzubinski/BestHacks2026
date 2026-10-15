@@ -7,7 +7,6 @@ export type PlaceFacts = {
   protection?: string;
   inscription?: string;
   kinds?: string[];
-  wheelchair?: "yes" | "limited" | "no";
   openingHours?: string;
   areaM2?: number;
 };

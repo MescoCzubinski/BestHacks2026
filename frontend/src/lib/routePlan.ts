@@ -5,7 +5,6 @@ export type RoutePlan = {
   start: PlannedPoint;
   end?: PlannedPoint;
   durationMinutes: number;
-  wheelchair: boolean;
 };
 
 export const MIN_DURATION_MINUTES = 15;
@@ -25,7 +24,6 @@ function toSearch(plan: RoutePlan): string {
     params.set("endLng", String(plan.end.lng));
     params.set("to", plan.end.label);
   }
-  if (plan.wheelchair) params.set("wheelchair", "1");
   return `?${params}`;
 }
 
@@ -71,6 +69,5 @@ export function parseRoutePlan(search: string): RoutePlan | null {
     start,
     end,
     durationMinutes: minutes,
-    wheelchair: params.get("wheelchair") === "1",
   };
 }

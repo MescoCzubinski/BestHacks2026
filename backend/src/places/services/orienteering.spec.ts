@@ -32,7 +32,6 @@ function candidate(
     value,
     dwellMinutes: dwell,
     openingHours: hours,
-    accessibility: "unknown",
   };
 }
 

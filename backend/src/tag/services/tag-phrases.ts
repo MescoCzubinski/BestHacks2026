@@ -85,8 +85,6 @@ export const TAG_PHRASES: Record<StyleTag, string> = {
   medieval: "średniowiecze, średniowieczne budowle, medieval",
   street_art: "street art, murale, graffiti, sztuka uliczna",
   free_entry: "wstęp wolny, darmowe atrakcje, bezpłatne zwiedzanie, free entry",
-  accessible:
-    "dostępne dla wózków, bez barier, dla osób z niepełnosprawnością, wózek inwalidzki, accessible",
   bunker: "schrony, bunkry, fortyfikacje, schrony przeciwlotnicze, bunker",
   ruins: "ruiny, zrujnowane budowle, ruiny zamków, ruins",
   sculpture: "rzeźby, pomniki, posągi, sculpture, monument",

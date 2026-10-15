@@ -38,7 +38,7 @@ describe("TagService.list", () => {
     expect(tags.find((t) => t.id === "park")).toMatchObject({
       group: "type",
     });
-    expect(tags.find((t) => t.id === "accessible")).toMatchObject({
+    expect(tags.find((t) => t.id === "unesco")).toMatchObject({
       group: "special",
     });
   });

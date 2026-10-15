@@ -18,7 +18,6 @@ MIN_TAG_PERCENT = 15
 MIN_CLASS_EXAMPLES = 8
 MIN_TRAIN_EXAMPLES = 60
 EXPLICIT_TRAIN_MIN = 80
-ACCESSIBLE_PERCENT = {"yes": 100, "limited": 50}
 WD_WORLD_HERITAGE = "Q9259"
 WD_POMNIK_HISTORII = "Q15981101"
 WD_JUDAISM = "Q9268"
@@ -262,10 +261,7 @@ def theme_scores(p: dict[str, Any], tags: dict[str, float], sig: int, region: Re
     return s
 
 
-def apply_signals(scores: dict[str, float], flags: dict[str, str], claims: dict[str, Any]) -> str | None:
-    wheelchair = flags.get("wheelchair")
-    if wheelchair in ACCESSIBLE_PERCENT:
-        scores["accessible"] = ACCESSIBLE_PERCENT[wheelchair]
+def apply_signals(scores: dict[str, float], flags: dict[str, str], claims: dict[str, Any]) -> None:
     if flags.get("fee") == "no":
         scores["free_entry"] = 100
     elif flags.get("fee") == "yes":
@@ -274,7 +270,6 @@ def apply_signals(scores: dict[str, float], flags: dict[str, str], claims: dict[
         scores["unesco"] = 100
     if WD_JUDAISM in claims.get("P140", []) or flags.get("religion") == "jewish":
         scores["jewish_heritage"] = 100
-    return wheelchair
 
 
 def classifier_text(p: dict[str, Any]) -> str:

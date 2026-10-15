@@ -31,12 +31,10 @@ def test_era_prior_is_weak_and_only_used_without_a_style():
     assert "baroque" not in with_style
 
 
-def test_osm_fee_and_wheelchair_override_guesses():
+def test_osm_fee_overrides_guesses():
     scores = {"free_entry": 80, "park": 85}
-    wc = apply_signals(scores, {"fee": "yes", "wheelchair": "limited"}, {})
-    assert wc == "limited"
+    apply_signals(scores, {"fee": "yes"}, {})
     assert "free_entry" not in scores
-    assert scores["accessible"] == 50
 
 
 def test_wikidata_claims_set_unesco_and_jewish_heritage():

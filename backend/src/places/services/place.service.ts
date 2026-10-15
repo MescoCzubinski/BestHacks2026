@@ -128,7 +128,6 @@ export class PlaceService {
       mainImageUrl: p.mainImageUrl,
       significance: p.significance,
       tags: p.tags,
-      wheelchair: p.facts.wheelchair ?? null,
       openingHours: p.facts.openingHours ?? null,
       visitMinutes: visitMinutes(p.tags, p.significance),
       enterable: isEnterable(p.tags),

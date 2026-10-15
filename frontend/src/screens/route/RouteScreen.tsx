@@ -29,7 +29,6 @@ function toRequest(plan: RoutePlan) {
     start: point(plan.start),
     end: plan.end && point(plan.end),
     durationMinutes: plan.durationMinutes,
-    wheelchair: plan.wheelchair,
     tags: plan.tags,
   };
 }

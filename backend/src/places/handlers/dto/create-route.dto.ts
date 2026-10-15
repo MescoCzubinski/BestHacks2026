@@ -2,7 +2,6 @@ import { Type } from "class-transformer";
 import {
   ArrayMaxSize,
   IsArray,
-  IsBoolean,
   IsIn,
   IsInt,
   IsISO8601,
@@ -38,9 +37,6 @@ export class CreateRouteDto {
   @Max(MAX_DURATION)
   durationMinutes!: number;
 
-  @IsBoolean()
-  wheelchair!: boolean;
-
   @IsArray()
   @ArrayMaxSize(MAX_TAGS)
   @IsIn(STYLE_TAGS, { each: true })
@@ -51,7 +47,6 @@ export class CreateRouteDto {
       start: this.start,
       end: this.end ?? this.start,
       durationMinutes: this.durationMinutes,
-      wheelchair: this.wheelchair,
       tags: this.tags,
       startTime: this.startTime ? new Date(this.startTime) : undefined,
     };

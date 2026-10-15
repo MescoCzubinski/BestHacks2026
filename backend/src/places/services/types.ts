@@ -22,7 +22,6 @@ export type PlaceCandidate = {
   mainImageUrl: string | null;
   significance: number;
   tags: TagPercents;
-  wheelchair: "yes" | "limited" | "no" | null;
   openingHours: string | null;
   visitMinutes: number;
   enterable: boolean;
@@ -32,7 +31,6 @@ export type RouteQuery = {
   start: LatLng;
   end: LatLng;
   durationMinutes: number;
-  wheelchair: boolean;
   tags: StyleTag[];
   startTime?: Date;
 };
@@ -54,15 +52,12 @@ export type PlannedRoute = {
   extras: PlannedStop[];
 };
 
-export type Accessibility = "yes" | "limited" | "unknown";
-
 export type RouteCandidate = {
   place: PlaceCandidate;
   point: LatLng;
   value: number;
   dwellMinutes: number;
   openingHours: string | null;
-  accessibility: Accessibility;
 };
 
 export type TimelineStop = {

@@ -72,8 +72,7 @@ CREATE TYPE style_tag AS ENUM (
   'street_art',
   'mural',
   'unesco',
-  'free_entry',
-  'accessible'
+  'free_entry'
 );
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;

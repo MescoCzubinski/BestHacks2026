@@ -12,7 +12,6 @@ const INITIAL_FORM: PlanFormState = {
   sameEnd: true,
   end: { label: "" },
   hours: "3",
-  wheelchair: false,
   tags: [],
 };
 

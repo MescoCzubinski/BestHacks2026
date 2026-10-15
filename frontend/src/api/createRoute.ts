@@ -6,7 +6,6 @@ export type RouteRequest = {
   start: RoutePoint;
   end?: RoutePoint;
   durationMinutes: number;
-  wheelchair: boolean;
   tags: string[];
 };
 

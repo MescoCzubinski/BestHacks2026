@@ -23,7 +23,6 @@ const START = { lat: 51.11, lng: 17.03 };
 const PLAN = {
   start: START,
   durationMinutes: 90,
-  wheelchair: false,
   tags: ["gothic"],
   startTime: "2026-10-12T08:00:00Z",
 };
@@ -37,7 +36,7 @@ describeWithDatabase("places slice", () => {
     db = await createTestDatabase();
     await db.query(
       `INSERT INTO places (external_id, name, latitude, longitude, address, significance, facts)
-       VALUES ('wroclaw:t:1', 'Muzeum Narodowe', 51.11, 17.047, '{}', 0, '{"wheelchair": "yes"}'),
+       VALUES ('wroclaw:t:1', 'Muzeum Narodowe', 51.11, 17.047, '{}', 0, '{}'),
               ('wroclaw:t:2', 'Ratusz', 51.11, 17.032, '{}', 90, '{}'),
               ('wroclaw:t:3', 'Daleki zamek', 52.4, 16.9, '{}', 100, '{}')`,
     );
@@ -105,7 +104,6 @@ describeWithDatabase("places slice", () => {
       "Muzeum Narodowe",
     ]);
     expect(candidates[1]).toMatchObject({
-      wheelchair: "yes",
       tags: { museum: 90 },
     });
   });

@@ -77,7 +77,6 @@ TYPE: dict[str, str] = {
 SPECIAL: dict[str, str] = {
     "unesco": "Światowe Dziedzictwo UNESCO, UNESCO World Heritage",
     "free_entry": "wstęp wolny, free entry, bezpłatnie, w przestrzeni publicznej",
-    "accessible": "dostępne, accessible, bez barier, dla wózków",
 }
 
 GROUPS = {"style": STYLE, "influence": INFLUENCE, "type": TYPE, "special": SPECIAL}
